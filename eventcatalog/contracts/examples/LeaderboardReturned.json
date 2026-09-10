@@ -1,0 +1,27 @@
+{
+  "messageId": "message-id-example",
+  "type": "LeaderboardReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "board": {
+      "boardId": "board-id-example",
+      "seasonId": "season-id-example",
+      "metricId": "metric-id-example",
+      "direction": "descending",
+      "scope": "regional",
+      "status": "open",
+      "tieBreak": "player-id-ascending",
+      "scoreScale": 0,
+      "revision": "1"
+    },
+    "entries": [],
+    "asOf": "2026-09-08T12:00:00Z",
+    "revision": "1",
+    "stale": false
+  }
+}

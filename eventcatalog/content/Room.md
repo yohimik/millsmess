@@ -1,0 +1,5 @@
+A durable lobby groups players before and between sessions. Core atomically owns revision, capacity, membership and one-nonterminal-session uniqueness. A room may also act as the trusted party roster referenced by matchmaking; policy defines leader and consent, held in Core's authorization records.
+
+Open permits joins under policy, locked prevents incompatible lobby changes during allocation, and closed is terminal. Session membership is separate from room membership. Losing a Socket connection changes presence only; room leave and session leave are explicit operations or server-governed expiry actions.
+
+Large rooms require bounded projections/pagination within the control envelope budget before deployment. The schema maximum is an absolute bound, not a default broadcast size.

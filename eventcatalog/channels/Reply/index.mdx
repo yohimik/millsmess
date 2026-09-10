@@ -1,0 +1,20 @@
+---
+{
+  "id": "Reply",
+  "name": "Authenticated directed replies",
+  "protocols": [
+    "https",
+    "wss"
+  ],
+  "address": "originating-request-or-connection",
+  "deliveryGuarantee": "at-most-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Virtual response route for CommandResult. Same authenticated request or WSS connection; the server never accepts a client-supplied broker reply destination. Result requestId identifies the command messageId; correlationId is observability only.
+
+<NodeGraph />

@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecordingPlaybackGranted",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "RecordingPlaybackGranted"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/RecordingPlaybackGrantedData"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data"
+  ],
+  "$defs": {
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "RecordingPlaybackGrantedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "recordingId": {
+          "$ref": "#/$defs/ID"
+        },
+        "manifestUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 4096
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "completed",
+            "partial"
+          ]
+        }
+      },
+      "required": [
+        "sessionId",
+        "recordingId",
+        "manifestUrl",
+        "expiresAt",
+        "state"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

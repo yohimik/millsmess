@@ -1,0 +1,113 @@
+---
+{
+  "id": "StatisticsRanking",
+  "name": "Settle results and update live rankings",
+  "summary": "Authoritative scores with asynchronous analytics.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Publish provisional live sample",
+      "message": {
+        "id": "SessionStatisticsReported",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Validate epoch and update live overlay",
+      "service": {
+        "id": "Core",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Commit final result once",
+      "message": {
+        "id": "SubmitSessionResult",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Fan out canonical result",
+      "message": {
+        "id": "SessionResultSettled",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Persist totals and rank revision",
+      "container": {
+        "id": "RegionalState",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "6"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Apply idempotent absolute projection",
+      "container": {
+        "id": "LiveRankings",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "7"
+      }
+    },
+    {
+      "id": "7",
+      "title": "Ingest deduplicated historical facts",
+      "container": {
+        "id": "AnalyticsWarehouse",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "8"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Notify authorized subscribers",
+      "message": {
+        "id": "LeaderboardUpdated",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "9"
+      }
+    },
+    {
+      "id": "9",
+      "title": "Read page with freshness watermark",
+      "message": {
+        "id": "GetLeaderboard",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+The diagram shows logical dependencies, not a transaction across three databases. PostgreSQL settlement commits before the event; Redis and ClickHouse run independent asynchronous projections. Failure of either projection cannot undo or duplicate settled results. Rebuild from PostgreSQL/outbox and report lag.
+
+<NodeGraph />

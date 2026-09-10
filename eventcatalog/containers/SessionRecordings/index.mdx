@@ -1,0 +1,15 @@
+---
+{
+  "id": "SessionRecordings",
+  "name": "Mandatory session timeline and optional media archive",
+  "container_type": "objectStore",
+  "technology": "Durable regional append journal + private object storage",
+  "authoritative": true,
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Every admitted session has a timestamped event archive. Core PostgreSQL owns recording policy, per-source watermarks, event index and media manifests. Core/MediaEngine append immutable event batches and checksum-verified media segments to tenant/session namespaces through a fenced durable adapter. Default event retention 30 days, optional media 7 days; preserve metadata tombstones and configured holds. ClickHouse indexes/analyses copies and is never the sole recording copy. Encryption, scoped playback URLs, storage quotas, restore drills and explicit gap/completeness states are required.

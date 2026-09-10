@@ -1,0 +1,67 @@
+---
+{
+  "id": "RegionDrain",
+  "name": "Drain regional admission",
+  "summary": "Keep existing sessions pinned while moving new load.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Prepare healthy allowed region",
+      "actor": {
+        "name": "Operator"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Stop new local admission",
+      "message": {
+        "id": "SetRegionAdmission",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Invalidate discovery",
+      "message": {
+        "id": "RegionAdmissionChanged",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Choose a region for new work",
+      "message": {
+        "id": "DiscoverRegions",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Continue on existing owner",
+      "actor": {
+        "name": "Existing participants"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+An unavailable region cannot be made a second concurrent writer by DNS failover. Existing sessions stay within their authority domain; region loss follows declared failure/DR policy.
+
+<NodeGraph />

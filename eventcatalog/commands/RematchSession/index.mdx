@@ -1,0 +1,63 @@
+---
+{
+  "id": "RematchSession",
+  "name": "RematchSession",
+  "version": "1.0.0",
+  "summary": "Create a new session after the previous session is terminal.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Create a new session after the previous session is terminal.
+
+## Responsibility
+
+Producer: **Socket, client**. Consumer: **Core**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Never reuse a session ID, owner epoch or ended runtime. Require participant consent/readiness policy and previous terminal result; same unique-active-session constraint as StartSession.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **CommandResult**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "RematchSession",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "roomId": "room-id-example",
+    "previousSessionId": "previous-session-id-example",
+    "expectedRevision": "1"
+  },
+  "idempotencyKey": "idempotency-key-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

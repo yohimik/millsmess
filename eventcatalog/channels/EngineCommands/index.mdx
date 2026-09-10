@@ -1,0 +1,19 @@
+---
+{
+  "id": "EngineCommands",
+  "name": "Targeted engine commands",
+  "protocols": [
+    "broker"
+  ],
+  "address": "mm.{tenant}.{region}.{cluster}.engine.{engine}.{incarnation}",
+  "deliveryGuarantee": "at-least-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Target one engine incarnation. Never load-balance session commands to arbitrary engines. Expired/stale allocation epoch is rejected. Durable at-least-once commands plus Core reconciler provide recovery from missed acknowledgements. Drain of a multi-tenant engine is sent by its authenticated operator authority; receiver reconciles every hosted tenant before it can report EngineDrained.
+
+<NodeGraph />

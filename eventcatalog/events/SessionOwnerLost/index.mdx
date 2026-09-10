@@ -1,0 +1,66 @@
+---
+{
+  "id": "SessionOwnerLost",
+  "name": "SessionOwnerLost",
+  "version": "1.0.0",
+  "summary": "Declare ownership expired and begin recovery or failure.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Declare ownership expired and begin recovery or failure.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **Socket**. Delivery: **durable**. Channel: **RegionalEvents**.
+
+## Preconditions and effects
+
+Only Core after store-time expiry CAS may fence the old owner and set recovering/failed. Never treat a missed heartbeat alone as proof of safe takeover. Clients stop sending until a new owner is resolved.
+
+## Ordering and idempotency
+
+Tenant + region + cluster + aggregate ID. Broker partition order is scoped to one aggregate; aggregateRevision is assigned by that aggregate owner, never by the client.
+
+Deduplicate by tenantId + producer authority + messageId; retain aggregate transitions and terminal settlement uniqueness beyond broker retention.
+
+## Failure handling
+
+Retry transient failures with jitter. Commit inbox deduplication and state/outbox together before ACK. Quarantine invalid/unsupported messages in a bounded DLQ with reason and alert; retain original identity on replay. Stale ownership is rejected, not retried blindly.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "SessionOwnerLost",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "detectedAt": "2026-09-08T12:00:00Z",
+    "recoveryPolicy": "checkpoint-replay"
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

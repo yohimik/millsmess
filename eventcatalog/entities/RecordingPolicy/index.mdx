@@ -1,0 +1,25 @@
+---
+{
+  "id": "RecordingPolicy",
+  "name": "RecordingPolicy",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ],
+  "summary": "Canonical RecordingPolicy contract.",
+  "schemaPath": "schema.json"
+}
+---
+
+Every GameProfile requires this policy and every session snapshots it before allocation. **eventsRequired is the literal true**. audioEnabled and videoEnabled are independent defaults; false/false means event-only recording, never an unrecorded session.
+
+Default installation policy: eventRetentionDays=30, mediaRetentionDays=7, segmentDurationMs=2000, mediaFailureMode=continue-with-gap, audioEnabled=false and videoEnabled=false. The checked-in recording-presets.json contains event-only, audio-only and audio-plus-video examples. A session host/operator may enable optional media through StartMediaRecording only within the tenant's permissions, participant notice/consent policy, codec capabilities and quota. Media start requires at least one selected kind; StopMediaRecording affects only optional media.
+
+For automatically enabled audio/video, create the recording intent with session allocation and start capture before corresponding tracks are admitted. A manual start records only subsequent frames; it cannot reconstruct media from before recording began. Existing membership and late-join flows expose the active recording state and apply required participant policy before recording that participant's track. Consent withdrawal immediately stops that track's capture, records an explicit gap/reason and continues or ends the session according to policy. No recording is started by this catalog itself.
+
+continue-with-gap keeps gameplay running when **optional media** recording fails, marking partial coverage. end-session makes optional media capture a game requirement: reject unsupported tracks at admission and request an explicit session end if capture fails; do not claim uninterrupted recording. Neither choice weakens mandatory event durability. Recording status and failure reasons must be visible to authorized hosts/participants; failures cannot be hidden behind a successful recording-start response.
+
+Segment duration is a target, not a promise that every uploaded object is independently decodable. Muxers flush on keyframe/codec boundaries and enforce explicit maximum buffered bytes/time. Upper bounds and quotas are validated against the game profile and supported codecs before allocation. The media timeline and event timeline share the fixed session origin across reconnect/owner epochs.
+
+
+<SchemaViewer />

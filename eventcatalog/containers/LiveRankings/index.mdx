@@ -1,0 +1,14 @@
+---
+{
+  "id": "LiveRankings",
+  "name": "Live leaderboard projection",
+  "container_type": "cache",
+  "technology": "Redis (optional)",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Optional Redis projection owned by Core. PostgreSQL holds authoritative scores and per-entry revision. Apply absolute score updates only if revision increases, never blind ZINCRBY from a redelivered event. Scores are fixed-point decimal strings; values beyond exact double precision need sortable fixed-width lexicographic members or PostgreSQL reads, not Redis double scores. Rebuild in a new namespace to a watermark and atomically switch; return freshness when lagging.

@@ -1,0 +1,33 @@
+{
+  "name": "@millsmess/eventcatalog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "dev": "eventcatalog dev",
+    "build": "pnpm check && eventcatalog build",
+    "preview": "eventcatalog preview",
+    "generate": "node scripts/generate.mjs",
+    "check": "node scripts/validate.mjs && node scripts/generate.mjs --check",
+    "test": "node --test tests/*.test.mjs",
+    "test:go": "node scripts/test-go.mjs",
+    "test:types": "tsc --noEmit -p tests/tsconfig.json",
+    "test:dispat": "node scripts/test-dispat.mjs",
+    "brand": "node scripts/brand.mjs"
+  },
+  "dependencies": {
+    "@eventcatalog/core": "4.10.12"
+  },
+  "devDependencies": {
+    "@wasm-fmt/gofmt": "0.7.3",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "gray-matter": "4.0.3",
+    "sharp": "0.35.4",
+    "typescript": "7.0.2"
+  },
+  "packageManager": "pnpm@11.15.0"
+}

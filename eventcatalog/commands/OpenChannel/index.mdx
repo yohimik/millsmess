@@ -1,0 +1,73 @@
+---
+{
+  "id": "OpenChannel",
+  "name": "OpenChannel",
+  "version": "1.0.0",
+  "summary": "Open a permitted logical audio, video or game channel.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Open a permitted logical audio, video or game channel.
+
+## Responsibility
+
+Producer: **client**. Consumer: **MediaEngine**. Delivery: **ephemeral**. Channel: **MediaSignaling**.
+
+## Preconditions and effects
+
+Channel must match the negotiated manifest, role and bandwidth quota. Audio/video select WebRTC RTP tracks; game selects the negotiated data adapter. Reopening a channel ID returns its existing configuration.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **ChannelOpened**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "OpenChannel",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "playerId": "player-id-example",
+    "connectionGeneration": "1",
+    "channel": {
+      "channelId": "channel-id-example",
+      "kind": "audio",
+      "transport": "websocket",
+      "reliability": "reliable-ordered",
+      "codec": "game-json-v1",
+      "maxPayloadBytes": 1,
+      "maxRateHz": 1
+    }
+  },
+  "idempotencyKey": "idempotency-key-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

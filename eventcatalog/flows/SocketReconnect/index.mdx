@@ -1,0 +1,68 @@
+---
+{
+  "id": "SocketReconnect",
+  "name": "Reconnect on any Socket replica",
+  "summary": "Recover control state without stopping the game.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Detect connection loss",
+      "actor": {
+        "name": "Client"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Present expiring resume token",
+      "message": {
+        "id": "ResumeConnection",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Rotate connection generation and read Core",
+      "service": {
+        "id": "Socket",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Replace local projections",
+      "message": {
+        "id": "ConnectionState",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Restore desired live subscriptions",
+      "message": {
+        "id": "SubscribeStatistics",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+If resume expired, reauthenticate and Connect instead. Direct live media may remain connected; reconnect it only if the transport was lost or the owner epoch changed. No historical transient update replay is promised.
+
+<NodeGraph />

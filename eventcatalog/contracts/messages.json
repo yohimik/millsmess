@@ -1,0 +1,1486 @@
+[
+  {
+    "id": "DiscoverRegions",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Discover permitted regional clusters.",
+    "semantics": "Authenticated or rate-limited anonymous discovery; return only tenant-enabled regions. Cached discovery is a hint; admission remains authoritative.",
+    "delivery": "request-response",
+    "result": "RegionsDiscovered"
+  },
+  {
+    "id": "RegionsDiscovered",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return region routing and admission status.",
+    "semantics": "Response to DiscoverRegions. Signed/TLS-protected discovery expires; never silently move an existing session to a different region.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "Authenticate",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Exchange an identity assertion for a short-lived credential.",
+    "semantics": "Validate issuer, audience, signature, tenant and nonce; guest identities use a configured guest provider. Tokens remain unlogged and never enter the durable broker.",
+    "delivery": "request-response",
+    "result": "Authenticated"
+  },
+  {
+    "id": "Authenticated",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return a scoped identity credential.",
+    "semantics": "Response only on the authenticated TLS request. Credential is tenant/audience bound; refresh requires a fresh trusted assertion.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "GetProfile",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Read authoritative identity and authorization revision.",
+    "semantics": "Caller must be the user or have service permission. A cache cannot turn an expired or revoked credential into a valid credential.",
+    "delivery": "request-response",
+    "result": "ProfileReturned"
+  },
+  {
+    "id": "ProfileReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return the current profile.",
+    "semantics": "Return private identity data only to its authorized audience; never broadcast across a room.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "UpdateProfile",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Update the caller display name with optimistic concurrency.",
+    "semantics": "Core derives user identity from the credential and updates profile plus outbox atomically. Reject stale revisions; do not accept client-supplied roles.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "ProfileUpdated",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Invalidate profile caches using a monotonic revision.",
+    "semantics": "Publish only after commit; consumers ignore older revisions. PII is limited to display name; deleted users are represented by tombstones.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "RevokeAccess",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "summary": "Suspend or revoke a principal.",
+    "semantics": "Require audited tenant administration permission. Update durable authorization revision and outbox atomically; command is unavailable to ordinary clients.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "AccessRevoked",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "MediaEngine"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Remove revoked credentials and session permissions.",
+    "semantics": "Socket closes control connections; MediaEngine removes the user from every locally owned session. Reconcile against Core before reconnect; periodic authorization refresh bounds missed-event revocation to 60 seconds.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "Connect",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "ClientControl",
+    "summary": "Authenticate a control connection and negotiate capabilities.",
+    "semantics": "First application frame within 5 seconds; pre-auth frame and connection quotas apply. Socket validates identity and selects a protocol intersection.",
+    "delivery": "ephemeral",
+    "result": "Connected"
+  },
+  {
+    "id": "Connected",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Socket",
+    "consumers": [
+      "client"
+    ],
+    "channel": "ClientControl",
+    "summary": "Confirm a control connection and issue a resume credential.",
+    "semantics": "Resume token binds user, tenant, audience and a server-held cursor/connection generation. Store only a hash. Delivery does not imply room membership.",
+    "delivery": "ephemeral",
+    "result": null
+  },
+  {
+    "id": "ResumeConnection",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "ClientControl",
+    "summary": "Reattach on any Socket replica after a disconnect.",
+    "semantics": "Validate expiration and authorization again; atomically rotate connection generation and token. Reject replayed generation. Return current ConnectionState rather than promise replay of transient frames.",
+    "delivery": "ephemeral",
+    "result": "ConnectionState"
+  },
+  {
+    "id": "ConnectionState",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Socket",
+    "consumers": [
+      "client"
+    ],
+    "channel": "ClientControl",
+    "summary": "Return an authoritative connection resynchronization snapshot.",
+    "semantics": "State comes from Core; browser discards optimistic local projections. Client queries current owner and renegotiates media separately.",
+    "delivery": "ephemeral",
+    "result": null
+  },
+  {
+    "id": "Disconnect",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Socket",
+    "consumers": [
+      "client"
+    ],
+    "channel": "ClientControl",
+    "summary": "Explain connection closure and retry policy.",
+    "semantics": "Best effort before closing; absence of this frame is normal on process failure. Disconnect does not end a game session or immediately release membership.",
+    "delivery": "ephemeral",
+    "result": null
+  },
+  {
+    "id": "CreateRoom",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Create a durable regional lobby for a game.",
+    "semantics": "Reserve tenant quota and persist creator membership, room and outbox in one transaction. Idempotency key returns the same room ID on retries.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "JoinRoom",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Reserve lobby membership without overfilling a room.",
+    "semantics": "Core serializes capacity and membership in one room transaction. Invite/ACL and tenant checks precede admission. This does not issue a media ticket.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "LeaveRoom",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Remove lobby membership and release its reservation.",
+    "semantics": "Actor is inferred from trusted credentials. Duplicate leaves succeed with stored result. Active session membership is separate and uses LeaveSession.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "MatchRoom",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Match or create a compatible lobby in one selected region.",
+    "semantics": "Core validates the skill bucket against trusted matchmaking rules. Lock/select a room and reserve capacity transactionally; matchmaking is a Core module, not a fourth service.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "UpdateRoomPlayerData",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Update bounded lobby readiness metadata.",
+    "semantics": "Allowlisted metadata only; validate game-owned loadout permissions. Never accept authoritative score, position or arbitrary executable data.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "RoomUpdated",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Publish the current lobby revision and membership.",
+    "semantics": "Socket fans out only to authorized members. Duplicates/out-of-order revisions are ignored; a gap triggers GetRoom. Full room state is capped by configured game capacity.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "GetRoom",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Read current lobby state for resynchronization.",
+    "semantics": "Enforce membership or public-listing policy; private rooms must not be enumerable.",
+    "delivery": "request-response",
+    "result": "RoomReturned"
+  },
+  {
+    "id": "RoomReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return authoritative room state.",
+    "semantics": "Includes revision used by the next compare-and-set mutation.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "StartSession",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Start one authoritative session from a lobby.",
+    "semantics": "Require room host/start policy and compatible build. Lock room and create allocating session + outbox atomically; uniqueness permits one nonterminal session per room. Return accepted session ID before asynchronous allocation.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "RematchSession",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Create a new session after the previous session is terminal.",
+    "semantics": "Never reuse a session ID, owner epoch or ended runtime. Require participant consent/readiness policy and previous terminal result; same unique-active-session constraint as StartSession.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "AllocateSession",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "summary": "Start a runtime under a reserved owner lease.",
+    "semantics": "Core reserves capacity and owner epoch in a regional transaction. Only targeted engine incarnation may consume; engine verifies current lease and READY state before boot. Same allocation ID is idempotent; late allocations to DRAINING reject. The mandatory session-recording index and durable capture path must exist before runtime launch; configured audio/video capture starts before admitting corresponding tracks.",
+    "delivery": "durable",
+    "result": "SessionStarted"
+  },
+  {
+    "id": "AllocationRejected",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Reject an allocation without starting a runtime.",
+    "semantics": "Core fences/reclaims reservation with CAS before retrying on another engine. Rejecting a stale epoch must never modify the newer allocation.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "SessionStarted",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Confirm that an allocated runtime is ready for players.",
+    "semantics": "Engine emits via durable local/runtime outbox after boot. Core verifies epoch and allocation before CAS starting to active. Socket treats this as a hint and queries Core before issuing admission.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "GetSession",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Resolve the durable session and current owner.",
+    "semantics": "Authorize session membership or invite policy. Return retryable-unavailable during recovery; no stale cached owner may grant admission.",
+    "delivery": "request-response",
+    "result": "SessionReturned"
+  },
+  {
+    "id": "SessionReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return the canonical session lifecycle revision.",
+    "semantics": "Core state includes region, cluster, epoch and terminal status. Media endpoints require a separately scoped admission ticket.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "JoinSession",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Admit a late-joining player or spectator into an open session.",
+    "semantics": "Check ACL, game join policy, capacity, current ACTIVE owner and negotiated capabilities. Reserve membership transactionally; issue short-lived owner-bound ticket. DRAINING engines allow joins to existing sessions only if the original endsBy cannot extend.",
+    "delivery": "request-response",
+    "result": "SessionAdmissionGranted"
+  },
+  {
+    "id": "SessionAdmissionGranted",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Issue a short-lived ticket to the current session owner.",
+    "semantics": "Ticket binds tenant, user/player, role, region, cluster, epoch, transport permissions and unique nonce. Expires within 60 seconds; handshake claims nonce atomically per participant connection generation.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "LeaveSession",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Revoke a participant admission while allowing others to continue.",
+    "semantics": "Core removes the caller membership transactionally and emits membership change. Duplicate leaves are completed from idempotency records. Empty timeout belongs to the game profile.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "SessionMembershipChanged",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Apply current session membership authorization.",
+    "semantics": "Only matching epoch is applied. Engine periodically reconciles membership with Core; gaps require a full snapshot. Revoke active media connections for removed players.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "NegotiateTransport",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Negotiate media or a game data transport on the current owner.",
+    "semantics": "Validate admission ticket before allocating expensive resources. SDP is used only for WebRTC; WebSocket/UDP omit it. Negotiate DTLS/SRTP or secure datagram adapter before payloads. Reject unsupported capability; never silently downgrade reliability.",
+    "delivery": "ephemeral",
+    "result": "TransportNegotiated"
+  },
+  {
+    "id": "TransportNegotiated",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Return the selected transport and channels.",
+    "semantics": "Reply is scoped to one authenticated player; never persist SDP or transport secrets on the event broker. A new connection generation invalidates old game input.",
+    "delivery": "ephemeral",
+    "result": null
+  },
+  {
+    "id": "AddIceCandidate",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Add a bounded trickle ICE candidate for one negotiation.",
+    "semantics": "Accept only for a live authorized WebRTC negotiation, rate-limit candidate count and destination policy. Empty/end-of-candidates is represented by candidate value end-of-candidates.",
+    "delivery": "ephemeral",
+    "result": "CommandResult"
+  },
+  {
+    "id": "IceCandidateDiscovered",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Return a server ICE candidate to the intended peer.",
+    "semantics": "Do not publish local/private candidate details to other users. TURN credentials are delivered only in authenticated negotiation responses through operator-configured ICE servers.",
+    "delivery": "ephemeral",
+    "result": null
+  },
+  {
+    "id": "OpenChannel",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Open a permitted logical audio, video or game channel.",
+    "semantics": "Channel must match the negotiated manifest, role and bandwidth quota. Audio/video select WebRTC RTP tracks; game selects the negotiated data adapter. Reopening a channel ID returns its existing configuration.",
+    "delivery": "ephemeral",
+    "result": "ChannelOpened"
+  },
+  {
+    "id": "ChannelOpened",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Confirm an authorized logical channel.",
+    "semantics": "This is control metadata, not the media payload. RTP frames do not travel through the regional event bus.",
+    "delivery": "ephemeral",
+    "result": null
+  },
+  {
+    "id": "CloseChannel",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Close a logical channel without ending the session.",
+    "semantics": "Idempotent per connection generation and channel ID; free per-channel resources. Losing the transport closes its attached channels.",
+    "delivery": "ephemeral",
+    "result": "ChannelClosed"
+  },
+  {
+    "id": "ChannelClosed",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Confirm channel resource cleanup.",
+    "semantics": "Best effort; clients may observe transport close first. No replay of historical media on reconnect.",
+    "delivery": "ephemeral",
+    "result": null
+  },
+  {
+    "id": "GameInput",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "GameData",
+    "summary": "Submit sequenced player intent to the authoritative game module.",
+    "semantics": "Authenticate the established transport, epoch and player. Reject duplicate/old sequence or impossible tick window; game module validates movement/fire/action legality. Spectators cannot submit input. No per-frame command response; ack is the authoritative snapshot watermark. Every accepted input is durably timestamp-recorded before application/acknowledgment, including abort-recovery games; unrecordable input is not accepted.",
+    "delivery": "realtime",
+    "result": "GameSnapshot"
+  },
+  {
+    "id": "GameSnapshot",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "client"
+    ],
+    "channel": "GameData",
+    "summary": "Send interest-filtered authoritative game state.",
+    "semantics": "Only the owner sends state. Per-recipient interest filtering prevents hidden-state leaks. Delta baseline must be retained by client; gaps request a full snapshot. Never durable-broker fanout.",
+    "delivery": "realtime",
+    "result": null
+  },
+  {
+    "id": "RequestGameSnapshot",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "summary": "Request a bounded full snapshot after a gap or reconnect.",
+    "semantics": "Rate-limit full snapshot requests. Send on reliable channel or a separately negotiated bounded chunk stream; never fragment oversized UDP datagrams at the application layer in v1.",
+    "delivery": "ephemeral",
+    "result": "GameSnapshot"
+  },
+  {
+    "id": "RenewSessionLease",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Renew session authority using a fenced compare-and-set.",
+    "semantics": "Core checks engine incarnation, ownership and unexpired lease in the authoritative regional store. DRAINING may renew existing sessions. MediaEngine stops mutation before local safe deadline if renewal fails.",
+    "delivery": "request-response",
+    "result": "SessionLeaseRenewed"
+  },
+  {
+    "id": "SessionLeaseRenewed",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return a new authoritative owner lease expiry.",
+    "semantics": "Lease time is from the authoritative store. Engine accounts for round-trip, clock uncertainty and a safety margin; late responses cannot resurrect a fenced owner.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "CheckpointCommitted",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Record a verified game checkpoint and replay watermark.",
+    "semantics": "Write object atomically, verify checksum, then persist manifest/outbox. Core accepts only current epoch and increasing tick/offset. Orphan objects are garbage-collected after retention; media jitter buffers and network sessions are not checkpointed.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "SessionOwnerLost",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Declare ownership expired and begin recovery or failure.",
+    "semantics": "Only Core after store-time expiry CAS may fence the old owner and set recovering/failed. Never treat a missed heartbeat alone as proof of safe takeover. Clients stop sending until a new owner is resolved.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "RecoverSession",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "summary": "Restore a recoverable session under a new fenced epoch.",
+    "semantics": "Reserve on a READY engine; verify build hash, snapshot checksum and contiguous durable accepted-input log. Replay old epoch records read-only, then activate new epoch. If history is incomplete or deadline expires, fail explicitly. Restore event sequence/clock watermarks and any active recording intents; media transport loss becomes an explicit recording gap.",
+    "delivery": "durable",
+    "result": "SessionRecovered"
+  },
+  {
+    "id": "SessionRecovered",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Confirm recovered authoritative state at a new owner.",
+    "semantics": "Core CAS recovering to active only for current allocation and epoch. Existing participants request fresh owner-bound tickets, renegotiate media and receive full game state. Recovery does not extend endsBy.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "EndSession",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "summary": "Request a controlled end for the current session owner.",
+    "semantics": "Authorize operator or game policy upstream. Normal engine drain does not issue EndSession. Owner transitions once to ending, stops admission and drains final durable writes.",
+    "delivery": "durable",
+    "result": "SessionEnded"
+  },
+  {
+    "id": "SessionEnded",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Record natural or explicitly requested session completion.",
+    "semantics": "Final result plus outbox must be durable before releasing runtime. Core terminal update/reward settlement uses a unique session completion key. Retry delivery after restart without awarding twice. SubmitSessionResult must be durably completed before this terminal event; if Core is unavailable, retain the fenced final-result intent until reconciled. Persist terminal event plus source end-watermarks; complete optional media finalization before release of recording resources.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "SessionFailed",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Record terminal session failure when safe recovery is impossible.",
+    "semantics": "Core fences epoch and commits terminal state plus outbox. Policy for compensation/forfeit is game-specific; never claim the session continued without state. Release room lock and reservations exactly once.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "RegisterEngine",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Register a new process incarnation and capacity.",
+    "semantics": "Mutual service authentication binds engine identity. Each process boot uses a fresh incarnation ID and reconciles orphan allocations before becoming READY.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "EngineHeartbeat",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Report capacity and lifecycle for allocation.",
+    "semantics": "Advisory liveness/capacity every 5 seconds, expiry 15 seconds. Allocator reserves capacity transactionally; heartbeat cannot overwrite durable DRAINING state or renew session leases.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "RequestEngineDrain",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "summary": "Persist an engine drain intent before maintenance.",
+    "semantics": "Require operator permission. Core CAS lifecycle to DRAINING and removes engine from allocation immediately in the same store. Persist drain intent and outbox; a repeated drain ID returns same result.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "DrainEngine",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "summary": "Stop new runtimes and wait for existing sessions to finish.",
+    "semantics": "Serialize with allocation admission on the engine. Reject pending/unstarted reservations; keep live sessions, listeners, heartbeats and renewals running. Never turn elapsed rollout time into forced termination.",
+    "delivery": "durable",
+    "result": "EngineDrained"
+  },
+  {
+    "id": "EngineDraining",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Acknowledge drain and report remaining sessions.",
+    "semantics": "Repeat on progress as needed; Core checks drain ID/incarnation and reconciles its allocation ledger. This state is persisted and survives control-plane restart.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "EngineDrained",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Certify zero live sessions and durable final writes.",
+    "semantics": "Emit only after all sessions finish, reservations are released, final results/checkpoints/outbox are acknowledged and transports close. Core reconciles zero leases and records DRAINED; deployment controller may then terminate that incarnation. Mandatory event records, optional media segments and recording manifests must also be durable/finalized: pendingEventRecords, pendingRecordingSegments and openRecordings must be zero.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "SetRegionAdmission",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "summary": "Control new-session admission for a regional cluster.",
+    "semantics": "Persist policy revision and outbox. Region drain redirects only new rooms/sessions; existing sessions retain region and continue. Unavailable is health-derived, not an operator override.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "RegionAdmissionChanged",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Invalidate cached regional admission policy.",
+    "semantics": "Update discovery projection asynchronously. Authoritative regional admission checks are mandatory even when discovery is stale.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "CommandResult",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core,Socket,MediaEngine",
+    "consumers": [
+      "client",
+      "operator",
+      "Socket",
+      "Core",
+      "MediaEngine"
+    ],
+    "channel": "Reply",
+    "summary": "Return a correlated success, rejection or accepted operation.",
+    "semantics": "Reply over the originating authenticated request/connection. A result never grants authority beyond its resource. Accepted means durably scheduled; completed means committed. Rejected includes a code. Never route replies from an arbitrary client-supplied address.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "EnqueueMatch",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Enter a durable match queue using a server-approved strategy.",
+    "semantics": "Validate party leadership and member consent, fetch trusted rating and compatible build. Select one queue home cluster. Unique active-ticket constraint covers every party member; pin policy revision. Client never supplies rating or strategy weights.",
+    "delivery": "request-response",
+    "result": "MatchTicketReturned"
+  },
+  {
+    "id": "GetMatchTicket",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Recover matchmaking status after reconnect.",
+    "semantics": "Authorize party member or leader. Read durable state and proposal deadline; estimates are advisory and must not promise a match.",
+    "delivery": "request-response",
+    "result": "MatchTicketReturned"
+  },
+  {
+    "id": "MatchTicketReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return durable ticket state and pinned policy.",
+    "semantics": "Use the ticket revision for cancel/accept. A response timeout cannot create a second ticket for the same member.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "CancelMatch",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Cancel a queued or uncommitted proposed match ticket.",
+    "semantics": "CAS ticket state. If allocation already committed, return conflict and the matched resource; do not cancel another participant session. Expiry/cancel release reservations once.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "MatchProposed",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Invite matched participants to accept a bounded proposal.",
+    "semantics": "Proposal transaction reserves all tickets together. Socket delivers only to participating members, redacting other tickets/private rating. A proposal is not a session grant.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "AcceptMatch",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Accept a proposal before its deadline.",
+    "semantics": "Require authenticated member consent; party policy defines whether all members or authorized leader accepts. Once all required acceptances commit, atomically claim tickets and create one session allocation.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "MatchFound",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Commit tickets to one allocated match or authorized backfill.",
+    "semantics": "All tickets transition proposed to matched in one queue-home transaction. MatchFound identifies pending allocation; ticket holders wait for ACTIVE then call JoinSession. If allocation fails, explicit policy creates new tickets; never leave matched pointing to a resurrected session.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "MatchTicketClosed",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "summary": "Notify cancellation, expiry or proposal failure.",
+    "semantics": "Requeue non-declining participants only while original expiry remains valid; retain original queue age for fairness. Canceled and expired tickets never reactivate.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "UpdateMatchPolicy",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "summary": "Version an allowed matchmaking strategy configuration.",
+    "semantics": "Require game administration permission; validate bounds, party fits team, maximum relaxation, weights and build. Queue entries pin policy revision and never change semantics mid-search.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "SessionStatisticsReported",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "StatisticsStream",
+    "summary": "Publish a bounded cumulative live statistics sample.",
+    "semantics": "Sample at most once per second per bounded player shard; aggregateId identifies session + shard, sampleSequence increases per shard. Authenticate current owner and metric allowlist. Cumulative values replace last snapshot, never blindly increment totals. Live values are provisional; rank/rewards use settled results. Checkpoint carries sequence and cumulative stats across recovery.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "GetPlayerStatistics",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Read durable and provisional live player statistics.",
+    "semantics": "Enforce profile visibility; durable totals read PostgreSQL/projection, live overlay reads bounded active-session samples. Return freshness; never silently mix provisional scores into settled rewards.",
+    "delivery": "request-response",
+    "result": "PlayerStatisticsReturned"
+  },
+  {
+    "id": "PlayerStatisticsReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return player statistics with explicit freshness.",
+    "semantics": "Live entries are session provisional overlays; caller distinguishes by response array. Overlay must be removed atomically when that session settles to avoid double counting.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "SubmitSessionResult",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Commit verified game outcome for statistics and ranking.",
+    "semantics": "Service-only, current fenced session owner; hash and durable result blob must agree. Unique tenant/session/result revision settles once. PostgreSQL transaction commits result, player totals, rating/leaderboard state and outbox before success. Reject fabricated or late-epoch outcome.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "SessionResultSettled",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "Core"
+    ],
+    "channel": "StatisticsStream",
+    "summary": "Publish the authoritative settled result revision.",
+    "semantics": "Projection workers inside Core consume this for ClickHouse and cache refresh using unique result identity/revision. Socket only sends authorized user summaries. Do not use at-least-once delta summing without result deduplication.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "PlayerStatisticsUpdated",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "summary": "Publish a replaceable authoritative player statistics revision.",
+    "semantics": "Publish after settlement transaction. Projection uses compare-and-set revision; stale updates cannot roll back totals. Fanout is scoped and coalesced to at most 1 Hz per subscription.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "GetLeaderboard",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Read top scores or rank around a player with a stable cursor.",
+    "semantics": "Authorize board visibility. Opaque cursor binds tenant, board, season, sort key and snapshot revision. Around-player mode and cursor are mutually exclusive. At most 100 rows; return stale metadata or fall back to PostgreSQL.",
+    "delivery": "request-response",
+    "result": "LeaderboardReturned"
+  },
+  {
+    "id": "LeaderboardReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return a leaderboard page and materialization watermark.",
+    "semantics": "Rank is one-based ordinal, score primary in board direction, bytewise player ID ascending tie break. No floating-point compound score. Cursor is invalidated rather than silently skipping/repeating rows after snapshot expiry.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "LeaderboardUpdated",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "summary": "Invalidate subscribed leaderboard views at a new revision.",
+    "semantics": "Coalesce per board at 1 Hz; client fetches a fresh page instead of replaying every rank shift. Event follows PostgreSQL commit; cache watermark may lag and must be reported.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "SubscribeStatistics",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "ClientControl",
+    "summary": "Subscribe to scoped live statistics and leaderboard invalidations.",
+    "semantics": "Authorize every player/board. Replace subscriptions for this connection generation; max 32 players and 16 boards. Reconnect reissues this command; no guaranteed offline replay.",
+    "delivery": "ephemeral",
+    "result": "CommandResult"
+  },
+  {
+    "id": "FinalizeSeason",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "summary": "Close a leaderboard season using a settlement watermark.",
+    "semantics": "Move open to closing; disallow new session assignment to season. Wait for all eligible sessions through the cutoff to end/fail and settle, then freeze ranking snapshot. Deadline resolution is explicit; no automatic unbounded wait.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "SeasonFinalized",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "summary": "Publish an immutable season ranking revision.",
+    "semantics": "Rewards use unique season/player/reward keys from frozen PostgreSQL snapshot. Late results are audited and handled by an explicit correction policy, never mutate the frozen season silently.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "LiveStatisticsUpdated",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "summary": "Publish an authorized replaceable provisional player sample.",
+    "semantics": "Core verifies engine epoch/sample revision first. Socket sends only to permitted SubscribeStatistics audiences, coalesces at 1 Hz and drops the overlay when a result settles. This never changes settled rank or rewards.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "PublishMediaFrame",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "client",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaFrames",
+    "summary": "Publish a codec frame on a negotiated non-RTP media channel.",
+    "semantics": "Validate authenticated participant, publish permission, epoch and connection generation before accepting a frame. Codec manifest defines packetization and timestamp units. Reject oversize frames; enforce congestion/bitrate budgets and drop expired timestamps. No durable ACK or historical replay. RTP tracks use SRTP directly and never this JSON envelope.",
+    "delivery": "realtime",
+    "result": null
+  },
+  {
+    "id": "MediaFrame",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "client"
+    ],
+    "channel": "MediaFrames",
+    "summary": "Forward an authorized codec frame over WSS, data channel or secure UDP.",
+    "semantics": "Per-recipient subscription and privacy checks precede forwarding. mediaTimestamp/timescale drive playout; sequence orders one channel generation. Receivers drop expired frames and use a bounded jitter buffer. kind and codec must equal ChannelOpened; keyFrame marks decoder recovery points. Missing video data waits for the next keyframe; transport adapter codec policy handles refresh requests.",
+    "delivery": "realtime",
+    "result": null
+  },
+  {
+    "id": "SessionEventRecorded",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core,Socket,MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "SessionRecordingStream",
+    "summary": "Index a durably captured timestamped session event.",
+    "semantics": "Emitted only after mandatory durable event append/transactional outbox capture. Core indexing deduplicates eventId and checks immutable payload digest; same ID/different digest is an integrity incident. Assign archiveOffset in the per-session index, retain stream/sourceSequence and causation for ordering. Recorder bookkeeping is excluded from recursive capture. ClickHouse consumes a projection, not the sole recording copy.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "GetSessionRecording",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client,operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Read the event-recording index and linked audio/video recordings.",
+    "semantics": "Authorize the caller against tenant/session recording ACL and retention policy. Every admitted session has an index created before allocation. Return explicit open/sealing/sealed/incomplete state and archive watermark; do not imply all pending outbox records have reached the read index.",
+    "delivery": "request-response",
+    "result": "SessionRecordingReturned"
+  },
+  {
+    "id": "SessionRecordingReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return mandatory session-recording status and media attachments.",
+    "semantics": "A sealed timeline covers all durable source stream watermarks through terminal session outcome. Media manifests may report partial coverage and gaps; a recording ID does not imply full audio/video capture.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "GetSessionEvents",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client,operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Read timestamped session events with bounded stable pagination.",
+    "semantics": "Enforce session-recording read permission separately from live membership. Cursor binds tenant/session and immutable archive watermark; append order is ingestion order, not causal order across writers. Limit 100 events and 256 KiB response; continue earlier when byte budget is reached. Payload schema/version is retained for decoding.",
+    "delivery": "request-response",
+    "result": "SessionEventsReturned"
+  },
+  {
+    "id": "SessionEventsReturned",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return archived session events and a coverage watermark.",
+    "semantics": "Events carry trusted server occurrence time, durable capture time, elapsed session time and per-source sequence. Client timestamps are optional untrusted observations. A live page may lag capture; sealed indicates terminal coverage has been reconciled.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "StartMediaRecording",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client,operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Enable optional audio and/or video recording attached to a session.",
+    "semantics": "Require recording permission, participant notice/consent policy, available codec recorder and quota. At least one of audio/video must be true. Persist recordingId, policy revision and start intent before targeting the current owner. Does not disable or replace mandatory session-event recording.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "StartSessionMediaCapture",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "summary": "Start authorized media capture on the current session owner.",
+    "semantics": "Current owner verifies persisted recording intent and current per-track permissions before capture. Use recordingId + track + owner epoch + segment sequence identity; repeated starts are idempotent. On owner recovery continue the same recording ID under a new epoch after rechecking consent, recording an explicit interruption gap.",
+    "delivery": "durable",
+    "result": "MediaRecordingStarted"
+  },
+  {
+    "id": "MediaRecordingStarted",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "summary": "Confirm active optional media capture and its session timeline offset.",
+    "semantics": "Core CAS starting to recording for the current recording intent. Socket notifies permitted session participants of recording state; capture begins only once authorization and required notice/consent are satisfied. Event metadata enters the mandatory session timeline.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "RecordingSegmentCommitted",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "SessionRecordingStream",
+    "summary": "Attach a durable checksum-verified media segment to its session.",
+    "semantics": "Upload immutable object, verify checksum/length and atomically persist manifest + outbox intent before publication. Unique recordingId/trackId/ownerEpoch/segmentSequence prevents duplicate attachment. Never publish a playback reference to an unfinished multipart upload. Segment timestamps map to the same session clock as event records.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "MediaRecordingGapDetected",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine,Core",
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "summary": "Record an explicit missing interval in optional media capture.",
+    "semantics": "Deduplicate by recording, track, epoch and interval identity. Do not fabricate silence/frames or mark the recording complete when data is missing. Core can detect owner-crash gaps from committed segment watermarks even if the failed engine emitted no event.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "StopMediaRecording",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Socket,client,operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Stop optional media capture while keeping mandatory event recording.",
+    "semantics": "Require recording permission or track consent-withdrawal policy. Persist stop intent with CAS and send StopSessionMediaCapture; repeated stop returns same result. Session event logging cannot be stopped by this command.",
+    "delivery": "request-response",
+    "result": "CommandResult"
+  },
+  {
+    "id": "StopSessionMediaCapture",
+    "kind": "commands",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "summary": "Finish media segments and seal the recording manifest.",
+    "semantics": "Stop accepting new recording frames, flush/upload final segments, record known gaps and commit a final manifest. Gameplay can continue for manual stop. Natural session ending automatically runs this protocol before engine drain can complete.",
+    "delivery": "durable",
+    "result": "MediaRecordingFinalized"
+  },
+  {
+    "id": "MediaRecordingFinalized",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "MediaEngine,Core",
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "summary": "Publish an immutable completed, partial or failed media manifest.",
+    "semantics": "State must be completed, partial or failed with endedAt and manifestDigest. Core may finalize orphaned recordings after owner loss using only committed segments and explicit gaps. Terminal status is immutable; never claim complete coverage after an unflushed crash. Mandatory event timeline stores the finalization metadata.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "GetRecordingPlayback",
+    "kind": "queries",
+    "version": "1.0.0",
+    "producer": "Socket,client,operator",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Obtain short-lived playback access to a session media recording.",
+    "semantics": "Recheck current recording-read permission, tenant/session binding, retention and deletion status. Only committed final manifests are playable in v1; partial manifests expose gaps. Generate a scoped signed manifest URL expiring within five minutes; never return raw private object keys or credentials.",
+    "delivery": "request-response",
+    "result": "RecordingPlaybackGranted"
+  },
+  {
+    "id": "RecordingPlaybackGranted",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "channel": "ControlAPI",
+    "summary": "Return authorized playback access to an attached media recording.",
+    "semantics": "Deliver only on the authenticated request. The manifest uses equally scoped segment URLs or an authenticated proxy; each URL is bound to allowed resources and expiry. No public object-store listing or permanent public ACL is granted.",
+    "delivery": "request-response",
+    "result": null
+  },
+  {
+    "id": "SessionRecordingSealed",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core",
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "summary": "Certify durable session-event coverage through terminal finalization.",
+    "semantics": "Core verifies terminal session outcome, all durable source stream end-watermarks, recording finalization metadata and manifest digest before setting sealed. If coverage cannot be proven, emit incomplete with an incident instead. This recorder receipt is outside the sealed event stream to avoid recursive self-recording.",
+    "delivery": "durable",
+    "result": null
+  },
+  {
+    "id": "SessionEventStreamClosed",
+    "kind": "events",
+    "version": "1.0.0",
+    "producer": "Core,Socket,MediaEngine",
+    "consumers": [
+      "Core"
+    ],
+    "channel": "SessionRecordingStream",
+    "summary": "Publish a durable terminal watermark for one session-event source stream.",
+    "semantics": "After its last event and all media finalization metadata are durable, a writer atomically closes its session-scoped stream. Repeated same watermark/digest is idempotent; no later event may append to a closed stream. Core reconciles contiguous sequence, count and digest before sealing the session archive. This recorder receipt is not recursively recorded inside the stream it closes.",
+    "delivery": "durable",
+    "result": null
+  }
+]

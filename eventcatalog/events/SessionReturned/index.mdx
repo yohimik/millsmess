@@ -1,0 +1,92 @@
+---
+{
+  "id": "SessionReturned",
+  "name": "SessionReturned",
+  "version": "1.0.0",
+  "summary": "Return the canonical session lifecycle revision.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Return the canonical session lifecycle revision.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **Socket, client**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Core state includes region, cluster, epoch and terminal status. Media endpoints require a separately scoped admission ticket.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "SessionReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "session": {
+      "sessionId": "session-id-example",
+      "roomId": "room-id-example",
+      "regionId": "region-id-example",
+      "clusterId": "cluster-id-example",
+      "state": "allocating",
+      "revision": "1",
+      "ownerEpoch": "1",
+      "game": {
+        "gameId": "game-id-example",
+        "buildDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "maxPlayers": 1,
+        "maxSpectators": 0,
+        "tickRateHz": 1,
+        "maxSessionSeconds": 1,
+        "emptyTimeoutSeconds": 0,
+        "recoveryPolicy": "checkpoint-replay",
+        "checkpointIntervalSeconds": 1,
+        "inputRetentionSeconds": 1,
+        "channels": [],
+        "recording": {
+          "eventsRequired": true,
+          "audioEnabled": false,
+          "videoEnabled": false,
+          "eventRetentionDays": 1,
+          "mediaRetentionDays": 1,
+          "segmentDurationMs": 250,
+          "mediaFailureMode": "continue-with-gap",
+          "policyRevision": "1"
+        }
+      },
+      "endsBy": "2026-09-08T12:00:00Z"
+    }
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

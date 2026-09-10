@@ -1,0 +1,33 @@
+Core's matchmaker is a module with built-in strategies. This catalog defines their out-of-box implementation contract and preset configurations; executable strategies will be implemented with the backend. A policy is versioned and pinned by every ticket.
+
+## Common pipeline
+
+Authenticate party leader and consent → read trusted roster/rating → choose one eligible queue-home cluster → enqueue durably → lease a bounded candidate batch → apply hard filters → score/build teams → atomically reserve proposal → collect acceptance → commit all tickets and session/seat reservation → notify. A player belongs to at most one active ticket per tenant/game/mode; PostgreSQL enforces that constraint across party rosters, not only party ID. Party membership changes invalidate/requeue a ticket rather than silently swapping players.
+
+A party is an authenticated lobby roster stored by Core. partyId references that roster (a Room with party role/policy); it never names an unchecked client-supplied list. All members consent under a declared policy. Cross-region party members share one queue home and allowed target region. Duplicate enqueue is idempotent; simultaneous tickets in multiple regions are disallowed. The queue-home cluster owns allocation in v1; cross-cluster placement requires a future reservation protocol, not two independent seat claims.
+
+Hard filters always enforce tenant, game/build, policy revision, mode/input-platform pool, bans, consent, party integrity, team size, allowed region/residency and maximum latency. Input-platform and mode pool are server-side policy context keyed by policyId. Latency samples are freshness-limited (30 seconds), sanity-checked and preferably server-measured; a client claim alone cannot bypass region restrictions. Candidate tickets use database time for age.
+
+## Built-in strategies
+
+| Strategy | Algorithm and intended use | Waiting behavior |
+| --- | --- | --- |
+| fifo | Oldest eligible ticket anchors the batch; fill compatible seats in creation-time/ticket-ID order. Casual/social queues. | Never skip a fitting older ticket for a newer one without recorded reason; maxWaitSeconds bounds queue lifetime. |
+| skill | Match trusted rating mean/spread around the oldest anchor. Ratings come from committed results; provisional live statistics are excluded. | Allowed delta is min(maxSkillDelta, initialSkillDelta + floor(wait seconds) × skillExpansionPerSecond). Hard constraints never relax. |
+| latency | Minimize worst participant RTT in the eligible queue region, then aggregate RTT, then queue age. IO/reaction games. | Queue age breaks ties and proposal batching has a fixed budget; maxLatencyMs remains a hard ceiling. |
+| party-balanced | Keep parties intact; bounded team packing minimizes team size imbalance then rating-mean difference. Team FPS/co-op. | If no packing fits, leave queued; do not split a party. Search limit: 64 candidates / 5 ms per batch initially, benchmark per game. |
+| weighted | Combine normalized skill cost, latency cost and wait benefit after hard filters; versioned integer weights. Mixed queues. | Deterministic integer score: skillWeight×skillCost + latencyWeight×latencyCost − waitWeight×ageBenefit, each normalized to 0..10000. Lowest wins; ties use creation time then ticket ID. |
+
+Preset JSON lives in contracts/matchmaking-presets.json and is validated against MatchPolicy. Defaults are starting values, not capacity or fairness guarantees. Validate teamCount×playersPerTeam against GameProfile.maxPlayers, maxPartySize≤playersPerTeam, initialSkillDelta≤maxSkillDelta and at least one nonzero weighted weight. A policy update increments revision; queued tickets retain the pinned revision unless explicitly canceled/re-enqueued.
+
+## Reservations, backfill and failure
+
+Ticket state is queued → proposed → matched, or queued/proposed → cancelled/expired. A rejected/timed-out proposal can requeue still-consenting tickets within their original expiry; the ticket keeps original creation time for fairness. Terminal tickets do not reactivate. Proposal reservations default to 15 seconds. Workers acquire short leases and atomically compare ticket revisions, so overlapping workers cannot match the same participant twice. Queue claim uses ordered row locking/SKIP LOCKED or equivalent; retry SERIALIZABLE failures with a bounded deadline.
+
+CancelMatch and final acceptance race in one database transaction. If cancel wins, release reservation and dissolve/requeue remaining tickets according to policy. If match commit wins, cancel returns conflict with matched session identity. Broker delivery does not decide which operation wins. The policy states whether every player or an authorized leader must accept; no silent auto-accept in ranked queues.
+
+Backfill selects a compatible ACTIVE session that advertises joinability through trusted game state and enough reserved capacity. It uses the same hard filters/team packing and atomic membership admission as JoinSession. It cannot extend a draining engine's session lifetime. A lobby with no compatible existing runtime allocates a new session; READY capacity is reserved only after all required proposal acceptances. A failed allocation produces explicit failure and policy-driven new tickets with new IDs.
+
+Expose queue age histogram, matching duration, proposal acceptance, cancel-race outcome, match quality distribution, starvation reasons and region/build capacity. Bound batch size and CPU time so expensive party search cannot starve Core admission/lease renewal. Match workers and analytics workers have separate concurrency/pool budgets inside Core.
+
+A custom strategy plugs into filter/score/team-assignment functions and cannot commit ownership itself. It returns a proposed candidate set; Core validates it and owns the atomic claim. Untrusted strategy code requires sandboxing and a deterministic execution budget.

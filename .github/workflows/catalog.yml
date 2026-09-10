@@ -1,0 +1,42 @@
+name: EventCatalog and contracts
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: catalog-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.5'
+          cache: false
+      - run: pnpm install --frozen-lockfile
+      - name: Install pinned Dispat
+        run: go install github.com/yohimik/dispat/services/dispat@v1.8.2
+      - run: dispat compute --check
+      - run: dispat run tests --since all
+      - run: pnpm build
+      - name: Upload verified static catalog
+        uses: actions/upload-artifact@v4
+        with:
+          name: millsmess-eventcatalog
+          path: eventcatalog/dist
+          if-no-files-found: error

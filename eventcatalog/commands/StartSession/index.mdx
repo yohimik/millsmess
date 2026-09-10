@@ -1,0 +1,62 @@
+---
+{
+  "id": "StartSession",
+  "name": "StartSession",
+  "version": "1.0.0",
+  "summary": "Start one authoritative session from a lobby.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Start one authoritative session from a lobby.
+
+## Responsibility
+
+Producer: **Socket, client**. Consumer: **Core**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Require room host/start policy and compatible build. Lock room and create allocating session + outbox atomically; uniqueness permits one nonterminal session per room. Return accepted session ID before asynchronous allocation.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **CommandResult**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "StartSession",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "roomId": "room-id-example",
+    "expectedRevision": "1"
+  },
+  "idempotencyKey": "idempotency-key-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

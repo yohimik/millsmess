@@ -1,0 +1,68 @@
+---
+{
+  "id": "GameInput",
+  "name": "GameInput",
+  "version": "1.0.0",
+  "summary": "Submit sequenced player intent to the authoritative game module.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Submit sequenced player intent to the authoritative game module.
+
+## Responsibility
+
+Producer: **client**. Consumer: **MediaEngine**. Delivery: **realtime**. Channel: **GameData**.
+
+## Preconditions and effects
+
+Authenticate the established transport, epoch and player. Reject duplicate/old sequence or impossible tick window; game module validates movement/fire/action legality. Spectators cannot submit input. No per-frame command response; ack is the authoritative snapshot watermark. Every accepted input is durably timestamp-recorded before application/acknowledgment, including abort-recovery games; unrecordable input is not accepted.
+
+## Ordering and idempotency
+
+Session + owner epoch + player + connection generation + logical channel. Sequence numbers are local to this scope.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Drop expired, duplicate or unauthorized frames; rate-limit and disconnect abusive senders. Missing snapshots trigger resync, not unlimited retransmission. No durable delivery guarantee applies.
+
+Success/reply contract: **GameSnapshot**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "GameInput",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "playerId": "player-id-example",
+    "channelId": "channel-id-example",
+    "connectionGeneration": "1",
+    "sequence": "1",
+    "tick": "1",
+    "codec": "game-json-v1",
+    "payload": "AQID"
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

@@ -1,0 +1,62 @@
+---
+{
+  "id": "GetLeaderboard",
+  "name": "GetLeaderboard",
+  "version": "1.0.0",
+  "summary": "Read top scores or rank around a player with a stable cursor.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Read top scores or rank around a player with a stable cursor.
+
+## Responsibility
+
+Producer: **Socket, client**. Consumer: **Core**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Authorize board visibility. Opaque cursor binds tenant, board, season, sort key and snapshot revision. Around-player mode and cursor are mutually exclusive. At most 100 rows; return stale metadata or fall back to PostgreSQL.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **LeaderboardReturned**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "GetLeaderboard",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "boardId": "board-id-example",
+    "seasonId": "season-id-example",
+    "limit": 1
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

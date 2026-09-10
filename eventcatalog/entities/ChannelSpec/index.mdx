@@ -1,0 +1,21 @@
+---
+{
+  "id": "ChannelSpec",
+  "name": "ChannelSpec",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ],
+  "summary": "Canonical ChannelSpec contract.",
+  "schemaPath": "schema.json"
+}
+---
+
+A logical audio, video or game channel maps onto one negotiated adapter. Its identity is session + participant + connection generation + channelId. The server checks kind, codec, transport, reliability, rate and payload budget against the pinned game manifest and participant permissions.
+
+WebSocket supports reliable-ordered only. Secure UDP and WebRTC RTP are unreliable-sequenced. WebRTC RTP accepts audio/video, not game messages. WebRTC data channels negotiate reliable ordered/unordered or unreliable-sequenced modes. Future HTTP/2/3 adapters are absent from v1 enums, so they cannot accidentally be advertised as implemented.
+
+maxPayloadBytes is constrained further by the transport's encoded envelope limit and encryption overhead; 1200-byte UDP envelopes include all metadata/base64. The Media Engine page contains the full matrix and fallback rules. Structural constraints do not replace semantic codec and platform compatibility checks.
+
+
+<SchemaViewer />

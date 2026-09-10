@@ -1,0 +1,45 @@
+[
+  {
+    "id": "RegionalState",
+    "name": "Regional PostgreSQL authority",
+    "container_type": "database",
+    "description": "PostgreSQL is the authority for identities, rooms, session leases, allocation reservations, match tickets/proposals, durable results, statistics and leaderboard revisions. Core owns writes. Unique constraints + row locks/CAS or SERIALIZABLE retries protect invariants; plain read-then-write at READ COMMITTED is insufficient. Co-locate transactionally related room/session/queue records. Persist outbox/inbox in the same database. Connection pools, query limits, PITR backup and tested failover are required.",
+    "technology": "PostgreSQL",
+    "authoritative": true
+  },
+  {
+    "id": "ConnectionCache",
+    "name": "Connection and projection cache",
+    "container_type": "cache",
+    "description": "Optional Redis-compatible regional cache for Socket token hashes/generations, subscriptions, presence and replaceable projections. It is not the room, ticket or session authority. Cache failure forces reauthentication/resync; Core state rebuilds projections. TTL per entry, tenant key namespace, bounded memory and eviction policy are mandatory. Session leases never depend on a cache lock.",
+    "technology": "Redis (optional)"
+  },
+  {
+    "id": "Checkpoints",
+    "name": "Checkpoint objects and runtime journal",
+    "container_type": "objectStore",
+    "description": "Object storage contains immutable, checksummed game checkpoints/final result blobs. A durable, fenced ordered journal holds accepted game inputs, checkpoint manifests and result/outbox intents. Media Engine writes its own session namespace; Core reads manifests for recovery. The adapter must enforce token CAS and atomic durable record boundaries; object-store eventual listing is not a manifest. Retain checkpoint/log windows long enough for declared recovery; garbage-collect orphan objects safely."
+  },
+  {
+    "id": "LiveRankings",
+    "name": "Live leaderboard projection",
+    "container_type": "cache",
+    "description": "Optional Redis projection owned by Core. PostgreSQL holds authoritative scores and per-entry revision. Apply absolute score updates only if revision increases, never blind ZINCRBY from a redelivered event. Scores are fixed-point decimal strings; values beyond exact double precision need sortable fixed-width lexicographic members or PostgreSQL reads, not Redis double scores. Rebuild in a new namespace to a watermark and atomically switch; return freshness when lagging.",
+    "technology": "Redis (optional)"
+  },
+  {
+    "id": "AnalyticsWarehouse",
+    "name": "ClickHouse analytical history",
+    "container_type": "dataWarehouse",
+    "description": "ClickHouse stores session facts, cumulative sample history and settled result versions for analytical queries. Core ingestion workers project asynchronously; no fourth service is introduced. ReplacingMergeTree replacement happens during merges and is not a uniqueness constraint. Queries must explicitly select the latest record per semantic key/revision (argMax/FINAL as appropriate) before aggregating. Raw duplicate inserts must never inflate settled totals. No admission, lease, reward or live rank authority depends on ClickHouse availability.",
+    "technology": "ClickHouse"
+  },
+  {
+    "id": "SessionRecordings",
+    "name": "Mandatory session timeline and optional media archive",
+    "container_type": "objectStore",
+    "technology": "Durable regional append journal + private object storage",
+    "authoritative": true,
+    "description": "Every admitted session has a timestamped event archive. Core PostgreSQL owns recording policy, per-source watermarks, event index and media manifests. Core/MediaEngine append immutable event batches and checksum-verified media segments to tenant/session namespaces through a fenced durable adapter. Default event retention 30 days, optional media 7 days; preserve metadata tombstones and configured holds. ClickHouse indexes/analyses copies and is never the sole recording copy. Encryption, scoped playback URLs, storage quotas, restore drills and explicit gap/completeness states are required."
+  }
+]

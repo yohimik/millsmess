@@ -1,0 +1,3 @@
+A checkpoint names an immutable object, checksum, session, owner epoch, game build, authoritative tick and last durable accepted-input offset. Only a committed manifest is eligible for recovery. Verify object digest and build before replay; a bucket listing or a newer uncommitted file is not authority.
+
+The game serializer includes RNG, timers, state and cumulative statistics watermarks. Restore network/media associations through new negotiation; never serialize socket objects or credentials. Old epoch history is read-only input to a new owner. Checkpoint/replay retention and failure behavior are part of GameProfile and Media Engine's recovery contract.

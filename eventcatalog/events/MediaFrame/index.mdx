@@ -1,0 +1,72 @@
+---
+{
+  "id": "MediaFrame",
+  "name": "MediaFrame",
+  "version": "1.0.0",
+  "summary": "Forward an authorized codec frame over WSS, data channel or secure UDP.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Forward an authorized codec frame over WSS, data channel or secure UDP.
+
+## Responsibility
+
+Producer: **MediaEngine**. Consumer: **client**. Delivery: **realtime**. Channel: **MediaFrames**.
+
+## Preconditions and effects
+
+Per-recipient subscription and privacy checks precede forwarding. mediaTimestamp/timescale drive playout; sequence orders one channel generation. Receivers drop expired frames and use a bounded jitter buffer. kind and codec must equal ChannelOpened; keyFrame marks decoder recovery points. Missing video data waits for the next keyframe; transport adapter codec policy handles refresh requests.
+
+## Ordering and idempotency
+
+Session + owner epoch + player + connection generation + logical channel. Sequence numbers are local to this scope.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Drop expired, duplicate or unauthorized frames; rate-limit and disconnect abusive senders. Missing snapshots trigger resync, not unlimited retransmission. No durable delivery guarantee applies.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "MediaFrame",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "playerId": "player-id-example",
+    "channelId": "channel-id-example",
+    "connectionGeneration": "1",
+    "sequence": "1",
+    "mediaTimestamp": "1",
+    "payload": "AQID",
+    "kind": "audio",
+    "codec": "game-json-v1",
+    "timescale": 1,
+    "duration": 0,
+    "keyFrame": false
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

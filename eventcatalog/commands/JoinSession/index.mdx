@@ -1,0 +1,68 @@
+---
+{
+  "id": "JoinSession",
+  "name": "JoinSession",
+  "version": "1.0.0",
+  "summary": "Admit a late-joining player or spectator into an open session.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Admit a late-joining player or spectator into an open session.
+
+## Responsibility
+
+Producer: **Socket, client**. Consumer: **Core**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Check ACL, game join policy, capacity, current ACTIVE owner and negotiated capabilities. Reserve membership transactionally; issue short-lived owner-bound ticket. DRAINING engines allow joins to existing sessions only if the original endsBy cannot extend.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **SessionAdmissionGranted**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "JoinSession",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "role": "player",
+    "capabilities": {
+      "transports": [],
+      "kinds": [],
+      "codecs": [],
+      "protocolVersions": []
+    }
+  },
+  "idempotencyKey": "idempotency-key-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

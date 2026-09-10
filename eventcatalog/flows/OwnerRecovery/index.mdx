@@ -1,0 +1,102 @@
+---
+{
+  "id": "OwnerRecovery",
+  "name": "Recover after owner loss",
+  "summary": "Fence expired owner and restore verified state.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Expire lease by CAS",
+      "message": {
+        "id": "SessionOwnerLost",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Choose recovery or explicit failure",
+      "service": {
+        "id": "Core",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Grant new epoch and replay bounds",
+      "message": {
+        "id": "RecoverSession",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Verify checkpoint and contiguous journal",
+      "service": {
+        "id": "MediaEngine",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Commit recovered owner",
+      "message": {
+        "id": "SessionRecovered",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "6"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Refresh owner-bound admission",
+      "message": {
+        "id": "JoinSession",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "7"
+      }
+    },
+    {
+      "id": "7",
+      "title": "Recreate network associations",
+      "message": {
+        "id": "NegotiateTransport",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "8"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Send full state",
+      "message": {
+        "id": "GameSnapshot",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Abort-policy games or failed verification end in SessionFailed instead of SessionRecovered. Recovery does not restore live media buffers or extend lifetime. A partitioned predecessor self-fences before its safe lease deadline. Terminal result reconciliation takes precedence over replay.
+
+<NodeGraph />

@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MatchPolicy",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "policyId": {
+      "$ref": "#/$defs/ID"
+    },
+    "revision": {
+      "$ref": "#/$defs/Counter"
+    },
+    "strategy": {
+      "$ref": "#/$defs/MatchStrategy"
+    },
+    "gameId": {
+      "$ref": "#/$defs/ID"
+    },
+    "buildDigest": {
+      "$ref": "#/$defs/Digest"
+    },
+    "teamCount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 128
+    },
+    "playersPerTeam": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 256
+    },
+    "maxPartySize": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 256
+    },
+    "maxWaitSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    },
+    "proposalTimeoutSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 120
+    },
+    "initialSkillDelta": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "maxSkillDelta": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "skillExpansionPerSecond": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "maxLatencyMs": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2000
+    },
+    "allowBackfill": {
+      "type": "boolean"
+    },
+    "skillWeight": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "latencyWeight": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "waitWeight": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    }
+  },
+  "required": [
+    "policyId",
+    "revision",
+    "strategy",
+    "gameId",
+    "buildDigest",
+    "teamCount",
+    "playersPerTeam",
+    "maxPartySize",
+    "maxWaitSeconds",
+    "proposalTimeoutSeconds",
+    "initialSkillDelta",
+    "maxSkillDelta",
+    "skillExpansionPerSecond",
+    "maxLatencyMs",
+    "allowBackfill",
+    "skillWeight",
+    "latencyWeight",
+    "waitWeight"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "MatchStrategy": {
+      "type": "string",
+      "enum": [
+        "fifo",
+        "skill",
+        "latency",
+        "party-balanced",
+        "weighted"
+      ]
+    }
+  }
+}

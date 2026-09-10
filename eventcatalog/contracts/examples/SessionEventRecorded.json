@@ -1,0 +1,35 @@
+{
+  "messageId": "message-id-example",
+  "type": "SessionEventRecorded",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "record": {
+      "eventId": "event-id-example",
+      "tenantId": "tenant-id-example",
+      "sessionId": "session-id-example",
+      "regionId": "region-id-example",
+      "clusterId": "cluster-id-example",
+      "streamId": "stream-id-example",
+      "source": "Core",
+      "sourceSequence": "1",
+      "ownerEpoch": "1",
+      "eventType": "example",
+      "eventVersion": "example",
+      "occurredAt": "2026-09-08T12:00:00Z",
+      "recordedAt": "2026-09-08T12:00:00Z",
+      "elapsedMicros": "1",
+      "causationId": "causation-id-example",
+      "payloadSchema": "example",
+      "payload": "AQID",
+      "payloadDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}

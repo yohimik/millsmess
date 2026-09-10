@@ -1,0 +1,15 @@
+---
+{
+  "id": "RegionalState",
+  "name": "Regional PostgreSQL authority",
+  "container_type": "database",
+  "technology": "PostgreSQL",
+  "authoritative": true,
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+PostgreSQL is the authority for identities, rooms, session leases, allocation reservations, match tickets/proposals, durable results, statistics and leaderboard revisions. Core owns writes. Unique constraints + row locks/CAS or SERIALIZABLE retries protect invariants; plain read-then-write at READ COMMITTED is insufficient. Co-locate transactionally related room/session/queue records. Persist outbox/inbox in the same database. Connection pools, query limits, PITR backup and tested failover are required.

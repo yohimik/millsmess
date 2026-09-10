@@ -1,0 +1,14 @@
+---
+{
+  "id": "ConnectionCache",
+  "name": "Connection and projection cache",
+  "container_type": "cache",
+  "technology": "Redis (optional)",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Optional Redis-compatible regional cache for Socket token hashes/generations, subscriptions, presence and replaceable projections. It is not the room, ticket or session authority. Cache failure forces reauthentication/resync; Core state rebuilds projections. TTL per entry, tenant key namespace, bounded memory and eviction policy are mandatory. Session leases never depend on a cache lock.

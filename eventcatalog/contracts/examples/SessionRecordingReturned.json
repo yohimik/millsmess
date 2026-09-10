@@ -1,0 +1,22 @@
+{
+  "messageId": "message-id-example",
+  "type": "SessionRecordingReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "recording": {
+      "sessionId": "session-id-example",
+      "eventsRequired": true,
+      "state": "open",
+      "eventCount": "1",
+      "archiveWatermark": "1",
+      "startedAt": "2026-09-08T12:00:00Z",
+      "retainedUntil": "2026-09-08T12:00:00Z",
+      "mediaRecordingIds": []
+    }
+  }
+}

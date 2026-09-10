@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecordingSegmentCommitted",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "RecordingSegmentCommitted"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/RecordingSegmentCommittedData"
+    },
+    "aggregateId": {
+      "$ref": "#/$defs/ID"
+    },
+    "aggregateRevision": {
+      "$ref": "#/$defs/Counter"
+    },
+    "causationId": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "aggregateId",
+    "aggregateRevision",
+    "causationId"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "RecordingSegment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recordingId": {
+          "$ref": "#/$defs/ID"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "trackId": {
+          "$ref": "#/$defs/ID"
+        },
+        "playerId": {
+          "$ref": "#/$defs/ID"
+        },
+        "channelId": {
+          "$ref": "#/$defs/ID"
+        },
+        "ownerEpoch": {
+          "$ref": "#/$defs/Counter"
+        },
+        "connectionGeneration": {
+          "$ref": "#/$defs/Counter"
+        },
+        "segmentSequence": {
+          "$ref": "#/$defs/Counter"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "audio",
+            "video"
+          ]
+        },
+        "container": {
+          "type": "string",
+          "enum": [
+            "webm",
+            "fragmented-mp4",
+            "ogg"
+          ]
+        },
+        "codec": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "startedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "endedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "startOffsetMicros": {
+          "$ref": "#/$defs/Counter"
+        },
+        "endOffsetMicros": {
+          "$ref": "#/$defs/Counter"
+        },
+        "byteLength": {
+          "$ref": "#/$defs/Counter"
+        },
+        "objectKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "independentlyDecodable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "recordingId",
+        "sessionId",
+        "trackId",
+        "playerId",
+        "channelId",
+        "ownerEpoch",
+        "connectionGeneration",
+        "segmentSequence",
+        "kind",
+        "container",
+        "codec",
+        "startedAt",
+        "endedAt",
+        "startOffsetMicros",
+        "endOffsetMicros",
+        "byteLength",
+        "objectKey",
+        "digest",
+        "independentlyDecodable"
+      ]
+    },
+    "RecordingSegmentCommittedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "segment": {
+          "$ref": "#/$defs/RecordingSegment"
+        }
+      },
+      "required": [
+        "segment"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

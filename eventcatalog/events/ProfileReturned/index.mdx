@@ -1,0 +1,65 @@
+---
+{
+  "id": "ProfileReturned",
+  "name": "ProfileReturned",
+  "version": "1.0.0",
+  "summary": "Return the current profile.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Return the current profile.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **Socket, client**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Return private identity data only to its authorized audience; never broadcast across a room.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "ProfileReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "profile": {
+      "userId": "user-id-example",
+      "displayName": "example",
+      "revision": "1",
+      "status": "active"
+    }
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

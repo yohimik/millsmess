@@ -1,0 +1,10 @@
+.idea/
+.DS_Store
+node_modules/
+eventcatalog/.eventcatalog-core/
+eventcatalog/.astro/
+eventcatalog/.cache/
+eventcatalog/dist/
+eventcatalog/.eventcatalog/
+*.log
+.dispat/

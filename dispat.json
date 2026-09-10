@@ -1,0 +1,28 @@
+{
+  "logFormat": "json",
+  "concurrency": 2,
+  "initials": { "catalog": "1.0.0", "contracts-go": "1.0.0", "contracts-js": "1.0.0" },
+  "scripts": { "publication-disabled": "node -e \"throw new Error('Catalog-only repository: configure an authorized CI publication workflow before releasing')\"" },
+  "run": { "beforeAll": "publication-disabled" },
+  "packages": {
+    "catalog": {
+      "path": "eventcatalog",
+      "ignore": ["generated/**", "node_modules/**", "dist/**", ".eventcatalog-core/**"],
+      "scripts": { "tests": ["pnpm check", "pnpm test", "pnpm test:types"], "build": "pnpm build" },
+      "flow": { "build": "build" }
+    },
+    "contracts-go": {
+      "path": "eventcatalog/generated/go",
+      "tagFormat": "eventcatalog/generated/go/v{version}",
+      "dependencies": [{ "provider": "catalog", "keep": true, "kind": "devDependencies" }],
+      "scripts": { "tests": "node ../../scripts/test-go.mjs", "build": "node ../../scripts/test-go.mjs" },
+      "flow": { "build": "build" }
+    },
+    "contracts-js": {
+      "path": "eventcatalog/generated/js",
+      "dependencies": [{ "provider": "catalog", "keep": true, "kind": "devDependencies" }],
+      "scripts": { "tests": ["pnpm --dir ../.. test", "pnpm --dir ../.. test:types"], "build": "pnpm --dir ../.. check" },
+      "flow": { "build": "build" }
+    }
+  }
+}

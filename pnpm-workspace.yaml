@@ -1,0 +1,14 @@
+packages:
+  - eventcatalog
+  - eventcatalog/generated/js
+allowBuilds:
+  esbuild: true
+  '@parcel/watcher': true
+  vue-demi: true
+  '@scarf/scarf': false
+minimumReleaseAgeExclude:
+  - '@eventcatalog/core@4.10.12'
+  - '@eventcatalog/linter@1.1.19'
+# EventCatalog links its embedded Astro app's node_modules into a build directory.
+# Hoisting keeps executable paths valid through that link (isolated pnpm shims do not).
+nodeLinker: hoisted

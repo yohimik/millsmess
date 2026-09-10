@@ -1,0 +1,20 @@
+import { mkdtemp, cp, symlink } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { root } from './model.mjs';
+const workspace=resolve(root,'..');
+const fixture=await mkdtemp(join(tmpdir(),'millsmess-dispat-'));
+await cp(join(workspace,'dispat.json'),join(fixture,'dispat.json'));
+await cp(join(workspace,'package.json'),join(fixture,'package.json'));
+await cp(join(workspace,'pnpm-workspace.yaml'),join(fixture,'pnpm-workspace.yaml'));
+await cp(join(workspace,'pnpm-lock.yaml'),join(fixture,'pnpm-lock.yaml'));
+await cp(root,join(fixture,'eventcatalog'),{recursive:true,filter:path=>!path.split('/').some(p=>['node_modules','.eventcatalog-core','dist','.astro','.cache'].includes(p))});
+await symlink(join(workspace,'node_modules'),join(fixture,'node_modules'),'dir');
+function run(bin,args) { execFileSync(bin,args,{cwd:fixture,stdio:'inherit'}); }
+run('git',['init','-q']);
+run('git',['add','dispat.json','package.json','pnpm-workspace.yaml','pnpm-lock.yaml','eventcatalog']);
+run('git',['-c','user.name=Catalog Test','-c','user.email=catalog-test@example.invalid','commit','-qm','chore: initialize disposable catalog verification fixture']);
+run('dispat',['compute','--check']);
+run('dispat',['run','tests','--since','all']);
+console.log('Verified Dispat graph and all package tests in disposable fixture: '+fixture);

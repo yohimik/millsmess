@@ -1,0 +1,21 @@
+{
+  "messageId": "message-id-example",
+  "type": "MatchProposed",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "proposalId": "proposal-id-example",
+    "ticketIds": [],
+    "teams": [],
+    "expiresAt": "2026-09-08T12:00:00Z",
+    "policyId": "policy-id-example",
+    "policyRevision": "1"
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}

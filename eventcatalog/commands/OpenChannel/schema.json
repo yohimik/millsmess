@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenChannel",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "OpenChannel"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/OpenChannelData"
+    },
+    "idempotencyKey": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "idempotencyKey"
+  ],
+  "$defs": {
+    "ChannelKind": {
+      "type": "string",
+      "enum": [
+        "audio",
+        "video",
+        "game"
+      ]
+    },
+    "ChannelSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "channelId": {
+          "$ref": "#/$defs/ID"
+        },
+        "kind": {
+          "$ref": "#/$defs/ChannelKind"
+        },
+        "transport": {
+          "$ref": "#/$defs/Transport"
+        },
+        "reliability": {
+          "$ref": "#/$defs/Reliability"
+        },
+        "codec": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "maxPayloadBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "maxRateHz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 240
+        }
+      },
+      "required": [
+        "channelId",
+        "kind",
+        "transport",
+        "reliability",
+        "codec",
+        "maxPayloadBytes",
+        "maxRateHz"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "transport": {
+                "const": "websocket"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "reliability": {
+                "const": "reliable-ordered"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "transport": {
+                "enum": [
+                  "udp",
+                  "webrtc-rtp"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "reliability": {
+                "const": "unreliable-sequenced"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "transport": {
+                "const": "webrtc-rtp"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "audio",
+                  "video"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "OpenChannelData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "ownerEpoch": {
+          "$ref": "#/$defs/Counter"
+        },
+        "playerId": {
+          "$ref": "#/$defs/ID"
+        },
+        "connectionGeneration": {
+          "$ref": "#/$defs/Counter"
+        },
+        "channel": {
+          "$ref": "#/$defs/ChannelSpec"
+        }
+      },
+      "required": [
+        "sessionId",
+        "ownerEpoch",
+        "playerId",
+        "connectionGeneration",
+        "channel"
+      ]
+    },
+    "Reliability": {
+      "type": "string",
+      "enum": [
+        "reliable-ordered",
+        "reliable-unordered",
+        "unreliable-sequenced"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Transport": {
+      "type": "string",
+      "enum": [
+        "websocket",
+        "webrtc-datachannel",
+        "udp",
+        "webrtc-rtp"
+      ]
+    }
+  }
+}

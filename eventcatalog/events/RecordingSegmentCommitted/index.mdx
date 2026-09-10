@@ -1,0 +1,83 @@
+---
+{
+  "id": "RecordingSegmentCommitted",
+  "name": "RecordingSegmentCommitted",
+  "version": "1.0.0",
+  "summary": "Attach a durable checksum-verified media segment to its session.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Attach a durable checksum-verified media segment to its session.
+
+## Responsibility
+
+Producer: **MediaEngine**. Consumer: **Core**. Delivery: **durable**. Channel: **SessionRecordingStream**.
+
+## Preconditions and effects
+
+Upload immutable object, verify checksum/length and atomically persist manifest + outbox intent before publication. Unique recordingId/trackId/ownerEpoch/segmentSequence prevents duplicate attachment. Never publish a playback reference to an unfinished multipart upload. Segment timestamps map to the same session clock as event records.
+
+## Ordering and idempotency
+
+Tenant + region + cluster + aggregate ID. Broker partition order is scoped to one aggregate; aggregateRevision is assigned by that aggregate owner, never by the client.
+
+Deduplicate by tenantId + producer authority + messageId; retain aggregate transitions and terminal settlement uniqueness beyond broker retention.
+
+## Failure handling
+
+Retry transient failures with jitter. Commit inbox deduplication and state/outbox together before ACK. Quarantine invalid/unsupported messages in a bounded DLQ with reason and alert; retain original identity on replay. Stale ownership is rejected, not retried blindly.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "RecordingSegmentCommitted",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "segment": {
+      "recordingId": "recording-id-example",
+      "sessionId": "session-id-example",
+      "trackId": "track-id-example",
+      "playerId": "player-id-example",
+      "channelId": "channel-id-example",
+      "ownerEpoch": "1",
+      "connectionGeneration": "1",
+      "segmentSequence": "1",
+      "kind": "audio",
+      "container": "webm",
+      "codec": "game-json-v1",
+      "startedAt": "2026-09-08T12:00:00Z",
+      "endedAt": "2026-09-08T12:00:00Z",
+      "startOffsetMicros": "1",
+      "endOffsetMicros": "1",
+      "byteLength": "1",
+      "objectKey": "example",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "independentlyDecodable": false
+    }
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

@@ -1,0 +1,19 @@
+---
+{
+  "id": "ControlAPI",
+  "name": "Regional control API",
+  "protocols": [
+    "https"
+  ],
+  "address": "https://{cluster}/v1/control",
+  "deliveryGuarantee": "at-most-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Authenticated JSON commands/queries to Core. Method POST; type + version selects operation. HTTP 200 for completed, 202 for durable accepted, 400 invalid-payload, 401 unauthenticated, 403 forbidden, 404 not-found, 409 conflict/stale revision, 429 quota and 503 unavailable. Body is the declared reply or CommandResult. TLS identity and request correlation scope replies. Bootstrap endpoints are configured, not inferred from a session ID.
+
+<NodeGraph />

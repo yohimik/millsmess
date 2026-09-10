@@ -1,0 +1,19 @@
+{
+  "messageId": "message-id-example",
+  "type": "DrainEngine",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "engineId": "engine-id-example",
+    "incarnationId": "incarnation-id-example",
+    "drainId": "drain-id-example"
+  },
+  "idempotencyKey": "idempotency-key-example",
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}

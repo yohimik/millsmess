@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RoomReturned",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "RoomReturned"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/RoomReturnedData"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "Participant": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "playerId": {
+          "$ref": "#/$defs/ID"
+        },
+        "userId": {
+          "$ref": "#/$defs/ID"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "player",
+            "spectator"
+          ]
+        },
+        "membershipRevision": {
+          "$ref": "#/$defs/Counter"
+        }
+      },
+      "required": [
+        "playerId",
+        "userId",
+        "role",
+        "membershipRevision"
+      ]
+    },
+    "Room": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "roomId": {
+          "$ref": "#/$defs/ID"
+        },
+        "gameId": {
+          "$ref": "#/$defs/ID"
+        },
+        "regionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "clusterId": {
+          "$ref": "#/$defs/ID"
+        },
+        "revision": {
+          "$ref": "#/$defs/Counter"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "locked",
+            "closed"
+          ]
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Participant"
+          },
+          "maxItems": 10000
+        }
+      },
+      "required": [
+        "roomId",
+        "gameId",
+        "regionId",
+        "clusterId",
+        "revision",
+        "status",
+        "participants"
+      ]
+    },
+    "RoomReturnedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "room": {
+          "$ref": "#/$defs/Room"
+        }
+      },
+      "required": [
+        "room"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

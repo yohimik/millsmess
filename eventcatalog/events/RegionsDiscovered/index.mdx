@@ -1,0 +1,61 @@
+---
+{
+  "id": "RegionsDiscovered",
+  "name": "RegionsDiscovered",
+  "version": "1.0.0",
+  "summary": "Return region routing and admission status.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Return region routing and admission status.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **client**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Response to DiscoverRegions. Signed/TLS-protected discovery expires; never silently move an existing session to a different region.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "RegionsDiscovered",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "regions": [],
+    "expiresAt": "2026-09-08T12:00:00Z"
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

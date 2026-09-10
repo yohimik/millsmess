@@ -1,0 +1,128 @@
+[
+  {
+    "id": "ControlAPI",
+    "name": "Regional control API",
+    "protocols": [
+      "https"
+    ],
+    "address": "https://{cluster}/v1/control",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Authenticated JSON commands/queries to Core. Method POST; type + version selects operation. HTTP 200 for completed, 202 for durable accepted, 400 invalid-payload, 401 unauthenticated, 403 forbidden, 404 not-found, 409 conflict/stale revision, 429 quota and 503 unavailable. Body is the declared reply or CommandResult. TLS identity and request correlation scope replies. Bootstrap endpoints are configured, not inferred from a session ID."
+  },
+  {
+    "id": "AdminAPI",
+    "name": "Operator control API",
+    "protocols": [
+      "https"
+    ],
+    "address": "https://{cluster}/v1/admin",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Separate service/operator audience with mTLS or strong operator credentials. Drain, policy, revocation and season-finalization actions are audited. Never expose ordinary-player authorization here. Same request/reply/error envelope as ControlAPI."
+  },
+  {
+    "id": "ClientControl",
+    "name": "Client control connection",
+    "protocols": [
+      "wss"
+    ],
+    "address": "wss://{cluster}/v1/control",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Socket-hosted WSS JSON control connection. First Connect frame within five seconds. One envelope per message, tenant/principal quotas, replaceable projections and explicit reconnect snapshots. Control mutations relay to Core; game ticks never transit a durable broker."
+  },
+  {
+    "id": "RegionalEvents",
+    "name": "Regional lifecycle stream",
+    "protocols": [
+      "broker"
+    ],
+    "address": "mm.{tenant}.{region}.{cluster}.events.{aggregate}",
+    "deliveryGuarantee": "at-least-once",
+    "description": "Broker-neutral at-least-once durable lifecycle stream. Reference adapter: regional NATS JetStream or Kafka with persisted acknowledgements and per-aggregate routing. Ordered per producer-owned aggregate only. Core subscribers use competing workers; Socket fanout must reach each interested gateway, not just one random consumer. Topic ACLs bind allowed producer/type. Seven-day retention, eight-day inbox dedup; see domain redrive contract."
+  },
+  {
+    "id": "EngineCommands",
+    "name": "Targeted engine commands",
+    "protocols": [
+      "broker"
+    ],
+    "address": "mm.{tenant}.{region}.{cluster}.engine.{engine}.{incarnation}",
+    "deliveryGuarantee": "at-least-once",
+    "description": "Target one engine incarnation. Never load-balance session commands to arbitrary engines. Expired/stale allocation epoch is rejected. Durable at-least-once commands plus Core reconciler provide recovery from missed acknowledgements. Drain of a multi-tenant engine is sent by its authenticated operator authority; receiver reconciles every hosted tenant before it can report EngineDrained."
+  },
+  {
+    "id": "MediaSignaling",
+    "name": "Directed media signaling",
+    "protocols": [
+      "https",
+      "wss"
+    ],
+    "address": "https://{owner}/v1/signaling",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Authenticated direct or Socket-relayed signaling to the current owner. SDP/ICE/admission secrets are excluded from durable topics. Bind all exchanges to negotiationId, player, epoch and connection generation. Replies return only over original authorized exchange."
+  },
+  {
+    "id": "GameData",
+    "name": "Logical game data",
+    "protocols": [
+      "wss",
+      "webrtc-datachannel",
+      "udp"
+    ],
+    "address": "owner/session/channel",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Logical channel carried by exactly one negotiated data adapter. WebSocket reliable-ordered, WebRTC data channel reliability explicit, secure UDP unreliable-sequenced. JSON debug/v1 envelope must fit transport budget including base64; large full state uses reliable transport. These are ephemeral messages, never a Kafka/NATS tick stream."
+  },
+  {
+    "id": "AudioVideo",
+    "name": "Logical audio/video tracks",
+    "protocols": [
+      "webrtc-rtp"
+    ],
+    "address": "owner/session/media-track",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Default audio/video data plane: negotiated RTP/RTCP protected with DTLS-SRTP. ChannelOpened binds logical channel to negotiated track. These packets are protocol frames, not JSON lifecycle events, so this channel intentionally has no event schemas. Alternative codec framing over WS/data-channel/secure UDP is offered only with a game-owned framing and jitter manifest."
+  },
+  {
+    "id": "Reply",
+    "name": "Authenticated directed replies",
+    "protocols": [
+      "https",
+      "wss"
+    ],
+    "address": "originating-request-or-connection",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Virtual response route for CommandResult. Same authenticated request or WSS connection; the server never accepts a client-supplied broker reply destination. Result requestId identifies the command messageId; correlationId is observability only."
+  },
+  {
+    "id": "StatisticsStream",
+    "name": "Statistics and ranking updates",
+    "protocols": [
+      "broker"
+    ],
+    "address": "mm.{tenant}.{region}.{cluster}.stats.{aggregate}",
+    "deliveryGuarantee": "at-least-once",
+    "description": "Separate bounded workload from allocation/control. Engine publishes cumulative provisional samples at up to 1 Hz per player shard; Core validates current epoch and publishes settled result/stat/leaderboard revisions. Core projection workers ingest ClickHouse and Redis through inbox/outbox. No tick-by-tick game/media payloads. Delivery is at-least-once and materializations must deduplicate."
+  },
+  {
+    "id": "MediaFrames",
+    "name": "Non-RTP codec frames",
+    "protocols": [
+      "wss",
+      "webrtc-datachannel",
+      "udp"
+    ],
+    "address": "owner/session/media-channel",
+    "deliveryGuarantee": "at-most-once",
+    "description": "Optional negotiated audio/video codec frames over the common data-adapter interface. PublishMediaFrame/MediaFrame carry timestamps, sequence and codec payload; enforce full encoded-message size budgets and encryption overhead. Opus packets may fit datagrams; oversized video requires reliable transport or standard RTP packetization, never implicit v1 UDP fragmentation. Unsupported codec packetization is refused. This is ephemeral live traffic, not a broker topic."
+  },
+  {
+    "id": "SessionRecordingStream",
+    "name": "Session recording metadata stream",
+    "protocols": [
+      "broker"
+    ],
+    "address": "mm.{tenant}.{region}.{cluster}.recordings.{session}",
+    "deliveryGuarantee": "at-least-once",
+    "description": "Durable event-record indexing and media manifest notifications. Source event capture precedes publication; this broker is a delivery/indexing mechanism, not the only archive. Deduplicate stable event and segment identities. Mandatory gameplay events never drop under broker pressure: persist outbox/backpressure. Raw audio/video remains in private object storage, never embedded in this stream."
+  }
+]

@@ -1,0 +1,134 @@
+---
+{
+  "id": "SessionRecording",
+  "name": "Record every session and optional audio/video",
+  "summary": "Mandatory durable timestamped events with optional media attached to the same session.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Set optional media policy",
+      "actor": {
+        "name": "Host / operator"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Require durable event recorder",
+      "message": {
+        "id": "AllocateSession",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Capture each accepted session event",
+      "message": {
+        "id": "SessionEventRecorded",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Optionally enable audio/video",
+      "message": {
+        "id": "StartMediaRecording",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Start owner-bound recording",
+      "message": {
+        "id": "StartSessionMediaCapture",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "6"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Commit timestamped media segments",
+      "message": {
+        "id": "RecordingSegmentCommitted",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "7"
+      }
+    },
+    {
+      "id": "7",
+      "title": "Capture terminal event",
+      "message": {
+        "id": "SessionEnded",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "8"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Finish attached media",
+      "message": {
+        "id": "MediaRecordingFinalized",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "9"
+      }
+    },
+    {
+      "id": "9",
+      "title": "Certify event coverage",
+      "message": {
+        "id": "SessionRecordingSealed",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "10"
+      }
+    },
+    {
+      "id": "10",
+      "title": "Read event timeline",
+      "message": {
+        "id": "GetSessionEvents",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "11"
+      }
+    },
+    {
+      "id": "11",
+      "title": "Read optional session-linked media",
+      "message": {
+        "id": "GetRecordingPlayback",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Event capture is mandatory regardless of media policy or recovery policy. Media steps are optional; auto-enabled game profiles run them on allocation, manual start covers only the future interval. The event archive seals only after terminal metadata and all source end-watermarks reconcile. Crash gaps are explicit; planned engine drain waits for final writes and recording resources. Playback needs separate authorized access.
+
+<NodeGraph />

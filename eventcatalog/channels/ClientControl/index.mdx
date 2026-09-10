@@ -1,0 +1,19 @@
+---
+{
+  "id": "ClientControl",
+  "name": "Client control connection",
+  "protocols": [
+    "wss"
+  ],
+  "address": "wss://{cluster}/v1/control",
+  "deliveryGuarantee": "at-most-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Socket-hosted WSS JSON control connection. First Connect frame within five seconds. One envelope per message, tenant/principal quotas, replaceable projections and explicit reconnect snapshots. Control mutations relay to Core; game ticks never transit a durable broker.
+
+<NodeGraph />

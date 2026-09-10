@@ -1,0 +1,1420 @@
+[
+  {
+    "id": "DiscoverRegions",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "RegionsDiscovered",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "Authenticate",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "Authenticated",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "GetProfile",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "ProfileReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "UpdateProfile",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "ProfileUpdated",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "RevokeAccess",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "AccessRevoked",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "MediaEngine"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "Connect",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "ClientControl",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "Connected",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Socket"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "ClientControl",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "ResumeConnection",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "ClientControl",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "ConnectionState",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Socket"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "ClientControl",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "Disconnect",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Socket"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "ClientControl",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "CreateRoom",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "JoinRoom",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "LeaveRoom",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "MatchRoom",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "UpdateRoomPlayerData",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "RoomUpdated",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "GetRoom",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "RoomReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "StartSession",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "RematchSession",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "AllocateSession",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "delivery": "durable"
+  },
+  {
+    "id": "AllocationRejected",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "SessionStarted",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "GetSession",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "JoinSession",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionAdmissionGranted",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "LeaveSession",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionMembershipChanged",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "NegotiateTransport",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "TransportNegotiated",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "AddIceCandidate",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "IceCandidateDiscovered",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "OpenChannel",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "ChannelOpened",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "CloseChannel",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "ChannelClosed",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "GameInput",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "GameData",
+    "delivery": "realtime"
+  },
+  {
+    "id": "GameSnapshot",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "GameData",
+    "delivery": "realtime"
+  },
+  {
+    "id": "RequestGameSnapshot",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaSignaling",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "RenewSessionLease",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionLeaseRenewed",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "CheckpointCommitted",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "SessionOwnerLost",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "RecoverSession",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "delivery": "durable"
+  },
+  {
+    "id": "SessionRecovered",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "EndSession",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "delivery": "durable"
+  },
+  {
+    "id": "SessionEnded",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "SessionFailed",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "RegisterEngine",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "EngineHeartbeat",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "RequestEngineDrain",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "DrainEngine",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "delivery": "durable"
+  },
+  {
+    "id": "EngineDraining",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "EngineDrained",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "SetRegionAdmission",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "RegionAdmissionChanged",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "CommandResult",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core",
+      "Socket",
+      "MediaEngine"
+    ],
+    "consumers": [
+      "client",
+      "operator",
+      "Socket",
+      "Core",
+      "MediaEngine"
+    ],
+    "channel": "Reply",
+    "delivery": "request-response"
+  },
+  {
+    "id": "EnqueueMatch",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "GetMatchTicket",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "MatchTicketReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "CancelMatch",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "MatchProposed",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "AcceptMatch",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "MatchFound",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "MatchTicketClosed",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "RegionalEvents",
+    "delivery": "durable"
+  },
+  {
+    "id": "UpdateMatchPolicy",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionStatisticsReported",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "StatisticsStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "GetPlayerStatistics",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "PlayerStatisticsReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SubmitSessionResult",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionResultSettled",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "Core"
+    ],
+    "channel": "StatisticsStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "PlayerStatisticsUpdated",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "GetLeaderboard",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "LeaderboardReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "LeaderboardUpdated",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "SubscribeStatistics",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "ClientControl",
+    "delivery": "ephemeral"
+  },
+  {
+    "id": "FinalizeSeason",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "AdminAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SeasonFinalized",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "LiveStatisticsUpdated",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "StatisticsStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "PublishMediaFrame",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "client"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "MediaFrames",
+    "delivery": "realtime"
+  },
+  {
+    "id": "MediaFrame",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "client"
+    ],
+    "channel": "MediaFrames",
+    "delivery": "realtime"
+  },
+  {
+    "id": "SessionEventRecorded",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core",
+      "Socket",
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "SessionRecordingStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "GetSessionRecording",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionRecordingReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "GetSessionEvents",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionEventsReturned",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "StartMediaRecording",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "StartSessionMediaCapture",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "delivery": "durable"
+  },
+  {
+    "id": "MediaRecordingStarted",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "RecordingSegmentCommitted",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "SessionRecordingStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "MediaRecordingGapDetected",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine",
+      "Core"
+    ],
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "StopMediaRecording",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "StopSessionMediaCapture",
+    "version": "1.0.0",
+    "kind": "commands",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "MediaEngine"
+    ],
+    "channel": "EngineCommands",
+    "delivery": "durable"
+  },
+  {
+    "id": "MediaRecordingFinalized",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "MediaEngine",
+      "Core"
+    ],
+    "consumers": [
+      "Core",
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "GetRecordingPlayback",
+    "version": "1.0.0",
+    "kind": "queries",
+    "producers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "RecordingPlaybackGranted",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket",
+      "client",
+      "operator"
+    ],
+    "channel": "ControlAPI",
+    "delivery": "request-response"
+  },
+  {
+    "id": "SessionRecordingSealed",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core"
+    ],
+    "consumers": [
+      "Socket"
+    ],
+    "channel": "SessionRecordingStream",
+    "delivery": "durable"
+  },
+  {
+    "id": "SessionEventStreamClosed",
+    "version": "1.0.0",
+    "kind": "events",
+    "producers": [
+      "Core",
+      "Socket",
+      "MediaEngine"
+    ],
+    "consumers": [
+      "Core"
+    ],
+    "channel": "SessionRecordingStream",
+    "delivery": "durable"
+  }
+]

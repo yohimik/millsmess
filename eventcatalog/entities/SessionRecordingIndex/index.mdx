@@ -1,0 +1,68 @@
+---
+{
+  "id": "SessionRecordingIndex",
+  "name": "SessionRecordingIndex",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ],
+  "summary": "Canonical SessionRecordingIndex contract.",
+  "schemaPath": "schema.json"
+}
+---
+
+**Every session is recorded.** Timestamped session events are mandatory, including sessions whose crash-recovery policy is abort. Audio and video are independent optional recordings attached to the same sessionId. Core, Socket and Media Engine implement this inside the existing three-service architecture.
+
+## Mandatory event timeline
+
+Core creates the SessionRecordingIndex and immutable RecordingPolicy in the session-creation transaction, before AllocateSession can be issued. No session can start without a working durable capture path. eventsRequired is always true and cannot be disabled through a game profile, tenant setting, media stop command or runtime recovery policy.
+
+Record session creation/allocation, start, joins/leaves and role changes, session-linked control-connection attach/resume/disconnect observations, accepted game inputs, authoritative game-domain events and tick boundaries/state hashes, channel open/close and negotiation outcome metadata, recording start/stop/gaps, cumulative statistics, result settlement, owner changes, recovery and terminal completion/failure. Invalid input decisions affecting the session are recorded with bounded rejection reason metadata. High-volume unauthenticated packet abuse is aggregate security telemetry rather than arbitrary attacker-controlled payload capture.
+
+The timeline preserves the actual accepted input/game-event payload under an immutable game-owned payloadSchema and version. Do not record credentials, admission tickets, SDP secrets, ICE credentials, raw access tokens or private authentication assertions. Record redacted negotiation decisions and identifiers instead. Raw audio/video bytes are optional media recordings; repeated per-recipient snapshots and raw network packets are not the canonical session event stream. Authoritative state transitions, tick markers and accepted inputs remain recorded even when replaceable network frames are dropped.
+
+Each SessionEventRecord contains eventId, tenant/session/region/cluster, source and streamId, sourceSequence, ownerEpoch, optional tick, eventType/version, occurredAt, recordedAt, elapsedMicros, causationId, payload schema, payload and digest. occurredAt is the trusted server occurrence time; recordedAt is durable acceptance time. Both are UTC RFC3339 timestamps. Events before the first runtime allocation use ownerEpoch="0"; later events identify the observed/current epoch and the authenticated source. observedClientAt is an optional untrusted observation and cannot determine authoritative ordering or rewind eligibility.
+
+The session origin is fixed when Core creates the session. elapsedMicros is a decimal string offset against that origin. Engines map their monotonic clock to the origin using measured offset/uncertainty and never reset the session timeline on recovery. For new owner epochs, record clock discontinuity metadata and clamp emitted offsets to the last durable watermark; do not pretend wall clocks alone provide a perfect global order. Keep ownerEpoch + sourceSequence + causationId alongside timestamps. Media segments use the same origin and offset units.
+
+## Durable capture, ordering and backpressure
+
+Core records its events in the same PostgreSQL transaction/outbox as the corresponding state transition. Media Engine durably appends accepted inputs and authoritative decisions/tick intents to its fenced session journal **before** applying/acknowledging the corresponding visible effect. This requirement applies to abort-policy games too: recording and recoverable simulation are different capabilities. Deterministic recovery still requires module state/checkpoints and reproducible replay, not merely an audit log.
+
+The append adapter durably commits eventId, source stream sequence, epoch and payload digest; duplicate same identity/digest returns the prior acknowledgement, while different content under the same identity is an integrity incident. Atomic batch append can amortize tick cost, but no accepted/visible event may outrun the durable batch watermark. The game module must journal its input and externally visible authoritative outputs/tick decisions before publishing them. An interrupted tick is recorded as accepted input plus incomplete tick intent, not fabricated as completed simulation.
+
+Socket durably captures session-linked connection attach/resume/close observations using an incarnation-scoped source stream; it does not duplicate Core-owned room/game transitions. A crashed gateway cannot report the exact physical disconnect time: record the later observed timeout with its detection timestamp and cause.
+
+SessionEventRecorded notifications index already-durable records. They do not make in-memory events durable retroactively. Core assigns a stable archiveOffset as records are indexed per session. Offset represents archive append order, **not** a fabricated global causal order across independent Core, Socket and engine streams. Preserve sourceSequence, causal links, tick and timestamps for timeline/replay consumers. Reordering or duplicate delivery cannot create a second logical event. Event batches are immutable and checksum-verified; store capture watermarks and integrity status in PostgreSQL.
+
+If mandatory event storage is unavailable, stop admitting sessions and stop accepting/applying unrecordable actions before acknowledging them. A bounded spool only qualifies if durable under the declared node-loss failure model (replicated disk/journal); an in-memory queue or node-local temporary file does not. Existing engines keep renewing leases and report degraded recording, but pause authoritative mutation when durability cannot be met. If policy ends the session, record that outcome through the restored durable path before claiming a complete timeline. Do not silently sample or drop mandatory events to preserve frame rate. Capacity planning must include journal write latency and bytes per game tick.
+
+## Completion, recovery and engine drain
+
+Core's index state is open → sealing → sealed; incomplete is an explicit integrity incident when coverage cannot be proven. Each source stream publishes SessionEventStreamClosed with its lastSequence, eventCount and streamDigest after final domain/media metadata. Core verifies the closed stream is contiguous and includes every declared event before accepting its terminal watermark. Sealing reconciles the terminal session outcome, all committed source records through those watermarks, media finalization/gap metadata and a timeline manifest digest. SessionRecordingSealed is a recorder receipt outside the stream it seals; SessionEventRecorded indexing notifications are also excluded from recursive self-capture.
+
+Normal Media Engine drain waits for current sessions **and** their mandatory event flush, optional media segment flush and final recording manifests. EngineDrained requires pendingEventRecords=0, pendingRecordingSegments=0 and openRecordings=0 in addition to no active/reserved sessions or pending durable writes. A completed game with an uncommitted last segment is not a drained engine. Core archive indexing may catch up asynchronously only when every source record and end-watermark is already durable and another worker can finish it.
+
+After engine crash, recover the existing session event stream with a new source incarnation/owner epoch; never restart event IDs or sequence counters in the same stream. Journal records already acknowledged survive according to the adapter's durability guarantee. Orphan uncommitted chunks are not eligible archive data. Core records owner loss and uses durable watermarks to finish abort-policy sessions as well as replay-policy sessions. If bytes are truly lost, mark incomplete and alert; never present a seamless complete recording.
+
+## Storage, access and retention
+
+PostgreSQL owns policy, session recording index, per-source watermarks, ACLs, retention state and media manifests. A regional durable append journal and private object store retain immutable event batches and media segments. ClickHouse asynchronously indexes event history for searching/statistics; it is not the only copy and its outage cannot drop mandatory capture. Archive objects live under tenant/session namespaces and carry checksums; optional encryption keys are tenant-scoped and rotated through the deployment key service.
+
+Default retention is 30 days for event timelines and 7 days for optional media, configurable from 1 to 3650 days at session creation. Recording every session means mandatory capture throughout its life, not undeclared infinite storage. Retention expiry removes protected payloads/objects according to operator policy and preserves an index tombstone/audit outcome; active sessions, unsealed journals, unsettled results and configured preservation holds are ineligible for automatic expiry. Mandatory recording cannot be disabled to evade a tenant quota: reject new admission before storage exhausts.
+
+GetSessionRecording reports coverage and linked media IDs; GetSessionEvents returns timestamped payloads in byte-bounded pages of at most 100 records. A cursor pins tenant/session and a captured archive watermark; live callers start a new read window to see later appends. Separate recording-read permission is required: having joined a session does not automatically grant access to everyone's event payload or voice/video. Audit reads and playback grants, redact payloads per viewer rights, and respect session/tenant residency.
+
+## Required implementation tests
+
+- Start a game with eventsRequired=false: schema/config validation rejects it. Abort recovery policy still produces a complete event timeline.
+- Crash after durable append before reply: retry returns the same event identity without a duplicate timeline entry.
+- Partition mandatory event storage while sending game actions: no unrecorded action is accepted or applied; recovery resumes from the durable watermark.
+- Reorder Core/engine events and jump wall clocks: preserve source order/causality and explicit clock metadata instead of silently sorting away conflicts.
+- Drain with zero active games but one pending event batch or media segment: EngineDrained is forbidden.
+- Expire media retention while keeping event retention: session metadata/timeline remains accessible; playback is denied with a retention tombstone.
+
+These are backend acceptance gates. Catalog validation tests the schemas, linkage and certificate shapes, not deployed storage fault tolerance.
+
+
+<SchemaViewer />

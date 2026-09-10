@@ -1,0 +1,21 @@
+---
+{
+  "id": "GameData",
+  "name": "Logical game data",
+  "protocols": [
+    "wss",
+    "webrtc-datachannel",
+    "udp"
+  ],
+  "address": "owner/session/channel",
+  "deliveryGuarantee": "at-most-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Logical channel carried by exactly one negotiated data adapter. WebSocket reliable-ordered, WebRTC data channel reliability explicit, secure UDP unreliable-sequenced. JSON debug/v1 envelope must fit transport budget including base64; large full state uses reliable transport. These are ephemeral messages, never a Kafka/NATS tick stream.
+
+<NodeGraph />

@@ -1,0 +1,21 @@
+{
+  "messageId": "message-id-example",
+  "type": "Connected",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "connectionId": "connection-id-example",
+    "resumeToken": "example",
+    "expiresAt": "2026-09-08T12:00:00Z",
+    "capabilities": {
+      "transports": [],
+      "kinds": [],
+      "codecs": [],
+      "protocolVersions": []
+    }
+  }
+}

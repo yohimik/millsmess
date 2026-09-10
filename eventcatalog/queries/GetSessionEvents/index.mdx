@@ -1,0 +1,61 @@
+---
+{
+  "id": "GetSessionEvents",
+  "name": "GetSessionEvents",
+  "version": "1.0.0",
+  "summary": "Read timestamped session events with bounded stable pagination.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Read timestamped session events with bounded stable pagination.
+
+## Responsibility
+
+Producer: **Socket, client, operator**. Consumer: **Core**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Enforce session-recording read permission separately from live membership. Cursor binds tenant/session and immutable archive watermark; append order is ingestion order, not causal order across writers. Limit 100 events and 256 KiB response; continue earlier when byte budget is reached. Payload schema/version is retained for decoding.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **SessionEventsReturned**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "GetSessionEvents",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "limit": 1
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

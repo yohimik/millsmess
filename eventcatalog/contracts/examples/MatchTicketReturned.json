@@ -1,0 +1,23 @@
+{
+  "messageId": "message-id-example",
+  "type": "MatchTicketReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "ticket": {
+      "ticketId": "ticket-id-example",
+      "policyId": "policy-id-example",
+      "policyRevision": "1",
+      "regionId": "region-id-example",
+      "clusterId": "cluster-id-example",
+      "state": "queued",
+      "revision": "1",
+      "createdAt": "2026-09-08T12:00:00Z",
+      "expiresAt": "2026-09-08T12:00:00Z"
+    }
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MatchFound",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "MatchFound"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/MatchFoundData"
+    },
+    "aggregateId": {
+      "$ref": "#/$defs/ID"
+    },
+    "aggregateRevision": {
+      "$ref": "#/$defs/Counter"
+    },
+    "causationId": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "aggregateId",
+    "aggregateRevision",
+    "causationId"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "MatchFoundData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "proposalId": {
+          "$ref": "#/$defs/ID"
+        },
+        "ticketIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ID"
+          },
+          "maxItems": 256
+        },
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TeamAssignment"
+          },
+          "maxItems": 128
+        }
+      },
+      "required": [
+        "proposalId",
+        "ticketIds",
+        "sessionId",
+        "teams"
+      ]
+    },
+    "TeamAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "teamId": {
+          "$ref": "#/$defs/ID"
+        },
+        "playerIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ID"
+          },
+          "maxItems": 256
+        }
+      },
+      "required": [
+        "teamId",
+        "playerIds"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

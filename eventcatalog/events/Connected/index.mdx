@@ -1,0 +1,68 @@
+---
+{
+  "id": "Connected",
+  "name": "Connected",
+  "version": "1.0.0",
+  "summary": "Confirm a control connection and issue a resume credential.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Confirm a control connection and issue a resume credential.
+
+## Responsibility
+
+Producer: **Socket**. Consumer: **client**. Delivery: **ephemeral**. Channel: **ClientControl**.
+
+## Preconditions and effects
+
+Resume token binds user, tenant, audience and a server-held cursor/connection generation. Store only a hash. Delivery does not imply room membership.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "Connected",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "connectionId": "connection-id-example",
+    "resumeToken": "example",
+    "expiresAt": "2026-09-08T12:00:00Z",
+    "capabilities": {
+      "transports": [],
+      "kinds": [],
+      "codecs": [],
+      "protocolVersions": []
+    }
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

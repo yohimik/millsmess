@@ -1,0 +1,19 @@
+---
+{
+  "id": "AudioVideo",
+  "name": "Logical audio/video tracks",
+  "protocols": [
+    "webrtc-rtp"
+  ],
+  "address": "owner/session/media-track",
+  "deliveryGuarantee": "at-most-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Default audio/video data plane: negotiated RTP/RTCP protected with DTLS-SRTP. ChannelOpened binds logical channel to negotiated track. These packets are protocol frames, not JSON lifecycle events, so this channel intentionally has no event schemas. Alternative codec framing over WS/data-channel/secure UDP is offered only with a game-owned framing and jitter manifest.
+
+<NodeGraph />

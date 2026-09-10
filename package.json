@@ -1,0 +1,15 @@
+{
+  "name": "millsmess-catalog-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.15.0",
+  "engines": { "node": ">=24.0.0 <25" },
+  "scripts": {
+    "dev": "pnpm --dir eventcatalog dev",
+    "generate": "pnpm --dir eventcatalog generate",
+    "check": "pnpm --dir eventcatalog check",
+    "test": "pnpm --dir eventcatalog test",
+    "test:go": "pnpm --dir eventcatalog test:go",
+    "build": "pnpm --dir eventcatalog build",
+    "preview": "pnpm --dir eventcatalog preview"
+  }
+}

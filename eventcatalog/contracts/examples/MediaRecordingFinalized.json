@@ -1,0 +1,29 @@
+{
+  "messageId": "message-id-example",
+  "type": "MediaRecordingFinalized",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "recording": {
+      "recordingId": "recording-id-example",
+      "sessionId": "session-id-example",
+      "state": "completed",
+      "revision": "1",
+      "audio": false,
+      "video": false,
+      "startedAt": "2026-09-08T12:00:00Z",
+      "retainedUntil": "2026-09-08T12:00:00Z",
+      "segmentCount": "1",
+      "gapCount": "1",
+      "endedAt": "2026-09-08T12:05:00Z",
+      "manifestDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}

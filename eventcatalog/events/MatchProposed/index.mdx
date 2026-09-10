@@ -1,0 +1,68 @@
+---
+{
+  "id": "MatchProposed",
+  "name": "MatchProposed",
+  "version": "1.0.0",
+  "summary": "Invite matched participants to accept a bounded proposal.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Invite matched participants to accept a bounded proposal.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **Socket**. Delivery: **durable**. Channel: **RegionalEvents**.
+
+## Preconditions and effects
+
+Proposal transaction reserves all tickets together. Socket delivers only to participating members, redacting other tickets/private rating. A proposal is not a session grant.
+
+## Ordering and idempotency
+
+Tenant + region + cluster + aggregate ID. Broker partition order is scoped to one aggregate; aggregateRevision is assigned by that aggregate owner, never by the client.
+
+Deduplicate by tenantId + producer authority + messageId; retain aggregate transitions and terminal settlement uniqueness beyond broker retention.
+
+## Failure handling
+
+Retry transient failures with jitter. Commit inbox deduplication and state/outbox together before ACK. Quarantine invalid/unsupported messages in a bounded DLQ with reason and alert; retain original identity on replay. Stale ownership is rejected, not retried blindly.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "MatchProposed",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "proposalId": "proposal-id-example",
+    "ticketIds": [],
+    "teams": [],
+    "expiresAt": "2026-09-08T12:00:00Z",
+    "policyId": "policy-id-example",
+    "policyRevision": "1"
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

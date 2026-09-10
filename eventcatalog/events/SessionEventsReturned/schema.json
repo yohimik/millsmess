@@ -1,0 +1,220 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SessionEventsReturned",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "SessionEventsReturned"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/SessionEventsReturnedData"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data"
+  ],
+  "$defs": {
+    "Bytes": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+      "maxLength": 87384,
+      "description": "Canonical padded base64. Decoded size and negotiated transport budget also enforced."
+    },
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "IndexedSessionEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "archiveOffset": {
+          "$ref": "#/$defs/Counter"
+        },
+        "record": {
+          "$ref": "#/$defs/SessionEventRecord"
+        }
+      },
+      "required": [
+        "archiveOffset",
+        "record"
+      ]
+    },
+    "SessionEventRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "eventId": {
+          "$ref": "#/$defs/ID"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/ID"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "regionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "clusterId": {
+          "$ref": "#/$defs/ID"
+        },
+        "streamId": {
+          "$ref": "#/$defs/ID"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "Core",
+            "Socket",
+            "MediaEngine"
+          ]
+        },
+        "sourceSequence": {
+          "$ref": "#/$defs/Counter"
+        },
+        "ownerEpoch": {
+          "$ref": "#/$defs/Counter"
+        },
+        "tick": {
+          "$ref": "#/$defs/Counter"
+        },
+        "eventType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "eventVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "recordedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "elapsedMicros": {
+          "$ref": "#/$defs/Counter"
+        },
+        "causationId": {
+          "$ref": "#/$defs/ID"
+        },
+        "observedClientAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "payloadSchema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "payload": {
+          "$ref": "#/$defs/Bytes"
+        },
+        "payloadDigest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "eventId",
+        "tenantId",
+        "sessionId",
+        "regionId",
+        "clusterId",
+        "streamId",
+        "source",
+        "sourceSequence",
+        "ownerEpoch",
+        "eventType",
+        "eventVersion",
+        "occurredAt",
+        "recordedAt",
+        "elapsedMicros",
+        "causationId",
+        "payloadSchema",
+        "payload",
+        "payloadDigest"
+      ]
+    },
+    "SessionEventsReturnedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IndexedSessionEvent"
+          },
+          "maxItems": 100
+        },
+        "archiveWatermark": {
+          "$ref": "#/$defs/Counter"
+        },
+        "sealed": {
+          "type": "boolean"
+        },
+        "nextCursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "required": [
+        "sessionId",
+        "events",
+        "archiveWatermark",
+        "sealed"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+---
+{
+  "id": "StartSessionMediaCapture",
+  "name": "StartSessionMediaCapture",
+  "version": "1.0.0",
+  "summary": "Start authorized media capture on the current session owner.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Start authorized media capture on the current session owner.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **MediaEngine**. Delivery: **durable**. Channel: **EngineCommands**.
+
+## Preconditions and effects
+
+Current owner verifies persisted recording intent and current per-track permissions before capture. Use recordingId + track + owner epoch + segment sequence identity; repeated starts are idempotent. On owner recovery continue the same recording ID under a new epoch after rechecking consent, recording an explicit interruption gap.
+
+## Ordering and idempotency
+
+Tenant + region + cluster + aggregate ID. Broker partition order is scoped to one aggregate; aggregateRevision is assigned by that aggregate owner, never by the client.
+
+Deduplicate by tenantId + producer authority + messageId; retain aggregate transitions and terminal settlement uniqueness beyond broker retention.
+
+## Failure handling
+
+Retry transient failures with jitter. Commit inbox deduplication and state/outbox together before ACK. Quarantine invalid/unsupported messages in a bounded DLQ with reason and alert; retain original identity on replay. Stale ownership is rejected, not retried blindly.
+
+Success/reply contract: **MediaRecordingStarted**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "StartSessionMediaCapture",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "recordingId": "recording-id-example",
+    "audio": true,
+    "video": false,
+    "policy": {
+      "eventsRequired": true,
+      "audioEnabled": false,
+      "videoEnabled": false,
+      "eventRetentionDays": 1,
+      "mediaRetentionDays": 1,
+      "segmentDurationMs": 250,
+      "mediaFailureMode": "continue-with-gap",
+      "policyRevision": "1"
+    }
+  },
+  "idempotencyKey": "idempotency-key-example",
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

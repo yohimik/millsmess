@@ -1,0 +1,23 @@
+---
+{
+  "id": "GameProfile",
+  "name": "GameProfile",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ],
+  "summary": "Canonical GameProfile contract.",
+  "schemaPath": "schema.json"
+}
+---
+
+An immutable game build and validated runtime policy determine session capacity, tick rate, lifetime, recovery and channel requirements. Core pins this profile at session creation. A deployment must validate maxPlayers against room/match team limits and transport/control message size budgets.
+
+Checkpoint-replay requires deterministic serialization, accepted-input journaling and tested replay equivalence; otherwise choose abort. inputRetentionSeconds must exceed checkpoint interval plus recovery/outage budgets. EndsBy is fixed from creation and maxSessionSeconds; a session cannot run indefinitely while promising bounded graceful maintenance.
+
+Channel codecs are game-owned, versioned manifests with payload schema, timestamp/framing, bounds and validation. Unknown codecs/build digests are refused before allocation. Public clients receive only approved profile values; server module paths/secrets are not part of this contract.
+
+Every profile requires RecordingPolicy with eventsRequired=true. Optional audio/video flags are independent from mandatory event capture and from crash-recovery support. Recording storage/codec capacity is validated before admitting the session.
+
+
+<SchemaViewer />

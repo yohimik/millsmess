@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EnqueueMatch",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "EnqueueMatch"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/EnqueueMatchData"
+    },
+    "idempotencyKey": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "idempotencyKey"
+  ],
+  "$defs": {
+    "EnqueueMatchData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policyId": {
+          "$ref": "#/$defs/ID"
+        },
+        "partyId": {
+          "$ref": "#/$defs/ID"
+        },
+        "latencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LatencySample"
+          },
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "policyId",
+        "latencies"
+      ]
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "LatencySample": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "regionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "rttMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "measuredAt": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "regionId",
+        "rttMs",
+        "measuredAt"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

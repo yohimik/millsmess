@@ -1,0 +1,74 @@
+---
+{
+  "id": "SessionRecordingSealed",
+  "name": "SessionRecordingSealed",
+  "version": "1.0.0",
+  "summary": "Certify durable session-event coverage through terminal finalization.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Certify durable session-event coverage through terminal finalization.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **Socket**. Delivery: **durable**. Channel: **SessionRecordingStream**.
+
+## Preconditions and effects
+
+Core verifies terminal session outcome, all durable source stream end-watermarks, recording finalization metadata and manifest digest before setting sealed. If coverage cannot be proven, emit incomplete with an incident instead. This recorder receipt is outside the sealed event stream to avoid recursive self-recording.
+
+## Ordering and idempotency
+
+Tenant + region + cluster + aggregate ID. Broker partition order is scoped to one aggregate; aggregateRevision is assigned by that aggregate owner, never by the client.
+
+Deduplicate by tenantId + producer authority + messageId; retain aggregate transitions and terminal settlement uniqueness beyond broker retention.
+
+## Failure handling
+
+Retry transient failures with jitter. Commit inbox deduplication and state/outbox together before ACK. Quarantine invalid/unsupported messages in a bounded DLQ with reason and alert; retain original identity on replay. Stale ownership is rejected, not retried blindly.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "SessionRecordingSealed",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "recording": {
+      "sessionId": "session-id-example",
+      "eventsRequired": true,
+      "state": "sealed",
+      "eventCount": "1",
+      "archiveWatermark": "1",
+      "startedAt": "2026-09-08T12:00:00Z",
+      "retainedUntil": "2026-09-08T12:00:00Z",
+      "mediaRecordingIds": [],
+      "endedAt": "2026-09-08T12:05:00Z",
+      "timelineDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

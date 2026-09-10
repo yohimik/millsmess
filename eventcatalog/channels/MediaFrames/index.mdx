@@ -1,0 +1,21 @@
+---
+{
+  "id": "MediaFrames",
+  "name": "Non-RTP codec frames",
+  "protocols": [
+    "wss",
+    "webrtc-datachannel",
+    "udp"
+  ],
+  "address": "owner/session/media-channel",
+  "deliveryGuarantee": "at-most-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Optional negotiated audio/video codec frames over the common data-adapter interface. PublishMediaFrame/MediaFrame carry timestamps, sequence and codec payload; enforce full encoded-message size budgets and encryption overhead. Opus packets may fit datagrams; oversized video requires reliable transport or standard RTP packetization, never implicit v1 UDP fragmentation. Unsupported codec packetization is refused. This is ephemeral live traffic, not a broker topic.
+
+<NodeGraph />

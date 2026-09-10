@@ -1,0 +1,19 @@
+---
+{
+  "id": "AdminAPI",
+  "name": "Operator control API",
+  "protocols": [
+    "https"
+  ],
+  "address": "https://{cluster}/v1/admin",
+  "deliveryGuarantee": "at-most-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Separate service/operator audience with mTLS or strong operator credentials. Drain, policy, revocation and season-finalization actions are audited. Never expose ordinary-player authorization here. Same request/reply/error envelope as ControlAPI.
+
+<NodeGraph />

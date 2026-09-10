@@ -1,0 +1,102 @@
+---
+{
+  "id": "Matchmaking",
+  "name": "Queue, propose and allocate a match",
+  "summary": "Pluggable built-in strategy with atomic ticket claims.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Create one ticket per party",
+      "message": {
+        "id": "EnqueueMatch",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Filter and score candidates",
+      "service": {
+        "id": "Core",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Reserve candidate tickets",
+      "message": {
+        "id": "MatchProposed",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Gather required consent",
+      "message": {
+        "id": "AcceptMatch",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Atomically commit assignments",
+      "message": {
+        "id": "MatchFound",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "6"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Allocate compatible owner",
+      "message": {
+        "id": "AllocateSession",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "7"
+      }
+    },
+    {
+      "id": "7",
+      "title": "Await active state",
+      "message": {
+        "id": "SessionStarted",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "8"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Admit matched players",
+      "message": {
+        "id": "JoinSession",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Cancellation and proposal expiry race by revision CAS. Only one wins. Skill relaxation never relaxes tenant, build, party integrity or hard latency bounds. Allocation failure closes tickets explicitly. Backfill uses the same strategy but reserves free slots of an existing ACTIVE session and skips new allocation.
+
+<NodeGraph />

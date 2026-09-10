@@ -1,0 +1,76 @@
+---
+{
+  "id": "MediaRecordingFinalized",
+  "name": "MediaRecordingFinalized",
+  "version": "1.0.0",
+  "summary": "Publish an immutable completed, partial or failed media manifest.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Publish an immutable completed, partial or failed media manifest.
+
+## Responsibility
+
+Producer: **MediaEngine, Core**. Consumer: **Core, Socket**. Delivery: **durable**. Channel: **SessionRecordingStream**.
+
+## Preconditions and effects
+
+State must be completed, partial or failed with endedAt and manifestDigest. Core may finalize orphaned recordings after owner loss using only committed segments and explicit gaps. Terminal status is immutable; never claim complete coverage after an unflushed crash. Mandatory event timeline stores the finalization metadata.
+
+## Ordering and idempotency
+
+Tenant + region + cluster + aggregate ID. Broker partition order is scoped to one aggregate; aggregateRevision is assigned by that aggregate owner, never by the client.
+
+Deduplicate by tenantId + producer authority + messageId; retain aggregate transitions and terminal settlement uniqueness beyond broker retention.
+
+## Failure handling
+
+Retry transient failures with jitter. Commit inbox deduplication and state/outbox together before ACK. Quarantine invalid/unsupported messages in a bounded DLQ with reason and alert; retain original identity on replay. Stale ownership is rejected, not retried blindly.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "MediaRecordingFinalized",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "recording": {
+      "recordingId": "recording-id-example",
+      "sessionId": "session-id-example",
+      "state": "completed",
+      "revision": "1",
+      "audio": false,
+      "video": false,
+      "startedAt": "2026-09-08T12:00:00Z",
+      "retainedUntil": "2026-09-08T12:00:00Z",
+      "segmentCount": "1",
+      "gapCount": "1",
+      "endedAt": "2026-09-08T12:05:00Z",
+      "manifestDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

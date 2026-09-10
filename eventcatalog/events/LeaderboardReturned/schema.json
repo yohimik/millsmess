@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LeaderboardReturned",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "LeaderboardReturned"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/LeaderboardReturnedData"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "LeaderboardDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "boardId": {
+          "$ref": "#/$defs/ID"
+        },
+        "seasonId": {
+          "$ref": "#/$defs/ID"
+        },
+        "metricId": {
+          "$ref": "#/$defs/ID"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "descending",
+            "ascending"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "regional",
+            "global"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "closing",
+            "finalized"
+          ]
+        },
+        "tieBreak": {
+          "type": "string",
+          "enum": [
+            "player-id-ascending"
+          ]
+        },
+        "scoreScale": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "revision": {
+          "$ref": "#/$defs/Counter"
+        }
+      },
+      "required": [
+        "boardId",
+        "seasonId",
+        "metricId",
+        "direction",
+        "scope",
+        "status",
+        "tieBreak",
+        "scoreScale",
+        "revision"
+      ]
+    },
+    "LeaderboardEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "playerId": {
+          "$ref": "#/$defs/ID"
+        },
+        "score": {
+          "$ref": "#/$defs/SignedValue"
+        },
+        "rank": {
+          "$ref": "#/$defs/Counter"
+        },
+        "revision": {
+          "$ref": "#/$defs/Counter"
+        }
+      },
+      "required": [
+        "playerId",
+        "score",
+        "rank",
+        "revision"
+      ]
+    },
+    "LeaderboardReturnedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "board": {
+          "$ref": "#/$defs/LeaderboardDefinition"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LeaderboardEntry"
+          },
+          "maxItems": 100
+        },
+        "asOf": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "revision": {
+          "$ref": "#/$defs/Counter"
+        },
+        "stale": {
+          "type": "boolean"
+        },
+        "nextCursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "required": [
+        "board",
+        "entries",
+        "asOf",
+        "revision",
+        "stale"
+      ]
+    },
+    "SignedValue": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]{0,15})$",
+      "description": "Signed fixed-point integer string; metric definition supplies scale. No floating-point ranking."
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+---
+{
+  "id": "Checkpoints",
+  "name": "Checkpoint objects and runtime journal",
+  "container_type": "objectStore",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Object storage contains immutable, checksummed game checkpoints/final result blobs. A durable, fenced ordered journal holds accepted game inputs, checkpoint manifests and result/outbox intents. Media Engine writes its own session namespace; Core reads manifests for recovery. The adapter must enforce token CAS and atomic durable record boundaries; object-store eventual listing is not a manifest. Retain checkpoint/log windows long enough for declared recovery; garbage-collect orphan objects safely.

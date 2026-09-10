@@ -1,0 +1,14 @@
+---
+{
+  "id": "AnalyticsWarehouse",
+  "name": "ClickHouse analytical history",
+  "container_type": "dataWarehouse",
+  "technology": "ClickHouse",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+ClickHouse stores session facts, cumulative sample history and settled result versions for analytical queries. Core ingestion workers project asynchronously; no fourth service is introduced. ReplacingMergeTree replacement happens during merges and is not a uniqueness constraint. Queries must explicitly select the latest record per semantic key/revision (argMax/FINAL as appropriate) before aggregating. Raw duplicate inserts must never inflate settled totals. No admission, lease, reward or live rank authority depends on ClickHouse availability.

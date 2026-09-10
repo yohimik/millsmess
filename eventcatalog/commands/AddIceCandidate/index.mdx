@@ -1,0 +1,67 @@
+---
+{
+  "id": "AddIceCandidate",
+  "name": "AddIceCandidate",
+  "version": "1.0.0",
+  "summary": "Add a bounded trickle ICE candidate for one negotiation.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Add a bounded trickle ICE candidate for one negotiation.
+
+## Responsibility
+
+Producer: **Socket, client**. Consumer: **MediaEngine**. Delivery: **ephemeral**. Channel: **MediaSignaling**.
+
+## Preconditions and effects
+
+Accept only for a live authorized WebRTC negotiation, rate-limit candidate count and destination policy. Empty/end-of-candidates is represented by candidate value end-of-candidates.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **CommandResult**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "AddIceCandidate",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "playerId": "player-id-example",
+    "negotiationId": "negotiation-id-example",
+    "candidate": "example",
+    "sdpMid": "example",
+    "sdpMLineIndex": 0
+  },
+  "idempotencyKey": "idempotency-key-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

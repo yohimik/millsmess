@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MediaRecordingGapDetected",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "MediaRecordingGapDetected"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/MediaRecordingGapDetectedData"
+    },
+    "aggregateId": {
+      "$ref": "#/$defs/ID"
+    },
+    "aggregateRevision": {
+      "$ref": "#/$defs/Counter"
+    },
+    "causationId": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "aggregateId",
+    "aggregateRevision",
+    "causationId"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "MediaRecordingGapDetectedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "recordingId": {
+          "$ref": "#/$defs/ID"
+        },
+        "gap": {
+          "$ref": "#/$defs/RecordingGap"
+        }
+      },
+      "required": [
+        "sessionId",
+        "recordingId",
+        "gap"
+      ]
+    },
+    "RecordingGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trackId": {
+          "$ref": "#/$defs/ID"
+        },
+        "ownerEpoch": {
+          "$ref": "#/$defs/Counter"
+        },
+        "startOffsetMicros": {
+          "$ref": "#/$defs/Counter"
+        },
+        "endOffsetMicros": {
+          "$ref": "#/$defs/Counter"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "source-disconnected",
+            "consent-withdrawn",
+            "engine-crash",
+            "upload-failed",
+            "storage-unavailable",
+            "quota-exceeded",
+            "unsupported-codec"
+          ]
+        }
+      },
+      "required": [
+        "trackId",
+        "ownerEpoch",
+        "startOffsetMicros",
+        "endOffsetMicros",
+        "reason"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

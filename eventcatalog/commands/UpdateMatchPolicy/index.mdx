@@ -1,0 +1,81 @@
+---
+{
+  "id": "UpdateMatchPolicy",
+  "name": "UpdateMatchPolicy",
+  "version": "1.0.0",
+  "summary": "Version an allowed matchmaking strategy configuration.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Version an allowed matchmaking strategy configuration.
+
+## Responsibility
+
+Producer: **operator**. Consumer: **Core**. Delivery: **request-response**. Channel: **AdminAPI**.
+
+## Preconditions and effects
+
+Require game administration permission; validate bounds, party fits team, maximum relaxation, weights and build. Queue entries pin policy revision and never change semantics mid-search.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+Success/reply contract: **CommandResult**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "UpdateMatchPolicy",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "policy": {
+      "policyId": "policy-id-example",
+      "revision": "1",
+      "strategy": "fifo",
+      "gameId": "game-id-example",
+      "buildDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "teamCount": 1,
+      "playersPerTeam": 1,
+      "maxPartySize": 1,
+      "maxWaitSeconds": 1,
+      "proposalTimeoutSeconds": 1,
+      "initialSkillDelta": 0,
+      "maxSkillDelta": 0,
+      "skillExpansionPerSecond": 0,
+      "maxLatencyMs": 1,
+      "allowBackfill": false,
+      "skillWeight": 0,
+      "latencyWeight": 0,
+      "waitWeight": 0
+    },
+    "expectedRevision": "1"
+  },
+  "idempotencyKey": "idempotency-key-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

@@ -1,0 +1,3 @@
+A regional cluster has opaque configured IDs, control/socket endpoints, admission state and discovery revision. Multiple clusters may share a geographic region while isolating tenants/builds/capacity. Every session has one immutable region/cluster authority.
+
+Discovery is a cached hint. Core rechecks admission in the authority store. Draining rejects new sessions while preserving current sessions and owner routes; unavailable cannot be bypassed by promoting a second writer. Existing sessions never move because a geo-DNS lookup changed.

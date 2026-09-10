@@ -1,0 +1,750 @@
+[
+  {
+    "id": "OpenSession",
+    "name": "Create and join an open session",
+    "summary": "From lobby reservation to an authoritative runtime.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Choose region",
+        "actor": {
+          "name": "Player"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Create durable lobby",
+        "message": {
+          "id": "CreateRoom",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Start once",
+        "message": {
+          "id": "StartSession",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Reserve compatible owner",
+        "service": {
+          "id": "Core",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Target owner incarnation",
+        "message": {
+          "id": "AllocateSession",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "6"
+        }
+      },
+      {
+        "id": "6",
+        "title": "Confirm runtime boot",
+        "message": {
+          "id": "SessionStarted",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "7"
+        }
+      },
+      {
+        "id": "7",
+        "title": "Admit player or spectator",
+        "message": {
+          "id": "JoinSession",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "8"
+        }
+      },
+      {
+        "id": "8",
+        "title": "Issue fenced ticket",
+        "message": {
+          "id": "SessionAdmissionGranted",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "9"
+        }
+      },
+      {
+        "id": "9",
+        "title": "Select supported adapter",
+        "message": {
+          "id": "NegotiateTransport",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "10"
+        }
+      },
+      {
+        "id": "10",
+        "title": "Send full initial state",
+        "message": {
+          "id": "GameSnapshot",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "description": "Core accepts SessionStarted before admission. Capacity/allocation failure leads to SessionFailed after bounded retries; no duplicate active room session. Late join follows JoinSession onward and never creates a new owner. See Core for ticket nonce and revision checks."
+  },
+  {
+    "id": "GracefulDrain",
+    "name": "Finish sessions before restart",
+    "summary": "Drain allocation, retain live traffic, terminate only when empty.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Start replacement capacity",
+        "actor": {
+          "name": "Operator"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Persist admission barrier",
+        "message": {
+          "id": "RequestEngineDrain",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Stop new reservations",
+        "service": {
+          "id": "Core",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Quiesce new runtimes",
+        "message": {
+          "id": "DrainEngine",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Continue existing sessions",
+        "message": {
+          "id": "EngineDraining",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "6"
+        }
+      },
+      {
+        "id": "6",
+        "title": "Commit final outcomes as sessions finish",
+        "message": {
+          "id": "SubmitSessionResult",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "7"
+        }
+      },
+      {
+        "id": "7",
+        "title": "Confirm session completion",
+        "message": {
+          "id": "SessionEnded",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "8"
+        }
+      },
+      {
+        "id": "8",
+        "title": "Certify empty and durable",
+        "message": {
+          "id": "EngineDrained",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "9"
+        }
+      },
+      {
+        "id": "9",
+        "title": "Terminate drained incarnation",
+        "actor": {
+          "name": "Deployment controller"
+        }
+      }
+    ],
+    "description": "Session completion repeats for every active session. EngineDrained is forbidden while any runtime/reservation/durable write remains. This is a pre-deletion workflow; a timer never converts normal drain into forced EndSession. Lost drain messages are recovered through the persisted intent and reconciler."
+  },
+  {
+    "id": "OwnerRecovery",
+    "name": "Recover after owner loss",
+    "summary": "Fence expired owner and restore verified state.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Expire lease by CAS",
+        "message": {
+          "id": "SessionOwnerLost",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Choose recovery or explicit failure",
+        "service": {
+          "id": "Core",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Grant new epoch and replay bounds",
+        "message": {
+          "id": "RecoverSession",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Verify checkpoint and contiguous journal",
+        "service": {
+          "id": "MediaEngine",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Commit recovered owner",
+        "message": {
+          "id": "SessionRecovered",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "6"
+        }
+      },
+      {
+        "id": "6",
+        "title": "Refresh owner-bound admission",
+        "message": {
+          "id": "JoinSession",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "7"
+        }
+      },
+      {
+        "id": "7",
+        "title": "Recreate network associations",
+        "message": {
+          "id": "NegotiateTransport",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "8"
+        }
+      },
+      {
+        "id": "8",
+        "title": "Send full state",
+        "message": {
+          "id": "GameSnapshot",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "description": "Abort-policy games or failed verification end in SessionFailed instead of SessionRecovered. Recovery does not restore live media buffers or extend lifetime. A partitioned predecessor self-fences before its safe lease deadline. Terminal result reconciliation takes precedence over replay."
+  },
+  {
+    "id": "SocketReconnect",
+    "name": "Reconnect on any Socket replica",
+    "summary": "Recover control state without stopping the game.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Detect connection loss",
+        "actor": {
+          "name": "Client"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Present expiring resume token",
+        "message": {
+          "id": "ResumeConnection",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Rotate connection generation and read Core",
+        "service": {
+          "id": "Socket",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Replace local projections",
+        "message": {
+          "id": "ConnectionState",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Restore desired live subscriptions",
+        "message": {
+          "id": "SubscribeStatistics",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "description": "If resume expired, reauthenticate and Connect instead. Direct live media may remain connected; reconnect it only if the transport was lost or the owner epoch changed. No historical transient update replay is promised."
+  },
+  {
+    "id": "RegionDrain",
+    "name": "Drain regional admission",
+    "summary": "Keep existing sessions pinned while moving new load.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Prepare healthy allowed region",
+        "actor": {
+          "name": "Operator"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Stop new local admission",
+        "message": {
+          "id": "SetRegionAdmission",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Invalidate discovery",
+        "message": {
+          "id": "RegionAdmissionChanged",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Choose a region for new work",
+        "message": {
+          "id": "DiscoverRegions",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Continue on existing owner",
+        "actor": {
+          "name": "Existing participants"
+        }
+      }
+    ],
+    "description": "An unavailable region cannot be made a second concurrent writer by DNS failover. Existing sessions stay within their authority domain; region loss follows declared failure/DR policy."
+  },
+  {
+    "id": "Matchmaking",
+    "name": "Queue, propose and allocate a match",
+    "summary": "Pluggable built-in strategy with atomic ticket claims.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Create one ticket per party",
+        "message": {
+          "id": "EnqueueMatch",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Filter and score candidates",
+        "service": {
+          "id": "Core",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Reserve candidate tickets",
+        "message": {
+          "id": "MatchProposed",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Gather required consent",
+        "message": {
+          "id": "AcceptMatch",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Atomically commit assignments",
+        "message": {
+          "id": "MatchFound",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "6"
+        }
+      },
+      {
+        "id": "6",
+        "title": "Allocate compatible owner",
+        "message": {
+          "id": "AllocateSession",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "7"
+        }
+      },
+      {
+        "id": "7",
+        "title": "Await active state",
+        "message": {
+          "id": "SessionStarted",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "8"
+        }
+      },
+      {
+        "id": "8",
+        "title": "Admit matched players",
+        "message": {
+          "id": "JoinSession",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "description": "Cancellation and proposal expiry race by revision CAS. Only one wins. Skill relaxation never relaxes tenant, build, party integrity or hard latency bounds. Allocation failure closes tickets explicitly. Backfill uses the same strategy but reserves free slots of an existing ACTIVE session and skips new allocation."
+  },
+  {
+    "id": "StatisticsRanking",
+    "name": "Settle results and update live rankings",
+    "summary": "Authoritative scores with asynchronous analytics.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Publish provisional live sample",
+        "message": {
+          "id": "SessionStatisticsReported",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Validate epoch and update live overlay",
+        "service": {
+          "id": "Core",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Commit final result once",
+        "message": {
+          "id": "SubmitSessionResult",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Fan out canonical result",
+        "message": {
+          "id": "SessionResultSettled",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Persist totals and rank revision",
+        "container": {
+          "id": "RegionalState",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "6"
+        }
+      },
+      {
+        "id": "6",
+        "title": "Apply idempotent absolute projection",
+        "container": {
+          "id": "LiveRankings",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "7"
+        }
+      },
+      {
+        "id": "7",
+        "title": "Ingest deduplicated historical facts",
+        "container": {
+          "id": "AnalyticsWarehouse",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "8"
+        }
+      },
+      {
+        "id": "8",
+        "title": "Notify authorized subscribers",
+        "message": {
+          "id": "LeaderboardUpdated",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "9"
+        }
+      },
+      {
+        "id": "9",
+        "title": "Read page with freshness watermark",
+        "message": {
+          "id": "GetLeaderboard",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "description": "The diagram shows logical dependencies, not a transaction across three databases. PostgreSQL settlement commits before the event; Redis and ClickHouse run independent asynchronous projections. Failure of either projection cannot undo or duplicate settled results. Rebuild from PostgreSQL/outbox and report lag."
+  },
+  {
+    "id": "SessionRecording",
+    "name": "Record every session and optional audio/video",
+    "summary": "Mandatory durable timestamped events with optional media attached to the same session.",
+    "steps": [
+      {
+        "id": "1",
+        "title": "Set optional media policy",
+        "actor": {
+          "name": "Host / operator"
+        },
+        "next_step": {
+          "id": "2"
+        }
+      },
+      {
+        "id": "2",
+        "title": "Require durable event recorder",
+        "message": {
+          "id": "AllocateSession",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "3"
+        }
+      },
+      {
+        "id": "3",
+        "title": "Capture each accepted session event",
+        "message": {
+          "id": "SessionEventRecorded",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "4"
+        }
+      },
+      {
+        "id": "4",
+        "title": "Optionally enable audio/video",
+        "message": {
+          "id": "StartMediaRecording",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "5"
+        }
+      },
+      {
+        "id": "5",
+        "title": "Start owner-bound recording",
+        "message": {
+          "id": "StartSessionMediaCapture",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "6"
+        }
+      },
+      {
+        "id": "6",
+        "title": "Commit timestamped media segments",
+        "message": {
+          "id": "RecordingSegmentCommitted",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "7"
+        }
+      },
+      {
+        "id": "7",
+        "title": "Capture terminal event",
+        "message": {
+          "id": "SessionEnded",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "8"
+        }
+      },
+      {
+        "id": "8",
+        "title": "Finish attached media",
+        "message": {
+          "id": "MediaRecordingFinalized",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "9"
+        }
+      },
+      {
+        "id": "9",
+        "title": "Certify event coverage",
+        "message": {
+          "id": "SessionRecordingSealed",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "10"
+        }
+      },
+      {
+        "id": "10",
+        "title": "Read event timeline",
+        "message": {
+          "id": "GetSessionEvents",
+          "version": "1.0.0"
+        },
+        "next_step": {
+          "id": "11"
+        }
+      },
+      {
+        "id": "11",
+        "title": "Read optional session-linked media",
+        "message": {
+          "id": "GetRecordingPlayback",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "description": "Event capture is mandatory regardless of media policy or recovery policy. Media steps are optional; auto-enabled game profiles run them on allocation, manual start covers only the future interval. The event archive seals only after terminal metadata and all source end-watermarks reconcile. Crash gaps are explicit; planned engine drain waits for final writes and recording resources. Playback needs separate authorized access."
+  }
+]

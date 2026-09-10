@@ -1,0 +1,66 @@
+---
+{
+  "id": "IceCandidateDiscovered",
+  "name": "IceCandidateDiscovered",
+  "version": "1.0.0",
+  "summary": "Return a server ICE candidate to the intended peer.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Return a server ICE candidate to the intended peer.
+
+## Responsibility
+
+Producer: **MediaEngine**. Consumer: **Socket, client**. Delivery: **ephemeral**. Channel: **MediaSignaling**.
+
+## Preconditions and effects
+
+Do not publish local/private candidate details to other users. TURN credentials are delivered only in authenticated negotiation responses through operator-configured ICE servers.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "IceCandidateDiscovered",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "playerId": "player-id-example",
+    "negotiationId": "negotiation-id-example",
+    "candidate": "example",
+    "sdpMid": "example",
+    "sdpMLineIndex": 0
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

@@ -1,0 +1,72 @@
+---
+{
+  "id": "ChannelOpened",
+  "name": "ChannelOpened",
+  "version": "1.0.0",
+  "summary": "Confirm an authorized logical channel.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Confirm an authorized logical channel.
+
+## Responsibility
+
+Producer: **MediaEngine**. Consumer: **client**. Delivery: **ephemeral**. Channel: **MediaSignaling**.
+
+## Preconditions and effects
+
+This is control metadata, not the media payload. RTP frames do not travel through the regional event bus.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "ChannelOpened",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "playerId": "player-id-example",
+    "connectionGeneration": "1",
+    "channel": {
+      "channelId": "channel-id-example",
+      "kind": "audio",
+      "transport": "websocket",
+      "reliability": "reliable-ordered",
+      "codec": "game-json-v1",
+      "maxPayloadBytes": 1,
+      "maxRateHz": 1
+    }
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

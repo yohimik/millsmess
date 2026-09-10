@@ -1,0 +1,102 @@
+---
+{
+  "id": "AllocateSession",
+  "name": "AllocateSession",
+  "version": "1.0.0",
+  "summary": "Start a runtime under a reserved owner lease.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Start a runtime under a reserved owner lease.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **MediaEngine**. Delivery: **durable**. Channel: **EngineCommands**.
+
+## Preconditions and effects
+
+Core reserves capacity and owner epoch in a regional transaction. Only targeted engine incarnation may consume; engine verifies current lease and READY state before boot. Same allocation ID is idempotent; late allocations to DRAINING reject. The mandatory session-recording index and durable capture path must exist before runtime launch; configured audio/video capture starts before admitting corresponding tracks.
+
+## Ordering and idempotency
+
+Tenant + region + cluster + aggregate ID. Broker partition order is scoped to one aggregate; aggregateRevision is assigned by that aggregate owner, never by the client.
+
+Deduplicate by tenantId + producer authority + messageId; retain aggregate transitions and terminal settlement uniqueness beyond broker retention.
+
+## Failure handling
+
+Retry transient failures with jitter. Commit inbox deduplication and state/outbox together before ACK. Quarantine invalid/unsupported messages in a bounded DLQ with reason and alert; retain original identity on replay. Stale ownership is rejected, not retried blindly.
+
+Success/reply contract: **SessionStarted**. A rejected request uses **CommandResult** with a stable error code.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "AllocateSession",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "engineId": "engine-id-example",
+    "incarnationId": "incarnation-id-example",
+    "allocationId": "allocation-id-example",
+    "leaseExpiresAt": "2026-09-08T12:00:00Z",
+    "session": {
+      "sessionId": "session-id-example",
+      "roomId": "room-id-example",
+      "regionId": "region-id-example",
+      "clusterId": "cluster-id-example",
+      "state": "allocating",
+      "revision": "1",
+      "ownerEpoch": "1",
+      "game": {
+        "gameId": "game-id-example",
+        "buildDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "maxPlayers": 1,
+        "maxSpectators": 0,
+        "tickRateHz": 1,
+        "maxSessionSeconds": 1,
+        "emptyTimeoutSeconds": 0,
+        "recoveryPolicy": "checkpoint-replay",
+        "checkpointIntervalSeconds": 1,
+        "inputRetentionSeconds": 1,
+        "channels": [],
+        "recording": {
+          "eventsRequired": true,
+          "audioEnabled": false,
+          "videoEnabled": false,
+          "eventRetentionDays": 1,
+          "mediaRetentionDays": 1,
+          "segmentDurationMs": 250,
+          "mediaFailureMode": "continue-with-gap",
+          "policyRevision": "1"
+        }
+      },
+      "endsBy": "2026-09-08T12:00:00Z"
+    }
+  },
+  "idempotencyKey": "idempotency-key-example",
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

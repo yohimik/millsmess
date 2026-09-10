@@ -1,0 +1,19 @@
+---
+{
+  "id": "SessionRecordingStream",
+  "name": "Session recording metadata stream",
+  "protocols": [
+    "broker"
+  ],
+  "address": "mm.{tenant}.{region}.{cluster}.recordings.{session}",
+  "deliveryGuarantee": "at-least-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Durable event-record indexing and media manifest notifications. Source event capture precedes publication; this broker is a delivery/indexing mechanism, not the only archive. Deduplicate stable event and segment identities. Mandatory gameplay events never drop under broker pressure: persist outbox/backpressure. Raw audio/video remains in private object storage, never embedded in this stream.
+
+<NodeGraph />

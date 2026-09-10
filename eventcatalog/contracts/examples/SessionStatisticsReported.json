@@ -1,0 +1,20 @@
+{
+  "messageId": "message-id-example",
+  "type": "SessionStatisticsReported",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "sampleSequence": "1",
+    "sampledAt": "2026-09-08T12:00:00Z",
+    "players": []
+  },
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}

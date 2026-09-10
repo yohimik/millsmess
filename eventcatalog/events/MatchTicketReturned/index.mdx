@@ -1,0 +1,70 @@
+---
+{
+  "id": "MatchTicketReturned",
+  "name": "MatchTicketReturned",
+  "version": "1.0.0",
+  "summary": "Return durable ticket state and pinned policy.",
+  "owners": [
+    "platform"
+  ],
+  "schemaPath": "schema.json"
+}
+---
+
+<!-- Generated from contracts/messages.json; edit that source. -->
+
+Return durable ticket state and pinned policy.
+
+## Responsibility
+
+Producer: **Core**. Consumer: **Socket, client**. Delivery: **request-response**. Channel: **ControlAPI**.
+
+## Preconditions and effects
+
+Use the ticket revision for cancel/accept. A response timeout cannot create a second ticket for the same member.
+
+## Ordering and idempotency
+
+Authenticated request or connection + message type + caller. The trusted receiver derives identity from credentials and rejects tenant/region/cluster mismatches.
+
+See the domain delivery contract for replay windows, payload-hash conflicts and admission expiry.
+
+## Failure handling
+
+Reject invalid, unauthorized, expired or unsupported requests with CommandResult. Use the same idempotency key after a lost response; transient retries use bounded exponential backoff and jitter. Credentials, SDP and tickets are never durable-broker messages.
+
+An event is a fact or scoped reply; its receipt does not bypass authorization or ownership validation.
+
+## Example
+
+Synthetic values only. JSON Schema validates structural constraints; cross-field invariants are described above.
+
+```json
+{
+  "messageId": "message-id-example",
+  "type": "MatchTicketReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "ticket": {
+      "ticketId": "ticket-id-example",
+      "policyId": "policy-id-example",
+      "policyRevision": "1",
+      "regionId": "region-id-example",
+      "clusterId": "cluster-id-example",
+      "state": "queued",
+      "revision": "1",
+      "createdAt": "2026-09-08T12:00:00Z",
+      "expiresAt": "2026-09-08T12:00:00Z"
+    }
+  }
+}
+```
+
+<SchemaViewer />
+
+<NodeGraph />

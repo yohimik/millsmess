@@ -1,0 +1,29 @@
+An optional audio/video recording is a durable session attachment identified by recordingId + sessionId. It never replaces the mandatory timestamped event timeline. Core owns policy, authorization and manifest state; Media Engine performs capture/remuxing with the existing session owner.
+
+## State and track model
+
+State transitions: starting → recording → finalizing → completed / partial / failed. Repeated commands use durable idempotency and a CAS revision. completed means every intended capture interval is covered; partial means at least one explicit missing interval; failed means no usable authorized recording. MediaRecordingFinalized requires terminal state, endedAt and manifestDigest. Recorder state transitions are themselves metadata in the mandatory event timeline.
+
+The default recorder stores separate participant tracks. Track identity binds player, channel, connection generation and owner epoch. A mixed/composed room recording requires a separately configured composition module and extra CPU/codec capacity; it is not implied by enabling recording. Game/state timelines and track manifests remain attached through the same session ID and fixed session time origin.
+
+Capture WebRTC audio/video from authorized server-side RTP tracks after decryption, and non-RTP media from validated PublishMediaFrame frames before fanout. Record a frame once per source track rather than once per recipient. A relay cannot record end-to-end encrypted media it cannot decrypt; refuse incompatible capture-required profiles or require an explicit authorized recording participant/key design. Never silently weaken encryption to enable recording.
+
+## Durable segments and synchronization
+
+Each RecordingSegment contains session/recording/track/player/channel identity, owner epoch, connection generation, segment sequence, kind, container, codec, wall-clock start/end, start/end offsets in session microseconds, byte length, private object key, checksum and independentlyDecodable flag. End offsets must exceed start offsets and bytes must be positive. Muxer media timestamps are mapped through negotiated timescale and clock uncertainty to the session origin; audio/video synchronization uses those mapped offsets, not object-upload time.
+
+Reference remux profiles are WebM with compatible Opus/VP8/VP9 tracks, fragmented MP4 with the deployment's verified supported codec combination, and Ogg for compatible audio-only Opus streams. Container/codec validation is mandatory; do not put H.264 into WebM or promise arbitrary transcoding. Track changes/new codecs start a new track/initialization segment. Video segments mark keyframe/initialization dependencies so a player knows where decoding can start.
+
+Upload to an immutable tenant/session/recording/track/epoch/sequence key → complete upload → verify length/checksum → atomically persist segment manifest and notification intent → emit RecordingSegmentCommitted. Duplicate identity/checksum returns existing metadata; mismatched checksum is an incident. Multipart uploads and objects without committed manifests remain private and are reconciled/garbage-collected; a successful upload alone is not a committed recording segment.
+
+Playback v1 is available only after a final manifest. Core validates access/retention and returns a signed manifest URL with at most five minutes validity; referenced segments have the same scoped expiry or use an authenticated proxy. URL signing never grants bucket listing or public ACLs. Partial manifests expose missing time intervals and keyframe boundaries explicitly. A failed recording cannot be returned as successful playable media.
+
+## Restart, gaps and completion
+
+For planned restart the owner keeps recording existing sessions while draining. Natural session end or StopMediaRecording stops new capture, flushes final segments, records any gaps, commits the final manifest and waits for durable acknowledgements. No recording buffers/uploads may remain when EngineDrained is emitted. A manual media stop does not stop game execution or event logging.
+
+An engine crash can lose the uncommitted capture tail and the underlying network association. Default two-second segment targets bound normal batching but **do not guarantee a two-second loss bound** if upload/buffering stalls. Enforce a separate configured maximum buffered interval/bytes and report measured coverage. To promise zero acknowledged media loss, use a replicated durable frame spool before acknowledging captured frames; otherwise emit a precise gap between last committed segment and reconnected track. Optional recording never fabricates absent source frames.
+
+After ownership recovery, reuse recordingId, recheck current permissions/consent, create a new epoch-scoped track generation and commit explicit interruption gaps. Core can finalize orphaned media from committed objects if the original session aborts. Participant disconnect, consent withdrawal, storage outage, quota exhaustion, codec failure and upload failure are distinct gap reasons. mediaFailureMode chooses whether the game continues with partial media or explicitly ends; mandatory event capture remains required in both cases.
+
+Required runtime evidence: duplicate segment publication, crash during upload, lost finalization acknowledgement, owner switch with active recording, late join with recording enabled, source disconnect, consent withdrawal, codec mismatch, unreadable object/checksum failure, retention expiry, and cross-tenant playback denial. Verify timeline offsets line up with the related game events and that no incomplete recording is labeled completed.

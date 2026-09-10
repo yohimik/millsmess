@@ -1,0 +1,397 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SessionReturned",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "SessionReturned"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/SessionReturnedData"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data"
+  ],
+  "$defs": {
+    "ChannelKind": {
+      "type": "string",
+      "enum": [
+        "audio",
+        "video",
+        "game"
+      ]
+    },
+    "ChannelSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "channelId": {
+          "$ref": "#/$defs/ID"
+        },
+        "kind": {
+          "$ref": "#/$defs/ChannelKind"
+        },
+        "transport": {
+          "$ref": "#/$defs/Transport"
+        },
+        "reliability": {
+          "$ref": "#/$defs/Reliability"
+        },
+        "codec": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "maxPayloadBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "maxRateHz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 240
+        }
+      },
+      "required": [
+        "channelId",
+        "kind",
+        "transport",
+        "reliability",
+        "codec",
+        "maxPayloadBytes",
+        "maxRateHz"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "transport": {
+                "const": "websocket"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "reliability": {
+                "const": "reliable-ordered"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "transport": {
+                "enum": [
+                  "udp",
+                  "webrtc-rtp"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "reliability": {
+                "const": "unreliable-sequenced"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "transport": {
+                "const": "webrtc-rtp"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "audio",
+                  "video"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "GameProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gameId": {
+          "$ref": "#/$defs/ID"
+        },
+        "buildDigest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "maxPlayers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "maxSpectators": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "tickRateHz": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 240
+        },
+        "maxSessionSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 604800
+        },
+        "emptyTimeoutSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "recoveryPolicy": {
+          "$ref": "#/$defs/RecoveryPolicy"
+        },
+        "checkpointIntervalSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        },
+        "inputRetentionSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 604800
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChannelSpec"
+          },
+          "maxItems": 32
+        },
+        "recording": {
+          "$ref": "#/$defs/RecordingPolicy"
+        }
+      },
+      "required": [
+        "gameId",
+        "buildDigest",
+        "maxPlayers",
+        "maxSpectators",
+        "tickRateHz",
+        "maxSessionSeconds",
+        "emptyTimeoutSeconds",
+        "recoveryPolicy",
+        "checkpointIntervalSeconds",
+        "inputRetentionSeconds",
+        "channels",
+        "recording"
+      ]
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "RecordingPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "eventsRequired": {
+          "type": "boolean",
+          "const": true
+        },
+        "audioEnabled": {
+          "type": "boolean"
+        },
+        "videoEnabled": {
+          "type": "boolean"
+        },
+        "eventRetentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3650
+        },
+        "mediaRetentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3650
+        },
+        "segmentDurationMs": {
+          "type": "integer",
+          "minimum": 250,
+          "maximum": 10000
+        },
+        "mediaFailureMode": {
+          "type": "string",
+          "enum": [
+            "continue-with-gap",
+            "end-session"
+          ]
+        },
+        "policyRevision": {
+          "$ref": "#/$defs/Counter"
+        }
+      },
+      "required": [
+        "eventsRequired",
+        "audioEnabled",
+        "videoEnabled",
+        "eventRetentionDays",
+        "mediaRetentionDays",
+        "segmentDurationMs",
+        "mediaFailureMode",
+        "policyRevision"
+      ]
+    },
+    "RecoveryPolicy": {
+      "type": "string",
+      "enum": [
+        "checkpoint-replay",
+        "abort"
+      ]
+    },
+    "Reliability": {
+      "type": "string",
+      "enum": [
+        "reliable-ordered",
+        "reliable-unordered",
+        "unreliable-sequenced"
+      ]
+    },
+    "Session": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "roomId": {
+          "$ref": "#/$defs/ID"
+        },
+        "regionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "clusterId": {
+          "$ref": "#/$defs/ID"
+        },
+        "state": {
+          "$ref": "#/$defs/SessionState"
+        },
+        "revision": {
+          "$ref": "#/$defs/Counter"
+        },
+        "ownerEpoch": {
+          "$ref": "#/$defs/Counter"
+        },
+        "engineId": {
+          "$ref": "#/$defs/ID"
+        },
+        "game": {
+          "$ref": "#/$defs/GameProfile"
+        },
+        "startedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "endsBy": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "sessionId",
+        "roomId",
+        "regionId",
+        "clusterId",
+        "state",
+        "revision",
+        "ownerEpoch",
+        "game",
+        "endsBy"
+      ]
+    },
+    "SessionReturnedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/Session"
+        }
+      },
+      "required": [
+        "session"
+      ]
+    },
+    "SessionState": {
+      "type": "string",
+      "enum": [
+        "allocating",
+        "starting",
+        "active",
+        "ending",
+        "ended",
+        "recovering",
+        "failed"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Transport": {
+      "type": "string",
+      "enum": [
+        "websocket",
+        "webrtc-datachannel",
+        "udp",
+        "webrtc-rtp"
+      ]
+    }
+  }
+}

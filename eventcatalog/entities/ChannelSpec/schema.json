@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ChannelSpec",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "channelId": {
+      "$ref": "#/$defs/ID"
+    },
+    "kind": {
+      "$ref": "#/$defs/ChannelKind"
+    },
+    "transport": {
+      "$ref": "#/$defs/Transport"
+    },
+    "reliability": {
+      "$ref": "#/$defs/Reliability"
+    },
+    "codec": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "maxPayloadBytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65536
+    },
+    "maxRateHz": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 240
+    }
+  },
+  "required": [
+    "channelId",
+    "kind",
+    "transport",
+    "reliability",
+    "codec",
+    "maxPayloadBytes",
+    "maxRateHz"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "transport": {
+            "const": "websocket"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reliability": {
+            "const": "reliable-ordered"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transport": {
+            "enum": [
+              "udp",
+              "webrtc-rtp"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reliability": {
+            "const": "unreliable-sequenced"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transport": {
+            "const": "webrtc-rtp"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "audio",
+              "video"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "ChannelKind": {
+      "type": "string",
+      "enum": [
+        "audio",
+        "video",
+        "game"
+      ]
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "Reliability": {
+      "type": "string",
+      "enum": [
+        "reliable-ordered",
+        "reliable-unordered",
+        "unreliable-sequenced"
+      ]
+    },
+    "Transport": {
+      "type": "string",
+      "enum": [
+        "websocket",
+        "webrtc-datachannel",
+        "udp",
+        "webrtc-rtp"
+      ]
+    }
+  }
+}

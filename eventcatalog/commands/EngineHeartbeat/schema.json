@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EngineHeartbeat",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "EngineHeartbeat"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/EngineHeartbeatData"
+    },
+    "idempotencyKey": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "idempotencyKey"
+  ],
+  "$defs": {
+    "EngineHeartbeatData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "engineId": {
+          "$ref": "#/$defs/ID"
+        },
+        "incarnationId": {
+          "$ref": "#/$defs/ID"
+        },
+        "state": {
+          "$ref": "#/$defs/EngineState"
+        },
+        "activeSessions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "reservedSessions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "availableCapacityUnits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        }
+      },
+      "required": [
+        "engineId",
+        "incarnationId",
+        "state",
+        "activeSessions",
+        "reservedSessions",
+        "availableCapacityUnits"
+      ]
+    },
+    "EngineState": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "draining",
+        "drained"
+      ]
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

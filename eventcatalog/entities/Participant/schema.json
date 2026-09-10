@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Participant",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "playerId": {
+      "$ref": "#/$defs/ID"
+    },
+    "userId": {
+      "$ref": "#/$defs/ID"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "player",
+        "spectator"
+      ]
+    },
+    "membershipRevision": {
+      "$ref": "#/$defs/Counter"
+    }
+  },
+  "required": [
+    "playerId",
+    "userId",
+    "role",
+    "membershipRevision"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    }
+  }
+}

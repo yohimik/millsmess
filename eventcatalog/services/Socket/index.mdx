@@ -1,0 +1,756 @@
+---
+{
+  "id": "Socket",
+  "name": "Socket",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ],
+  "summary": "Horizontally scalable control connections, reconnect, signaling relay and authorized fanout.",
+  "sends": [
+    {
+      "id": "GetProfile",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "Connected",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ClientControl",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "ConnectionState",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ClientControl",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "Disconnect",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ClientControl",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CreateRoom",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "JoinRoom",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "LeaveRoom",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MatchRoom",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "UpdateRoomPlayerData",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetRoom",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "StartSession",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RematchSession",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetSession",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "JoinSession",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "LeaveSession",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "NegotiateTransport",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "AddIceCandidate",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CommandResult",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "Reply",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "EnqueueMatch",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetMatchTicket",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CancelMatch",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "AcceptMatch",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetPlayerStatistics",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetLeaderboard",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionEventRecorded",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetSessionRecording",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetSessionEvents",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "StartMediaRecording",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "StopMediaRecording",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GetRecordingPlayback",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionEventStreamClosed",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ],
+  "receives": [
+    {
+      "id": "ProfileReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "ProfileUpdated",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "AccessRevoked",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "Connect",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ClientControl",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "ResumeConnection",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ClientControl",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RoomUpdated",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RoomReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionStarted",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionAdmissionGranted",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionMembershipChanged",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "TransportNegotiated",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "IceCandidateDiscovered",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionOwnerLost",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionRecovered",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionEnded",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionFailed",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RegionAdmissionChanged",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CommandResult",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "Reply",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MatchTicketReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MatchProposed",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MatchFound",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MatchTicketClosed",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "PlayerStatisticsReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionResultSettled",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "StatisticsStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "PlayerStatisticsUpdated",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "StatisticsStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "LeaderboardReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "LeaderboardUpdated",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "StatisticsStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SubscribeStatistics",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ClientControl",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SeasonFinalized",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "StatisticsStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "LiveStatisticsUpdated",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "StatisticsStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionRecordingReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionEventsReturned",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MediaRecordingStarted",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MediaRecordingGapDetected",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MediaRecordingFinalized",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RecordingPlaybackGranted",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionRecordingSealed",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ],
+  "readsFrom": [
+    {
+      "id": "ConnectionCache",
+      "version": "1.0.0"
+    }
+  ],
+  "writesTo": [
+    {
+      "id": "ConnectionCache",
+      "version": "1.0.0"
+    },
+    {
+      "id": "SessionRecordings",
+      "version": "1.0.0"
+    }
+  ]
+}
+---
+
+Socket is the public WSS control gateway. It authenticates connections, relays room/session commands to Core, forwards targeted media negotiation and fans out authorized projections. It does not own lobbies, game simulation or media transport state.
+
+## Connection lifecycle
+
+A new connection has five seconds to send Connect. Apply origin policy for browser clients, TLS, pre-auth connection limits, maximum frame size and per-principal quotas. After validation, Connected negotiates the protocol and returns an opaque, hashed-at-rest resume token. Socket never puts access tokens, SDP or tickets into the durable event bus.
+
+Use externally stored connection generations and resume-token hashes. On ResumeConnection, atomically consume/rotate the token and generation, revalidate authorization, query Core snapshots and reply ConnectionState. A replayed generation is rejected. The previous gateway learns that its generation is invalid through cache notification/periodic check; Core commands always recheck authority regardless.
+
+Socket restart drops TCP connections but cannot delete canonical membership. Reconnect uses exponential backoff with full jitter (250 ms initial, 10 seconds maximum); use server retryAfterMs where present. Resume tokens last two minutes. Beyond that window authenticate again and retrieve authoritative state. A client needs no replay of every transient control update because ConnectionState and GetRoom/GetSession resynchronize the current state.
+
+## Fanout and backpressure
+
+Regional lifecycle events reach every gateway that owns relevant connections. Use one subscription per gateway incarnation with explicit membership filtering, or a distributed fanout adapter with tracked subscription leases. Do not place all gateways in a single competing-consumer group and assume every connected client receives every event.
+
+Cap queues at 256 frames and 1 MiB per connection. Coalesce replaceable RoomUpdated projections to latest revision. If an essential reply cannot be delivered within the budget, close with slow-consumer and require resync. Presence notifications are best effort and never substitute for Core session membership. Room/member scopes are authenticated before subscription.
+
+Media signaling goes directly to the discovered Media Engine owner over authenticated internal RPC; WSS clients may use Socket as relay. WebRTC data/media and native UDP use direct owner endpoints. A WSS game adapter may connect directly to Media Engine; if deployed through an L7 proxy, preserve session owner routing and frame budgets.
+
+## Socket maintenance runbook
+
+1. Remove this gateway from **new connection** routing; keep existing connections serving while replacement capacity becomes healthy.
+2. Send a best-effort Disconnect(draining) with randomized retry advice and close connections in bounded batches.
+3. Wait for active request handlers to commit or return a retryable outcome. Durable Core idempotency handles lost replies.
+4. Release only this gateway incarnation's cache/subscription leases. Do not mass-delete users' room/session records.
+5. Terminate after handlers drain; clients reconnect on another gateway and rehydrate. Existing direct media/game sessions continue.
+
+Socket and Media Engine drains differ: Socket connections can be recreated; an active authoritative game runtime cannot be killed merely because a deployment timer expired.
+
+## Session recording
+
+Append session-linked connection attach/resume/close observations to the mandatory session recorder using a gateway-incarnation stream and trusted timestamps. Capture before acknowledging the observed lifecycle effect; broker indexing is asynchronous after durable append. Core owns room/membership changes and records them once. Unexpected gateway loss is represented by the later observed timeout; do not invent an exact disconnect timestamp. No access tokens, resume credentials or SDP are recorded.
+
+
+<NodeGraph />

@@ -1,0 +1,19 @@
+---
+{
+  "id": "StatisticsStream",
+  "name": "Statistics and ranking updates",
+  "protocols": [
+    "broker"
+  ],
+  "address": "mm.{tenant}.{region}.{cluster}.stats.{aggregate}",
+  "deliveryGuarantee": "at-least-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Separate bounded workload from allocation/control. Engine publishes cumulative provisional samples at up to 1 Hz per player shard; Core validates current epoch and publishes settled result/stat/leaderboard revisions. Core projection workers ingest ClickHouse and Redis through inbox/outbox. No tick-by-tick game/media payloads. Delivery is at-least-once and materializations must deduplicate.
+
+<NodeGraph />

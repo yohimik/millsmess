@@ -1,0 +1,32 @@
+[
+  {
+    "eventsRequired": true,
+    "audioEnabled": false,
+    "videoEnabled": false,
+    "eventRetentionDays": 30,
+    "mediaRetentionDays": 7,
+    "segmentDurationMs": 2000,
+    "mediaFailureMode": "continue-with-gap",
+    "policyRevision": "1"
+  },
+  {
+    "eventsRequired": true,
+    "audioEnabled": true,
+    "videoEnabled": false,
+    "eventRetentionDays": 30,
+    "mediaRetentionDays": 7,
+    "segmentDurationMs": 2000,
+    "mediaFailureMode": "continue-with-gap",
+    "policyRevision": "1"
+  },
+  {
+    "eventsRequired": true,
+    "audioEnabled": true,
+    "videoEnabled": true,
+    "eventRetentionDays": 30,
+    "mediaRetentionDays": 7,
+    "segmentDurationMs": 2000,
+    "mediaFailureMode": "continue-with-gap",
+    "policyRevision": "1"
+  }
+]

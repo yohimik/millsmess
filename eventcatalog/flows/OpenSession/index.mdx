@@ -1,0 +1,123 @@
+---
+{
+  "id": "OpenSession",
+  "name": "Create and join an open session",
+  "summary": "From lobby reservation to an authoritative runtime.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Choose region",
+      "actor": {
+        "name": "Player"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Create durable lobby",
+      "message": {
+        "id": "CreateRoom",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Start once",
+      "message": {
+        "id": "StartSession",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Reserve compatible owner",
+      "service": {
+        "id": "Core",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Target owner incarnation",
+      "message": {
+        "id": "AllocateSession",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "6"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Confirm runtime boot",
+      "message": {
+        "id": "SessionStarted",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "7"
+      }
+    },
+    {
+      "id": "7",
+      "title": "Admit player or spectator",
+      "message": {
+        "id": "JoinSession",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "8"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Issue fenced ticket",
+      "message": {
+        "id": "SessionAdmissionGranted",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "9"
+      }
+    },
+    {
+      "id": "9",
+      "title": "Select supported adapter",
+      "message": {
+        "id": "NegotiateTransport",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "10"
+      }
+    },
+    {
+      "id": "10",
+      "title": "Send full initial state",
+      "message": {
+        "id": "GameSnapshot",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Core accepts SessionStarted before admission. Capacity/allocation failure leads to SessionFailed after bounded retries; no duplicate active room session. Late join follows JoinSession onward and never creates a new owner. See Core for ticket nonce and revision checks.
+
+<NodeGraph />

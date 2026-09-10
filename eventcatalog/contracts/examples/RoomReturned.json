@@ -1,0 +1,21 @@
+{
+  "messageId": "message-id-example",
+  "type": "RoomReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "room": {
+      "roomId": "room-id-example",
+      "gameId": "game-id-example",
+      "regionId": "region-id-example",
+      "clusterId": "cluster-id-example",
+      "revision": "1",
+      "status": "open",
+      "participants": []
+    }
+  }
+}

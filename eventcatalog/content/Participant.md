@@ -1,0 +1,3 @@
+A participant binds a player identity to an authenticated user with player/spectator role and a monotonic membership revision. Core grants membership; Media Engine checks it when consuming admission and through revocation/reconciliation.
+
+Spectators cannot submit authoritative game input. A connection generation is not a membership revision: reconnect rotates the former without granting new membership. All IDs are scoped to tenant and session context, and client-supplied playerId must match the authenticated transport principal.

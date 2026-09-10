@@ -1,0 +1,20 @@
+{
+  "messageId": "message-id-example",
+  "type": "PlayerStatisticsReturned",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "settled": {
+      "playerId": "player-id-example",
+      "revision": "1",
+      "asOf": "2026-09-08T12:00:00Z",
+      "values": []
+    },
+    "live": [],
+    "stale": false
+  }
+}

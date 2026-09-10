@@ -1,0 +1,111 @@
+---
+{
+  "id": "GracefulDrain",
+  "name": "Finish sessions before restart",
+  "summary": "Drain allocation, retain live traffic, terminate only when empty.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Start replacement capacity",
+      "actor": {
+        "name": "Operator"
+      },
+      "next_step": {
+        "id": "2"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Persist admission barrier",
+      "message": {
+        "id": "RequestEngineDrain",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "3"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Stop new reservations",
+      "service": {
+        "id": "Core",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "4"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Quiesce new runtimes",
+      "message": {
+        "id": "DrainEngine",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "5"
+      }
+    },
+    {
+      "id": "5",
+      "title": "Continue existing sessions",
+      "message": {
+        "id": "EngineDraining",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "6"
+      }
+    },
+    {
+      "id": "6",
+      "title": "Commit final outcomes as sessions finish",
+      "message": {
+        "id": "SubmitSessionResult",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "7"
+      }
+    },
+    {
+      "id": "7",
+      "title": "Confirm session completion",
+      "message": {
+        "id": "SessionEnded",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "8"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Certify empty and durable",
+      "message": {
+        "id": "EngineDrained",
+        "version": "1.0.0"
+      },
+      "next_step": {
+        "id": "9"
+      }
+    },
+    {
+      "id": "9",
+      "title": "Terminate drained incarnation",
+      "actor": {
+        "name": "Deployment controller"
+      }
+    }
+  ],
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Session completion repeats for every active session. EngineDrained is forbidden while any runtime/reservation/durable write remains. This is a pre-deletion workflow; a timer never converts normal drain into forced EndSession. Lost drain messages are recovered through the persisted intent and reconciler.
+
+<NodeGraph />

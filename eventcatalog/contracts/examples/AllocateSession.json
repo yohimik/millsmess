@@ -1,0 +1,55 @@
+{
+  "messageId": "message-id-example",
+  "type": "AllocateSession",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "engineId": "engine-id-example",
+    "incarnationId": "incarnation-id-example",
+    "allocationId": "allocation-id-example",
+    "leaseExpiresAt": "2026-09-08T12:00:00Z",
+    "session": {
+      "sessionId": "session-id-example",
+      "roomId": "room-id-example",
+      "regionId": "region-id-example",
+      "clusterId": "cluster-id-example",
+      "state": "allocating",
+      "revision": "1",
+      "ownerEpoch": "1",
+      "game": {
+        "gameId": "game-id-example",
+        "buildDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "maxPlayers": 1,
+        "maxSpectators": 0,
+        "tickRateHz": 1,
+        "maxSessionSeconds": 1,
+        "emptyTimeoutSeconds": 0,
+        "recoveryPolicy": "checkpoint-replay",
+        "checkpointIntervalSeconds": 1,
+        "inputRetentionSeconds": 1,
+        "channels": [],
+        "recording": {
+          "eventsRequired": true,
+          "audioEnabled": false,
+          "videoEnabled": false,
+          "eventRetentionDays": 1,
+          "mediaRetentionDays": 1,
+          "segmentDurationMs": 250,
+          "mediaFailureMode": "continue-with-gap",
+          "policyRevision": "1"
+        }
+      },
+      "endsBy": "2026-09-08T12:00:00Z"
+    }
+  },
+  "idempotencyKey": "idempotency-key-example",
+  "aggregateId": "aggregate-id-example",
+  "aggregateRevision": "1",
+  "causationId": "causation-id-example"
+}

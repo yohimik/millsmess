@@ -1,0 +1,19 @@
+---
+{
+  "id": "RegionalEvents",
+  "name": "Regional lifecycle stream",
+  "protocols": [
+    "broker"
+  ],
+  "address": "mm.{tenant}.{region}.{cluster}.events.{aggregate}",
+  "deliveryGuarantee": "at-least-once",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ]
+}
+---
+
+Broker-neutral at-least-once durable lifecycle stream. Reference adapter: regional NATS JetStream or Kafka with persisted acknowledgements and per-aggregate routing. Ordered per producer-owned aggregate only. Core subscribers use competing workers; Socket fanout must reach each interested gateway, not just one random consumer. Topic ACLs bind allowed producer/type. Seven-day retention, eight-day inbox dedup; see domain redrive contract.
+
+<NodeGraph />

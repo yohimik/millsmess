@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MediaRecordingFinalized",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "MediaRecordingFinalized"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/MediaRecordingFinalizedData"
+    },
+    "aggregateId": {
+      "$ref": "#/$defs/ID"
+    },
+    "aggregateRevision": {
+      "$ref": "#/$defs/Counter"
+    },
+    "causationId": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "aggregateId",
+    "aggregateRevision",
+    "causationId"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "MediaRecording": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recordingId": {
+          "$ref": "#/$defs/ID"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/ID"
+        },
+        "state": {
+          "$ref": "#/$defs/MediaRecordingState"
+        },
+        "revision": {
+          "$ref": "#/$defs/Counter"
+        },
+        "audio": {
+          "type": "boolean"
+        },
+        "video": {
+          "type": "boolean"
+        },
+        "startedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "endedAt": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "retainedUntil": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "segmentCount": {
+          "$ref": "#/$defs/Counter"
+        },
+        "gapCount": {
+          "$ref": "#/$defs/Counter"
+        },
+        "manifestDigest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "recordingId",
+        "sessionId",
+        "state",
+        "revision",
+        "audio",
+        "video",
+        "startedAt",
+        "retainedUntil",
+        "segmentCount",
+        "gapCount"
+      ]
+    },
+    "MediaRecordingFinalizedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recording": {
+          "$ref": "#/$defs/MediaRecording",
+          "description": "Terminal manifest; semantic and conditional schema checks enforce final state."
+        }
+      },
+      "required": [
+        "recording"
+      ],
+      "allOf": [
+        {
+          "properties": {
+            "recording": {
+              "properties": {
+                "state": {
+                  "enum": [
+                    "completed",
+                    "partial",
+                    "failed"
+                  ]
+                },
+                "endedAt": {
+                  "$ref": "#/$defs/Timestamp"
+                },
+                "manifestDigest": {
+                  "$ref": "#/$defs/Digest"
+                }
+              },
+              "required": [
+                "endedAt",
+                "manifestDigest"
+              ],
+              "type": "object"
+            }
+          }
+        }
+      ]
+    },
+    "MediaRecordingState": {
+      "type": "string",
+      "enum": [
+        "starting",
+        "recording",
+        "finalizing",
+        "completed",
+        "partial",
+        "failed"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

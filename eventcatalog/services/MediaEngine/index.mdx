@@ -1,0 +1,525 @@
+---
+{
+  "id": "MediaEngine",
+  "name": "Media Engine",
+  "version": "1.0.0",
+  "owners": [
+    "platform"
+  ],
+  "summary": "Single-owner session runtimes, game modules, audio/video and transport adapters.",
+  "sends": [
+    {
+      "id": "AllocationRejected",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionStarted",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "TransportNegotiated",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "IceCandidateDiscovered",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "ChannelOpened",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "ChannelClosed",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GameSnapshot",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "GameData",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RenewSessionLease",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CheckpointCommitted",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionRecovered",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionEnded",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RegisterEngine",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "EngineHeartbeat",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "EngineDraining",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "EngineDrained",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CommandResult",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "Reply",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionStatisticsReported",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "StatisticsStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SubmitSessionResult",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MediaFrame",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "MediaFrames",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionEventRecorded",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MediaRecordingStarted",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RecordingSegmentCommitted",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MediaRecordingGapDetected",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "MediaRecordingFinalized",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionEventStreamClosed",
+      "version": "1.0.0",
+      "to": [
+        {
+          "id": "SessionRecordingStream",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ],
+  "receives": [
+    {
+      "id": "AccessRevoked",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "AllocateSession",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "EngineCommands",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionMembershipChanged",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "RegionalEvents",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "NegotiateTransport",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "AddIceCandidate",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "OpenChannel",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CloseChannel",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "GameInput",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "GameData",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RequestGameSnapshot",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaSignaling",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "SessionLeaseRenewed",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "ControlAPI",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "RecoverSession",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "EngineCommands",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "EndSession",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "EngineCommands",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "DrainEngine",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "EngineCommands",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "CommandResult",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "Reply",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "PublishMediaFrame",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "MediaFrames",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "StartSessionMediaCapture",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "EngineCommands",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "StopSessionMediaCapture",
+      "version": "1.0.0",
+      "from": [
+        {
+          "id": "EngineCommands",
+          "version": "1.0.0"
+        }
+      ]
+    }
+  ],
+  "readsFrom": [
+    {
+      "id": "Checkpoints",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RegionalState",
+      "version": "1.0.0"
+    },
+    {
+      "id": "SessionRecordings",
+      "version": "1.0.0"
+    }
+  ],
+  "writesTo": [
+    {
+      "id": "Checkpoints",
+      "version": "1.0.0"
+    },
+    {
+      "id": "SessionRecordings",
+      "version": "1.0.0"
+    }
+  ]
+}
+---
+
+Media Engine owns authoritative session execution, game module isolation, audio/video tracks, logical channels, transport negotiation and game state fanout. Multiple processes host independent sessions; one fenced process owns each session at a time.
+
+## Logical channels and adapters
+
+ChannelSpec names a stable channelId, kind (audio/video/game), transport, reliability, codec, maximum encoded payload and rate. A transport adapter must expose capability discovery, authenticated open, send, receive, close, backpressure, connection generation, maximum message size and error semantics. The game module receives normalized player intent; it must not depend on a WebSocket object, browser API or packet implementation.
+
+| Adapter | Platforms | Reliable ordering | Unreliable sequenced | Media and size rules |
+| --- | --- | --- | --- | --- |
+| WebSocket (WSS) | Browser, mobile, native | Reliable ordered only; head-of-line blocking | Not available; reject a strict unreliable requirement | Game or negotiated codec frames; congestion and stale-frame drop policy required; cap frames at 64 KiB |
+| WebRTC data channel | Browser with WebRTC, supported mobile/native SDK | SCTP ordered or unordered reliable modes | Unordered, maxRetransmits=0; application sequence rejects stale frames | Game/codec data; negotiate SCTP maximum size and bufferedAmount budget; prefer 16 KiB or below |
+| WebRTC RTP tracks | Browser, mobile/native WebRTC | Not a game reliable stream | Timestamp/sequence-based real-time media | Audio/video with DTLS-SRTP, congestion control, codec negotiation, simulcast/SVC where supported |
+| Secure UDP adapter | Native/mobile SDK; browsers cannot open raw UDP | No reliable mode in v1 | Authenticated datagrams with sequence/replay window | Game or supported codec framing; maximum **1200 bytes total application envelope** after encryption budget negotiation; no amplification before address validation |
+| HTTP/2 / HTTP/3 | Future | To be designed and negotiated | Future HTTP/3 datagram capability only where supported | Reserved design extension, excluded from all v1 capability enums and endpoint offers |
+
+These transports are alternatives only where their advertised capabilities intersect. Audio/video are usually WebRTC RTP tracks; games usually use data channels or secure UDP. WSS fallback works only if the game explicitly accepts reliable ordered delivery and its latency profile. Do not relabel WSS as unreliable or claim browser UDP support. SFU forwarding/mixing is a Media Engine module; codec/composition CPU budgets are part of placement. The catalog specifies no transcoding guarantee.
+
+For non-RTP v1 data, one transport message contains a UTF-8 JSON envelope matching GameInput/GameSnapshot (or PublishMediaFrame/MediaFrame for audio/video). payload is base64 and codec identifies an immutable game-owned codec. Datagram adapters must enforce the encoded envelope limit **including metadata and base64**, not just decoded payload size. Larger state uses WSS/reliable data channel full snapshots; v1 does not define UDP fragmentation. RTP bytes are standard RTP/SRTP, with ChannelOpened mapping channelId to the negotiated SDP media section. Audio/video over non-RTP requires an explicit game codec manifest defining timestamps, framing and jitter policy; deployments without it must refuse that offer.
+
+A future compact binary codec requires its own negotiated wire version and conformance vectors; the catalog does not invent an implicit binary header. The default JSON path prioritizes interoperable contracts. FPS deployments must benchmark metadata overhead before selecting UDP and may need that future codec.
+
+## Sequencing and authority
+
+GameInput includes playerId, ownerEpoch, connectionGeneration, channelId, sequence and tick. Sequence is per participant connection generation/channel, never global. Validate the established principal matches playerId, membership is current, role permits input, epoch is current and sequence is fresh. UDP replay window defaults to 128 packets, with duplicate rejection and bounded allowed reordering; unreliable-sequenced gameplay delivers only newer sequence to the simulation.
+
+A game module chooses a bounded tick acceptance window (default two past ticks and one future tick); late actions are dropped, not applied retroactively without a game-defined rewind policy. Authoritative snapshots contain per-recipient ackInputSequence and baselineSequence. full=true does not depend on a baseline (use baselineSequence="0"); deltas require the declared retained baseline. Missing baseline or reconnect triggers RequestGameSnapshot and full state. All recipient snapshots apply interest management; the engine must never broadcast hidden enemy/player data to unauthorized recipients.
+
+Network queues are bounded per session/player/channel. Priority order: lease and lifecycle work, reliable control, game input/state, audio, then replaceable video layers. This is an operator-tunable scheduling policy, not permission to starve audio. Under pressure shed video layers/old snapshots and reject new admission before tick deadlines fail. Track tick duration, encode time, queue depth, packet loss, RTT/jitter, egress and per-tenant capacity.
+
+## Planned restart: finish current sessions first
+
+The engine lifecycle is **READY → DRAINING → DRAINED → process exit**. Core stores the intent by engineId + incarnationId + drainId. A normal restart must never terminate a running session.
+
+1. Start replacement READY capacity before draining old capacity. Operator sends RequestEngineDrain to Core. Core transactionally marks DRAINING, prevents new reservations and records DrainEngine in outbox.
+2. On DrainEngine, serialize an admission barrier with allocation/start handlers. Reject pending unstarted allocations, release them through Core reconciliation, and count every runtime that crossed the barrier before it closed. Persist or reconcile the drain intent after a control-plane restart.
+3. Keep current session endpoints, listeners, liveness, heartbeats, tick loops, media forwarding and lease renewal alive. The engine remains reachable for existing sessions; remove it only from the **allocation** pool. Kubernetes readiness removal must not unintentionally sever session-addressed traffic.
+4. Permit reconnects and, under game policy, late joins to those existing sessions only. Do not let join/rematch/empty-timeout logic extend the original endsBy. A rematch is a new session allocated elsewhere.
+5. Wait for natural session completion. DrainEngine has **no force-at timeout**. Alert on stalled drain; an operator may explicitly EndSession under a separate audited action, which is an interrupted session and must be reported as such.
+6. Persist and settle final results, flush mandatory timestamped event records and source end-watermarks, finalize optional media segments/manifests, verify checkpoint/final outbox delivery, release reservations/leases and close transports. Require activeSessions=reservedSessions=pendingDurableWrites=pendingEventRecords=pendingRecordingSegments=openRecordings=0. Emit EngineDrained and wait for Core to record it and acknowledge the durable notification.
+7. Only then may the deployment controller terminate that process incarnation and roll the next engine. A new process re-registers with a fresh incarnation and returns to READY after reconciliation.
+
+The long wait must happen **before pod deletion or SIGTERM**, using application drain orchestration. A default rolling deployment, finite preStop hook or PodDisruptionBudget cannot prove sessions have finished. If SIGTERM arrives unexpectedly, request drain and continue work where the platform permits; SIGKILL, node loss and exhausted terminationGracePeriod are crash cases. PDBs protect some voluntary evictions, not arbitrary infrastructure failure. Keep existing session ingress routes and load-balancer idle lifetimes long enough for the session contract.
+
+Every admitted GameProfile has a maximum lifetime (v1 ceiling seven days) enforced from creation, independently of drain. This makes a normal rollout eventually finish if the module obeys its contract. An unbounded social world must introduce bounded generations/safe points before it can promise finite maintenance. Record the remaining session count, oldest session endsBy, outbox lag and drain duration. Stuck final writes may delay shutdown; do not erase them just to turn the drain green.
+
+## Crash recovery and restart evidence
+
+Planned drain avoids intentional loss; a crash loses in-memory state and all live WebRTC/UDP/TCP associations. A game declares **checkpoint-replay** or **abort**. Never mark a nonrecoverable FPS session as continued merely by recreating an empty runtime.
+
+For every recovery policy, persist accepted inputs and authoritative session events **before applying/acknowledging them** using a fenced durable append adapter. Mandatory timestamped recording applies even to abort-policy games. For checkpoint-replay, also retain the deterministic state/replay contract below. Records include tenant/session, old owner epoch, log offset, accepted tick order, player sequence and game build digest. GameSnapshot ackInputSequence must not outrun that durable watermark. Capture deterministic RNG state, timers, authoritative module state and lastInputOffset in the checkpoint. Include external decisions as recorded inputs; wall-clock/random API calls during replay break determinism. Reject this policy for modules that cannot prove replay equivalence.
+
+Write immutable checkpoint object → checksum verification → durable manifest/outbox → CheckpointCommitted. Default checkpoint interval is 5 seconds; profile chooses up to 300 seconds with replay retention exceeding interval + recovery deadline + outage budget. The source of truth is a committed manifest, not a bucket listing. Object and input-log access is tenant-scoped; logs contain game actions and require retention/privacy policy.
+
+On expired lease Core fences the owner and publishes SessionOwnerLost. For a recoverable game it reserves a READY replacement with a new epoch and sends RecoverSession with verified checkpoint and a captured replayThroughOffset. Replay old-epoch data read-only through that offset; check contiguous offsets, module digest and checksum; never replay side effects or accept new client input while restoring. Only after SessionRecovered is accepted by Core can the runtime become ACTIVE. Client gets fresh ticket, negotiates new transport and receives a full snapshot. Sequence/generation fencing prevents replaying old network input.
+
+For abort policy, missing checkpoint, corrupted object, unavailable matching module or incomplete log, Core publishes SessionFailed and applies the game's documented result/compensation policy. Recovery deadline defaults to 60 seconds. Ended sessions never recover: reconcile their durable final result instead. Failed region recovery follows the domain's source-fencing procedure, not ordinary same-cluster ownership reassignment.
+
+The production acceptance matrix in the domain is a release gate for future implementations. This repository verifies schema and generated binding behavior only; no claim of runtime restart proof is made yet.
+
+
+## Mandatory events and optional media recording
+
+Every runtime has a durable timestamped event recorder, even when recoveryPolicy is abort. See [SessionRecordingIndex](/docs/entities/SessionRecordingIndex/1.0.0). Optional audio/video capture records authorized source tracks before fanout, with session-linked segments and explicit gaps. See [MediaRecording](/docs/entities/MediaRecording/1.0.0). Recorder capacity participates in placement and admission; no process may report EngineDrained while a recorder still owns buffered work or an unfinalized manifest.
+
+
+<NodeGraph />

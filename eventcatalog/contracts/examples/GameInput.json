@@ -1,0 +1,21 @@
+{
+  "messageId": "message-id-example",
+  "type": "GameInput",
+  "version": "1.0.0",
+  "occurredAt": "2026-09-08T12:00:00Z",
+  "tenantId": "tenant-id-example",
+  "regionId": "region-id-example",
+  "clusterId": "cluster-id-example",
+  "correlationId": "correlation-id-example",
+  "data": {
+    "sessionId": "session-id-example",
+    "ownerEpoch": "1",
+    "playerId": "player-id-example",
+    "channelId": "channel-id-example",
+    "connectionGeneration": "1",
+    "sequence": "1",
+    "tick": "1",
+    "codec": "game-json-v1",
+    "payload": "AQID"
+  }
+}

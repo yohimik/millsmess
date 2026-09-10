@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlayerStatisticsUpdated",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "messageId": {
+      "$ref": "#/$defs/ID"
+    },
+    "type": {
+      "type": "string",
+      "const": "PlayerStatisticsUpdated"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "occurredAt": {
+      "$ref": "#/$defs/Timestamp"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/ID"
+    },
+    "regionId": {
+      "$ref": "#/$defs/ID"
+    },
+    "clusterId": {
+      "$ref": "#/$defs/ID"
+    },
+    "correlationId": {
+      "$ref": "#/$defs/ID"
+    },
+    "data": {
+      "$ref": "#/$defs/PlayerStatisticsUpdatedData"
+    },
+    "aggregateId": {
+      "$ref": "#/$defs/ID"
+    },
+    "aggregateRevision": {
+      "$ref": "#/$defs/Counter"
+    },
+    "causationId": {
+      "$ref": "#/$defs/ID"
+    }
+  },
+  "required": [
+    "messageId",
+    "type",
+    "version",
+    "occurredAt",
+    "tenantId",
+    "regionId",
+    "clusterId",
+    "correlationId",
+    "data",
+    "aggregateId",
+    "aggregateRevision",
+    "causationId"
+  ],
+  "$defs": {
+    "Counter": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$",
+      "description": "Nonnegative decimal counter, at most 19 digits. String on JSON to preserve precision in JavaScript; compare numerically."
+    },
+    "ID": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "maxLength": 128
+    },
+    "MetricValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "metricId": {
+          "$ref": "#/$defs/ID"
+        },
+        "value": {
+          "$ref": "#/$defs/SignedValue"
+        }
+      },
+      "required": [
+        "metricId",
+        "value"
+      ]
+    },
+    "PlayerStatistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "playerId": {
+          "$ref": "#/$defs/ID"
+        },
+        "revision": {
+          "$ref": "#/$defs/Counter"
+        },
+        "asOf": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MetricValue"
+          },
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "playerId",
+        "revision",
+        "asOf",
+        "values"
+      ]
+    },
+    "PlayerStatisticsUpdatedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "seasonId": {
+          "$ref": "#/$defs/ID"
+        },
+        "statistics": {
+          "$ref": "#/$defs/PlayerStatistics"
+        }
+      },
+      "required": [
+        "seasonId",
+        "statistics"
+      ]
+    },
+    "SignedValue": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]{0,15})$",
+      "description": "Signed fixed-point integer string; metric definition supplies scale. No floating-point ranking."
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
