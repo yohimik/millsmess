@@ -3,7 +3,7 @@
 **Version:** 0.0.0 **Status:** Draft for review **Versioning model:** Semantic Versioning 2.0.0
 **License:** GPL-3.0-or-later. See [LICENSE](./LICENSE).
 
-This document is Mills Mess Engine specification **0.0.0**. It is the normative architecture of a clustered, session-based multiplayer game engine whose mandatory services are Socket, Inspector and Engine and whose other services are optional. Draft assembled 2026-10-24; headings are numbered by the assembly step and cross-references use section titles.
+This document is Mills Mess Engine specification **0.0.0**. It is the normative architecture of a clustered, session-based multiplayer game engine whose mandatory services are Socket, Inspector and Engine and whose other services are optional. Draft assembled 2026-10-25; headings are numbered by the assembly step and cross-references use section titles.
 
 ## Table of contents
 
@@ -114,15 +114,16 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [9.4 Handshake, negotiation and authentication](#94-handshake-negotiation-and-authentication)
   - [9.5 Frame routing](#95-frame-routing)
   - [9.6 Optional service routes](#96-optional-service-routes)
-  - [9.7 Gateway attachment routing](#97-gateway-attachment-routing)
-  - [9.8 Gateway link to the Engine](#98-gateway-link-to-the-engine)
-  - [9.9 Socket topic and queue](#99-socket-topic-and-queue)
-  - [9.10 Fanout and backpressure](#910-fanout-and-backpressure)
-  - [9.11 Reconnect and resume](#911-reconnect-and-resume)
-  - [9.12 Dependency failure](#912-dependency-failure)
-  - [9.13 Socket maintenance runbook](#913-socket-maintenance-runbook)
-  - [9.14 Traceless mode, logs and metrics](#914-traceless-mode-logs-and-metrics)
-  - [9.15 Conformance](#915-conformance)
+  - [9.7 Experiment endpoint route](#97-experiment-endpoint-route)
+  - [9.8 Gateway attachment routing](#98-gateway-attachment-routing)
+  - [9.9 Gateway link to the Engine](#99-gateway-link-to-the-engine)
+  - [9.10 Socket topic and queue](#910-socket-topic-and-queue)
+  - [9.11 Fanout and backpressure](#911-fanout-and-backpressure)
+  - [9.12 Reconnect and resume](#912-reconnect-and-resume)
+  - [9.13 Dependency failure](#913-dependency-failure)
+  - [9.14 Socket maintenance runbook](#914-socket-maintenance-runbook)
+  - [9.15 Traceless mode, logs and metrics](#915-traceless-mode-logs-and-metrics)
+  - [9.16 Conformance](#916-conformance)
 - [10. Inspector](#10-inspector)
   - [10.1 Store contract and routing tags](#101-store-contract-and-routing-tags)
   - [10.2 Key layout](#102-key-layout)
@@ -246,28 +247,29 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
 - [16. Statistics service](#16-statistics-service)
   - [16.1 Event trace](#161-event-trace)
   - [16.2 Analytics reports](#162-analytics-reports)
-  - [16.3 Session history record](#163-session-history-record)
-  - [16.4 History index](#164-history-index)
-  - [16.5 History construction](#165-history-construction)
-  - [16.6 History reads and visibility](#166-history-reads-and-visibility)
-  - [16.7 History retention, bounds and erasure](#167-history-retention-bounds-and-erasure)
-  - [16.8 Settlement ledger](#168-settlement-ledger)
-  - [16.9 Points and achievements](#169-points-and-achievements)
-  - [16.10 In-session achievement unlocks](#1610-in-session-achievement-unlocks)
-  - [16.11 Progression](#1611-progression)
-  - [16.12 Progression writes and conflicts](#1612-progression-writes-and-conflicts)
-  - [16.13 Leaderboard definitions](#1613-leaderboard-definitions)
-  - [16.14 Sort and rank semantics](#1614-sort-and-rank-semantics)
-  - [16.15 Live projection](#1615-live-projection)
-  - [16.16 Reading boards](#1616-reading-boards)
-  - [16.17 Seasons](#1617-seasons)
-  - [16.18 Rebuild, claims and erasure](#1618-rebuild-claims-and-erasure)
-  - [16.19 Storage through repositories](#1619-storage-through-repositories)
-  - [16.20 Public operations](#1620-public-operations)
-  - [16.21 Events consumed and produced](#1621-events-consumed-and-produced)
-  - [16.22 Absence and degradation](#1622-absence-and-degradation)
-  - [16.23 Security and privacy](#1623-security-and-privacy)
-  - [16.24 Conformance](#1624-conformance)
+  - [16.3 Experiment observations](#163-experiment-observations)
+  - [16.4 Session history record](#164-session-history-record)
+  - [16.5 History index](#165-history-index)
+  - [16.6 History construction](#166-history-construction)
+  - [16.7 History reads and visibility](#167-history-reads-and-visibility)
+  - [16.8 History retention, bounds and erasure](#168-history-retention-bounds-and-erasure)
+  - [16.9 Settlement ledger](#169-settlement-ledger)
+  - [16.10 Points and achievements](#1610-points-and-achievements)
+  - [16.11 In-session achievement unlocks](#1611-in-session-achievement-unlocks)
+  - [16.12 Progression](#1612-progression)
+  - [16.13 Progression writes and conflicts](#1613-progression-writes-and-conflicts)
+  - [16.14 Leaderboard definitions](#1614-leaderboard-definitions)
+  - [16.15 Sort and rank semantics](#1615-sort-and-rank-semantics)
+  - [16.16 Live projection](#1616-live-projection)
+  - [16.17 Reading boards](#1617-reading-boards)
+  - [16.18 Seasons](#1618-seasons)
+  - [16.19 Rebuild, claims and erasure](#1619-rebuild-claims-and-erasure)
+  - [16.20 Storage through repositories](#1620-storage-through-repositories)
+  - [16.21 Public operations](#1621-public-operations)
+  - [16.22 Events consumed and produced](#1622-events-consumed-and-produced)
+  - [16.23 Absence and degradation](#1623-absence-and-degradation)
+  - [16.24 Security and privacy](#1624-security-and-privacy)
+  - [16.25 Conformance](#1625-conformance)
 - [17. Payment service](#17-payment-service)
   - [17.1 Provider adapter contract](#171-provider-adapter-contract)
   - [17.2 Plans and periods](#172-plans-and-periods)
@@ -452,12 +454,13 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [27.10 Queue and topic signals](#2710-queue-and-topic-signals)
   - [27.11 Service channel and player context signals](#2711-service-channel-and-player-context-signals)
   - [27.12 Simulation encoding and games history signals](#2712-simulation-encoding-and-games-history-signals)
-  - [27.13 Log retention classes](#2713-log-retention-classes)
-  - [27.14 Reference alerts](#2714-reference-alerts)
-  - [27.15 Anonymous traceless mode rules](#2715-anonymous-traceless-mode-rules)
-  - [27.16 Optional services](#2716-optional-services)
-  - [27.17 Social and Feed signals](#2717-social-and-feed-signals)
-  - [27.18 Conformance](#2718-conformance)
+  - [27.13 A/B testing tool](#2713-ab-testing-tool)
+  - [27.14 Log retention classes](#2714-log-retention-classes)
+  - [27.15 Reference alerts](#2715-reference-alerts)
+  - [27.16 Anonymous traceless mode rules](#2716-anonymous-traceless-mode-rules)
+  - [27.17 Optional services](#2717-optional-services)
+  - [27.18 Social and Feed signals](#2718-social-and-feed-signals)
+  - [27.19 Conformance](#2719-conformance)
 - [28. Performance and memory budgets](#28-performance-and-memory-budgets)
   - [28.1 Per-period tick budget](#281-per-period-tick-budget)
   - [28.2 Allocation discipline](#282-allocation-discipline)
@@ -511,13 +514,14 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [31.14 Social and Feed conformance](#3114-social-and-feed-conformance)
   - [31.15 Progression and session history conformance](#3115-progression-and-session-history-conformance)
   - [31.16 Games history conformance](#3116-games-history-conformance)
-  - [31.17 Performance tests](#3117-performance-tests)
-  - [31.18 Chaos tests](#3118-chaos-tests)
-  - [31.19 Anonymous-mode conformance](#3119-anonymous-mode-conformance)
-  - [31.20 Production acceptance matrix](#3120-production-acceptance-matrix)
-  - [31.21 Initial SLOs](#3121-initial-slos)
-  - [31.22 Release gate](#3122-release-gate)
-  - [31.23 Conformance](#3123-conformance)
+  - [31.17 Experiments conformance](#3117-experiments-conformance)
+  - [31.18 Performance tests](#3118-performance-tests)
+  - [31.19 Chaos tests](#3119-chaos-tests)
+  - [31.20 Anonymous-mode conformance](#3120-anonymous-mode-conformance)
+  - [31.21 Production acceptance matrix](#3121-production-acceptance-matrix)
+  - [31.22 Initial SLOs](#3122-initial-slos)
+  - [31.23 Release gate](#3123-release-gate)
+  - [31.24 Conformance](#3124-conformance)
 - [32. Relationship to the draft catalog 1.0.0](#32-relationship-to-the-draft-catalog-100)
   - [32.1 Retained conventions](#321-retained-conventions)
   - [32.2 Reversed decisions](#322-reversed-decisions)
@@ -575,6 +579,8 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [A.41 Feed](#a41-feed)
   - [A.42 Recording](#a42-recording)
   - [A.43 Observability, distribution and testing](#a43-observability-distribution-and-testing)
+  - [A.44 Experiments and assignment](#a44-experiments-and-assignment)
+  - [A.45 Experiment observations and analysis](#a45-experiment-observations-and-analysis)
 - [Appendix B. Invariants](#appendix-b-invariants)
   - [B.1 Identifiers, counters and envelopes](#b1-identifiers-counters-and-envelopes)
   - [B.2 Profiles, roles and quotas](#b2-profiles-roles-and-quotas)
@@ -611,35 +617,37 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [B.33 Games history](#b33-games-history)
   - [B.34 Tick rate and send rate](#b34-tick-rate-and-send-rate)
   - [B.35 Simulation encoding and wire formats](#b35-simulation-encoding-and-wire-formats)
-  - [B.36 Conformance](#b36-conformance)
+  - [B.36 A/B testing tool](#b36-ab-testing-tool)
+  - [B.37 Conformance](#b37-conformance)
 - [Appendix C. Message inventory](#appendix-c-message-inventory)
   - [C.1 Reading the tables](#c1-reading-the-tables)
   - [C.2 Socket messages](#c2-socket-messages)
-  - [C.3 Inspector client operations](#c3-inspector-client-operations)
-  - [C.4 Inspector service operations](#c4-inspector-service-operations)
-  - [C.5 Inspector service queue messages](#c5-inspector-service-queue-messages)
-  - [C.6 Inspector projections and facts](#c6-inspector-projections-and-facts)
-  - [C.7 Engine service queue messages](#c7-engine-service-queue-messages)
-  - [C.8 Engine session channel](#c8-engine-session-channel)
-  - [C.9 Engine session controls](#c9-engine-session-controls)
-  - [C.10 Engine media messages](#c10-engine-media-messages)
-  - [C.11 Engine simulation channel](#c11-engine-simulation-channel)
-  - [C.12 Encoding negotiation](#c12-encoding-negotiation)
-  - [C.13 Engine facts](#c13-engine-facts)
-  - [C.14 Engine messages sent only with Recording](#c14-engine-messages-sent-only-with-recording)
-  - [C.15 Engine handoff socket](#c15-engine-handoff-socket)
-  - [C.16 Engine operator endpoint](#c16-engine-operator-endpoint)
-  - [C.17 Profiles messages, optional service](#c17-profiles-messages-optional-service)
-  - [C.18 Statistics messages, optional service](#c18-statistics-messages-optional-service)
-  - [C.19 Progression messages, optional domain](#c19-progression-messages-optional-domain)
-  - [C.20 Payment messages, optional service](#c20-payment-messages-optional-service)
-  - [C.21 Inventory messages, optional service](#c21-inventory-messages-optional-service)
-  - [C.22 Social messages, optional service](#c22-social-messages-optional-service)
-  - [C.23 Feed messages, optional service](#c23-feed-messages-optional-service)
-  - [C.24 Recording messages, optional service](#c24-recording-messages-optional-service)
-  - [C.25 Topics and binding modes](#c25-topics-and-binding-modes)
-  - [C.26 Operations that are not messages](#c26-operations-that-are-not-messages)
-  - [C.27 Conformance](#c27-conformance)
+  - [C.3 Experiment messages](#c3-experiment-messages)
+  - [C.4 Inspector client operations](#c4-inspector-client-operations)
+  - [C.5 Inspector service operations](#c5-inspector-service-operations)
+  - [C.6 Inspector service queue messages](#c6-inspector-service-queue-messages)
+  - [C.7 Inspector projections and facts](#c7-inspector-projections-and-facts)
+  - [C.8 Engine service queue messages](#c8-engine-service-queue-messages)
+  - [C.9 Engine session channel](#c9-engine-session-channel)
+  - [C.10 Engine session controls](#c10-engine-session-controls)
+  - [C.11 Engine media messages](#c11-engine-media-messages)
+  - [C.12 Engine simulation channel](#c12-engine-simulation-channel)
+  - [C.13 Encoding negotiation](#c13-encoding-negotiation)
+  - [C.14 Engine facts](#c14-engine-facts)
+  - [C.15 Engine messages sent only with Recording](#c15-engine-messages-sent-only-with-recording)
+  - [C.16 Engine handoff socket](#c16-engine-handoff-socket)
+  - [C.17 Engine operator endpoint](#c17-engine-operator-endpoint)
+  - [C.18 Profiles messages, optional service](#c18-profiles-messages-optional-service)
+  - [C.19 Statistics messages, optional service](#c19-statistics-messages-optional-service)
+  - [C.20 Progression messages, optional domain](#c20-progression-messages-optional-domain)
+  - [C.21 Payment messages, optional service](#c21-payment-messages-optional-service)
+  - [C.22 Inventory messages, optional service](#c22-inventory-messages-optional-service)
+  - [C.23 Social messages, optional service](#c23-social-messages-optional-service)
+  - [C.24 Feed messages, optional service](#c24-feed-messages-optional-service)
+  - [C.25 Recording messages, optional service](#c25-recording-messages-optional-service)
+  - [C.26 Topics and binding modes](#c26-topics-and-binding-modes)
+  - [C.27 Operations that are not messages](#c27-operations-that-are-not-messages)
+  - [C.28 Conformance](#c28-conformance)
 - [Appendix D. Configuration reference](#appendix-d-configuration-reference)
   - [D.1 Environment names and value forms](#d1-environment-names-and-value-forms)
   - [D.2 Status in the minimal anonymous deployment](#d2-status-in-the-minimal-anonymous-deployment)
@@ -648,14 +656,15 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [D.5 Logging and privacy keys](#d5-logging-and-privacy-keys)
   - [D.6 Integration and service queue keys](#d6-integration-and-service-queue-keys)
   - [D.7 Socket keys](#d7-socket-keys)
-  - [D.8 Inspector keys](#d8-inspector-keys)
-  - [D.9 Placement, pressure and move keys](#d9-placement-pressure-and-move-keys)
-  - [D.10 Engine keys](#d10-engine-keys)
-  - [D.11 Optional QUIC-based adapter keys](#d11-optional-quic-based-adapter-keys)
-  - [D.12 Relay and media keys](#d12-relay-and-media-keys)
-  - [D.13 Keys of optional services](#d13-keys-of-optional-services)
-  - [D.14 Values that are not configuration](#d14-values-that-are-not-configuration)
-  - [D.15 Conformance](#d15-conformance)
+  - [D.8 Experiment keys](#d8-experiment-keys)
+  - [D.9 Inspector keys](#d9-inspector-keys)
+  - [D.10 Placement, pressure and move keys](#d10-placement-pressure-and-move-keys)
+  - [D.11 Engine keys](#d11-engine-keys)
+  - [D.12 Optional QUIC-based adapter keys](#d12-optional-quic-based-adapter-keys)
+  - [D.13 Relay and media keys](#d13-relay-and-media-keys)
+  - [D.14 Keys of optional services](#d14-keys-of-optional-services)
+  - [D.15 Values that are not configuration](#d15-values-that-are-not-configuration)
+  - [D.16 Conformance](#d16-conformance)
 - [Appendix E. Error codes](#appendix-e-error-codes)
   - [E.1 Surfaces and mapping](#e1-surfaces-and-mapping)
   - [E.2 Envelope, dispatch and common codes](#e2-envelope-dispatch-and-common-codes)
@@ -673,14 +682,15 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [E.14 Transport and media codes](#e14-transport-and-media-codes)
   - [E.15 Persistence and integration bus codes](#e15-persistence-and-integration-bus-codes)
   - [E.16 Progression codes](#e16-progression-codes)
-  - [E.17 Profiles and Statistics codes](#e17-profiles-and-statistics-codes)
-  - [E.18 Payment and Inventory codes](#e18-payment-and-inventory-codes)
-  - [E.19 Social and Feed codes](#e19-social-and-feed-codes)
-  - [E.20 Versioned journal store codes](#e20-versioned-journal-store-codes)
-  - [E.21 Recording and object store codes](#e21-recording-and-object-store-codes)
-  - [E.22 Reason values](#e22-reason-values)
-  - [E.23 Primary references](#e23-primary-references)
-  - [E.24 Conformance](#e24-conformance)
+  - [E.17 Experiment codes](#e17-experiment-codes)
+  - [E.18 Profiles and Statistics codes](#e18-profiles-and-statistics-codes)
+  - [E.19 Payment and Inventory codes](#e19-payment-and-inventory-codes)
+  - [E.20 Social and Feed codes](#e20-social-and-feed-codes)
+  - [E.21 Versioned journal store codes](#e21-versioned-journal-store-codes)
+  - [E.22 Recording and object store codes](#e22-recording-and-object-store-codes)
+  - [E.23 Reason values](#e23-reason-values)
+  - [E.24 Primary references](#e24-primary-references)
+  - [E.25 Conformance](#e25-conformance)
 - [Appendix F. Log event catalog](#appendix-f-log-event-catalog)
   - [F.1 Catalog rules](#f1-catalog-rules)
   - [F.2 Process events](#f2-process-events)
@@ -688,21 +698,22 @@ This document is Mills Mess Engine specification **0.0.0**. It is the normative 
   - [F.4 Queue and topic events](#f4-queue-and-topic-events)
   - [F.5 Service channel and player context events](#f5-service-channel-and-player-context-events)
   - [F.6 Socket events](#f6-socket-events)
-  - [F.7 Inspector events](#f7-inspector-events)
-  - [F.8 Engine ownership events](#f8-engine-ownership-events)
-  - [F.9 Engine drain and handoff events](#f9-engine-drain-and-handoff-events)
-  - [F.10 Engine session lifecycle events](#f10-engine-session-lifecycle-events)
-  - [F.11 Engine participant and input events](#f11-engine-participant-and-input-events)
-  - [F.12 Engine pressure and move events](#f12-engine-pressure-and-move-events)
-  - [F.13 Engine tick, offload, transport and media events](#f13-engine-tick-offload-transport-and-media-events)
-  - [F.14 Integration bus, item ledger and persistence events](#f14-integration-bus-item-ledger-and-persistence-events)
-  - [F.15 Profiles and Statistics events](#f15-profiles-and-statistics-events)
-  - [F.16 Payment and Inventory events](#f16-payment-and-inventory-events)
-  - [F.17 Social and Feed events](#f17-social-and-feed-events)
-  - [F.18 Recording events](#f18-recording-events)
-  - [F.19 Security events of the mandatory core](#f19-security-events-of-the-mandatory-core)
-  - [F.20 Security events with Profiles present](#f20-security-events-with-profiles-present)
-  - [F.21 Conformance](#f21-conformance)
+  - [F.7 Experiment events](#f7-experiment-events)
+  - [F.8 Inspector events](#f8-inspector-events)
+  - [F.9 Engine ownership events](#f9-engine-ownership-events)
+  - [F.10 Engine drain and handoff events](#f10-engine-drain-and-handoff-events)
+  - [F.11 Engine session lifecycle events](#f11-engine-session-lifecycle-events)
+  - [F.12 Engine participant and input events](#f12-engine-participant-and-input-events)
+  - [F.13 Engine pressure and move events](#f13-engine-pressure-and-move-events)
+  - [F.14 Engine tick, offload, transport and media events](#f14-engine-tick-offload-transport-and-media-events)
+  - [F.15 Integration bus, item ledger and persistence events](#f15-integration-bus-item-ledger-and-persistence-events)
+  - [F.16 Profiles and Statistics events](#f16-profiles-and-statistics-events)
+  - [F.17 Payment and Inventory events](#f17-payment-and-inventory-events)
+  - [F.18 Social and Feed events](#f18-social-and-feed-events)
+  - [F.19 Recording events](#f19-recording-events)
+  - [F.20 Security events of the mandatory core](#f20-security-events-of-the-mandatory-core)
+  - [F.21 Security events with Profiles present](#f21-security-events-with-profiles-present)
+  - [F.22 Conformance](#f22-conformance)
 
 ## 1. Status and conformance
 
@@ -834,6 +845,7 @@ Each goal names the mechanism that meets it and the section that owns its rules.
 | Friends with online status and last seen, with Social | friendships formed when a member accepts a friend request, presence derived by Inspector from live control connections, last seen kept by Social and pushed to friends | "Social service" |
 | User-to-user chats and room invites, with Social | direct conversations and invites appended to the versioned journal store, a git repository as its required reference adapter; invites projected into private rooms as grants by Inspector | "Social service" |
 | Feed lists, with Feed | per-member feed items written from the achievement and standing facts of Statistics to the member and, with Social declared, to its friends | "Feed service" |
+| A/B testing tool in every profile | the experiments feature of the kernel library that Socket hosts, off by default; experiment definitions from configuration or Socket's registry with 2 to 8 weighted variants and a schema whose strings are enums; a variant derived by a keyed hash under the experiment's salt and never stored; the experiment endpoint RecordObservation on the control connection and the service channel, which verifies a JSON object against its definition and emits exactly one structured log line per accepted observation; analysis over a window of 1 to 90 days, 7 by default, with the installation's own log analysis tools and the experiments report command; no service, store, extension role or topic of its own | "A/B testing tool" in "Observability and logging" |
 | Libraries and stock images | fifteen libraries, reference images, one environment-driven configuration and a testkit | "Distribution and developer experience" |
 | Typed contracts for every client language | one catalog generated into bindings with conformance vectors | "Contracts and code generation" |
 
@@ -938,6 +950,7 @@ The matrix covers every feature that depends on an optional service. It states w
 | Feed lists | Feed, Statistics and Profiles | ReadFeed and MarkFeedSeen answer feature-unavailable; Statistics publishes no StandingChanged | facts wait in the sink within its 10-minute horizon; beyond it each lost fact counts as feed-gap and no item is backfilled |
 | Friend items in feeds | Feed and Social | feeds hold the member's own items only | own items appear at once; friend items are retried for 24 hours, then never appear |
 | Durable room profiles | Profiles | a room exists only in Inspector's keys and ends with them | live rooms are unaffected; durable profiles catch up from room facts |
+| A/B testing analysis and admin definitions | Statistics with statistics.experimentIngest=true for experiment-summary; Profiles for admin definitions | in the Minimal profile and in every deployment without Statistics, observations go to the structured logger only, one experiment-observation line on standard output per accepted observation, and the log store query and the experiments report command are the analysis; without Profiles only the operator credential defines experiments and every subject is a guest | the endpoint, assignment and experiment-observation lines are unaffected, because no experiment path calls Statistics or Profiles; experiment-summary of RunReport answers retryable-unavailable; admin definitions answer retryable-unavailable while the operator credential still defines |
 | Facts for consumers | a declared consumer | Emit is a one-branch no-op and nothing is appended | ticks are unaffected; a Gap event follows 60 seconds of unavailability |
 
 Traceless mode makes every Service absent cell the only legal state, because the start-time gate refuses every declaration. A declared service is never treated as absent at run time: the last column applies, and no Socket, Inspector or Engine path waits for the service.
@@ -961,7 +974,7 @@ Traceless mode makes every Service absent cell the only legal state, because the
 15. With Social or Feed undeclared, its client operations answer feature-unavailable from Socket without a network call; declared but unreachable, they answer retryable-unavailable while no Socket, Inspector or Engine path waits on it.
 16. A Full profile deployment declares exactly the seven optional services Profiles, Statistics, Payment, Inventory, Recording, Social and Feed in mode=standard.
 17. With Statistics or Profiles declared, the stats, unlocks and save that a member's session wrote at its end are delivered in the player context bundle of that member's next session of the same game before OnJoin.
-18. The Minimal profile and traceless mode issue no progression call, deliver the progression part of every player context bundle as session-only, answer SaveProgress with session-only and write nothing outside expiring coordination-store keys, and the RPC adapter carries only the placement channel's calls between Socket, Inspector and Engine.
+18. The Minimal profile and traceless mode issue no progression call, deliver the progression part of every player context bundle as session-only, answer SaveProgress with session-only and write nothing outside expiring coordination-store keys, and the RPC adapter carries only the placement channel's calls and, with experiments enabled, the Engine's ReadVariants and RecordObservation calls and the operator credential's DefineExperiment, CloseExperiment and ReadExperiments calls on Socket between Socket, Inspector and Engine.
 19. A 60 Hz session of 16 players whose progression owner and Inventory are unreachable for 10 minutes keeps its p99 tick below 80% of the period, calls OnJoin for every player within 2 seconds with the parts pending, and no call is issued from a simulation worker.
 20. With a game profile's recording set to sessions=off no session of any room of the game records and no room setting turns recording on; with sessions=on every session records, and the room view shows the effective recording before JoinRoom.
 21. With Statistics declared, the session history record of a recorded session names its recordingId and converges to its sealed, partial or deleted state whatever order the recording facts arrive in; without Statistics no session history record exists and the owner lists its recordings through the playback authorizer.
@@ -972,6 +985,12 @@ Traceless mode makes every Service absent cell the only legal state, because the
 26. With Statistics declared, a member that played three sessions in two rooms reads them through ReadHistory newest first with every item timestamped, the room owner lists each room's history and reads every record of it, and a participant reads only the records in which it holds a tenure; with Profiles declared and Statistics absent ReadHistory answers at most 50 summary entries and ReadSessionHistory answers feature-unavailable.
 27. In the Minimal profile, in traceless mode and in a Standard profile with neither Statistics nor Profiles, ReadHistory, ReadSessionHistory and ReadSessionEvents answer feature-unavailable from Socket without a network call, and nothing about a past session is written outside expiring coordination-store keys.
 28. With the history owner declared but unreachable, no tick, admission, placement or settlement waits for it, and a history read answers retryable-unavailable within its 5-second budget.
+29. In the Minimal profile with experiments.enabled=true and no optional service, a valid client observation yields exactly one experiment-observation line on standard output carrying the variant that AssignVariant gives for the connection's principal, no process beyond Socket, Inspector, Engine and the coordination store runs, and no store, file or event sink receives the observation.
+30. With experiments.enabled=false every experiment operation answers feature-unavailable, no {experiments:G} key exists and no player context bundle calls ReadVariants.
+31. With mode=traceless, start fails naming the key when experiments.enabled=true is set without privacy.experimentsAllowed=true, and with both set no experiment line carries a subject field, a playerId, an address or a token.
+32. A 60 Hz session of 16 players calling Observe on every tick keeps its p99 tick below 80% of the period while Socket's experiment endpoint is unreachable, and no simulation worker waits for RecordObservation.
+33. The experiments report command fed the committed line set prints the committed report byte for byte, and with Statistics declared and statistics.experimentIngest=true, experiment-summary over the same lines delivered twice answers the same figures.
+34. A Full profile deployment with experiments enabled still declares exactly seven optional services, and the A/B testing tool adds no image, store, extension role or topic.
 
 ## 3. Identifiers, time, counters and envelopes
 
@@ -1269,7 +1288,7 @@ A guest has playerId, username and points and nothing else. Inspector issues it 
 
 A member is a durable principal that exists only when Profiles is present. A member registers with or without a live guest credential; with one, the guest's points, history and achievements move to the member (see "Guest-to-member migration"). A member is a member with subscription while the entitlement projection of the region holds at least one entitlement whose source is a subscription and whose until has not passed. Subscription status follows the projection, never the credential: credentials carry no entitlements, so a canceled subscription ends at its until whatever credential the member holds.
 
-A moderator holds every member right plus three powers. It reads any principal's profile with an audit record, bans and unbans principals it outranks, and issues SetMute, Kick and EndSession on any session in the region through a control ticket. An admin holds every moderator right plus SetRole, bans of moderators and ListAudit. The first admin is created only by the Profiles operator command, which runs inside the Profiles process with no network exposure and appends an audit record with actor operator. SetRole refuses to demote the last admin with last-admin.
+A moderator holds every member right plus three powers. It reads any principal's profile with an audit record, bans and unbans principals it outranks, and issues SetMute, Kick and EndSession on any session in the region through a control ticket. An admin holds every moderator right plus SetRole, bans of moderators, ListAudit and the experiment routes of "A/B testing tool". The first admin is created only by the Profiles operator command, which runs inside the Profiles process with no network exposure and appends an audit record with actor operator. SetRole refuses to demote the last admin with last-admin.
 
 SetRole(profileId, role, actor) → revision accepts the roles member, moderator and admin. It fails with forbidden when the actor's stored role is not admin, role-invalid for guest or subscriber and not-found for an unknown or erased profile. It fails with last-admin when the change would demote the last admin and audit-unavailable when the audit record cannot be appended. Profiles checks every moderator and admin operation against the stored role at the time of the call. The role inside a credential is a hint for Inspector, not authority for Profiles. A demoted moderator therefore loses Profiles powers at once and keeps moderator control tickets for at most the remaining member credential lifetime, default 1 hour.
 
@@ -1338,6 +1357,7 @@ Identity and moderation actions follow. Every action in this table except Forget
 | Ban, suspend and unban a moderator | admin only | Profiles |
 | Promote and demote moderators and admins | admin only | Profiles |
 | Read audit records through ListAudit | admin only | Profiles |
+| Define, close and list experiments through DefineExperiment, CloseExperiment and ListExperiments, audited | admin only | Profiles |
 
 Social and feed actions follow. Social requires Profiles, and Feed requires Statistics and Profiles (see "Social service" and "Feed service"), so no action in this table exists in the Minimal profile or in traceless mode.
 
@@ -2866,7 +2886,7 @@ With Payment present the tickets re-minted after a move carry the feature list f
 
 ## 9. Socket
 
-Socket is the public gateway of one region. It terminates TLS for client control connections and for WebSocket game traffic, verifies credentials, applies per-connection budgets and routes every message it accepts to exactly one destination. It owns no business state: its only store is the connection registry, {conn:C} entries with a 60-second lifetime that any instance rebuilds from its live connections. Socket does not own rooms, membership, presence decisions, placement, admission, game state or media; Inspector and the Engine own them (see "Inspector" and "Engine runtime"). Instances are interchangeable behind any layer-4 balancer, and a Socket restart drops its TCP connections but cannot delete canonical membership.
+Socket is the public gateway of one region. It terminates TLS for client control connections and for WebSocket game traffic, verifies credentials, applies per-connection budgets and routes every message it accepts to exactly one destination. It owns no business state: its only stores are the connection registry, {conn:C} entries with a 60-second lifetime that any instance rebuilds from its live connections, and the experiment registry {experiments:G}, operator definitions with expiring fields that any instance restores from its last copy (see "Instance identity and internal operations"). Socket does not own rooms, membership, presence decisions, placement, admission, game state or media; Inspector and the Engine own them (see "Inspector" and "Engine runtime"). Instances are interchangeable behind any layer-4 balancer, and a Socket restart drops its TCP connections but cannot delete canonical membership.
 
 "No business logic" is a closed list, not an empty one. The table below is exhaustive: any behavior outside it belongs to another service. A Socket build that decides membership, placement, admission, a quota or a game outcome is non-conforming. The Client connection entity, its states and resume are defined in "Client connection and presence"; this section defines what the gateway does with them.
 
@@ -2878,12 +2898,13 @@ Socket is the public gateway of one region. It terminates TLS for client control
 | Negotiation | Validates Hello; answers HelloAck or closes with version-mismatch | Interprets an Attach beyond its routing claim |
 | Credentials | Verifies credentials offline against the verification key set | Issues a credential, ticket or resume token |
 | Budgets | Applies admission budgets, rate limits and parser ceilings | Enforces a room quota, ban or engine capacity |
-| Connection state | Runs the Client connection state machine; writes {conn:C} | Reads any key of the coordination store outside the messaging adapter's calls on its own Socket queue |
+| Connection state | Runs the Client connection state machine; writes {conn:C}; refreshes the experiment registry {experiments:G} and writes it only through experiment_define, experiment_close and experiment_restore | Reads any key of the coordination store other than {experiments:G} outside the messaging adapter's calls on its own Socket queue |
 | Routing | Routes control messages to Inspector or a declared optional service; relays gateway streams, signaling included, to the owning Engine | Retries a client command; routes by a client-supplied address |
 | Fan-out | Delivers Inspector projections, principal projections and AttachRedirect from its own Socket queue, and close orders, to its own connections | Merges, filters, reorders or re-encodes game frames; accepts a delivery whose producer is Social or Feed |
 | Inter-service messages | Relays client control requests to Inspector and to declared optional services as calls with exactly one reply each; consumes exactly one queue, the queue of its own Socket topic | Publishes to any topic; consumes a queue of another topic or of another Socket incarnation; holds or reads a player lock, a saga record or a move offer |
+| Experiments | Answers RecordObservation and ReadVariants of an authenticated connection itself; verifies the object against its definition, computes the variant and emits exactly one experiment-observation line per accepted observation | Uses a definition, a variant or a record for admission, placement or any other decision; takes a subject or a variant from the client; stores an observation |
 
-Outside the messaging adapter's calls on its own Socket topic and queue, Socket's store access is write-only. It writes, renews and marks closed its own {conn:C} entries and never reads them back, so losing the registry changes nothing Socket decides: the next renewal rewrites every live entry. Leaderboards, rooms, sessions and session moves reach Socket only through Inspector replies and projections. Socket reading a projection key directly would widen this list and is forbidden.
+Outside the messaging adapter's calls on its own Socket topic and queue and the experiment registry, Socket's store access is write-only. It writes, renews and marks closed its own {conn:C} entries and never reads them back, so losing the registry changes nothing Socket decides: the next renewal rewrites every live entry. The one key Socket reads is {experiments:G}: it reads the rev field every 10 seconds and loads the key only when rev moved. It writes the key only through experiment_define, experiment_close and experiment_restore, every field with a positive expiry (see "A/B testing tool" in "Observability and logging"). Leaderboards, rooms, sessions and session moves reach Socket only through Inspector replies and projections. Socket reading a projection key directly would widen this list and is forbidden.
 
 Socket takes no part in the work topics of the service queue. The mandatory core exchanges asynchronous work through the topic role and the queue role, unordered and at least once (see "Integration bus"). Socket's relay of a client control request to any Inspector instance is one of the two request-and-reply paths that stay outside them. Inspector runs the join saga of a room operation behind that reply: the per-player lock, the published message, the shared-store writes and the release. Socket therefore sees a saga only as a slower reply or a refusal code, never as a message. Socket's one use of the two roles is the consumer side of its own Socket topic, which carries projections and nothing else (see "Socket topic and queue"). It publishes to no topic, and moving the service topics to a broker family changes only the adapter behind that one queue.
 
@@ -2891,7 +2912,7 @@ Socket takes no part in the work topics of the service queue. The mandatory core
 
 A Socket instance serves exactly one region and forwards nothing to another region's Inspector or engines. socketId is opaque and generated at process start, so a restarted process is a new instance with no inherited connections. At start the instance loads the region directory from configuration, fetches the verification key set through the credential issuer role, binds its listeners, declares its Socket topic, its queue and their fan-out binding, and registers through SocketHeartbeat. The declaration precedes the first SocketHeartbeat, so no directory entry ever names a socketId whose topic does not exist yet. Readiness is true only after all five steps succeed; liveness comes from the age of the instance's event loop.
 
-Inspector reaches an instance in two ways. CloseConnections is a call to the delivery address in its directory entry, which Inspector holds in the region directory with a 60-second expiry (see "Inspector"). DeliverProjection is a message Inspector publishes to the Socket topic of the instance's socketId, never a call (see "Socket topic and queue"). The operations below form Socket's side of the placement channel and of the queue channel. Every call carries a correlationId and a service credential, and every message carries the service envelope of "Integration bus"; Socket accepts DeliverProjection and CloseConnections only from Inspector.
+Inspector reaches an instance in two ways. CloseConnections is a call to the delivery address in its directory entry, which Inspector holds in the region directory with a 60-second expiry (see "Inspector"). DeliverProjection is a message Inspector publishes to the Socket topic of the instance's socketId, never a call (see "Socket topic and queue"). The operations below form Socket's side of the placement channel, of the queue channel and of the service channel, whose calls reach its call listener at the region's internal Socket address. Every call carries a correlationId and a service credential, and every message carries the service envelope of "Integration bus". Socket accepts DeliverProjection and CloseConnections only from Inspector, DefineExperiment, CloseExperiment and ReadExperiments only under the operator credential or Profiles' service credential, and every other caller of those three receives forbidden.
 
 | Operation | Direction | Inputs → outputs | Errors | Pre- and postconditions |
 | --- | --- | --- | --- | --- |
@@ -2900,6 +2921,13 @@ Inspector reaches an instance in two ways. CloseConnections is a call to the del
 | DeliverProjection | Inspector → Socket topic → Socket queue | message data: socketId, roomId or none, playerId or none, projection type, slotKey or none, revision, body; no answer | dead-lettered at once with message-invalid when roomId is none without playerId and slotKey, or when its type, producer kind or socketId does not match the topic | With roomId set, delivered only to local connections whose memberships hold roomId and, when playerId is set, whose principal is playerId; with roomId none, written into the principal slot (projection type + slotKey) of every local connection authenticated as playerId |
 | CloseConnections | Inspector → Socket | socketId, playerId or credential digest, reason → closed count | socket-unknown | Closes every local connection of that principal or credential with the reason |
 | Drain | operator endpoint → Socket | budget → ok with connectionCount | already-draining | Starts "Socket maintenance runbook"; the endpoint is local with no network exposure |
+| DefineExperiment | operator's tooling or Profiles → Socket call listener | definition → revision | definition-invalid, stale-revision, definition-immutable, experiments-full, experiment-exists, forbidden, feature-unavailable, retryable-unavailable | Operator credential or Profiles' service credential only; writes {experiments:G} through experiment_define and yields one experiment-defined line; in effect in the region from its acknowledgement; 5-second call budget |
+| CloseExperiment | operator's tooling or Profiles → Socket call listener | experimentId, revision → ok | experiment-unknown, stale-revision, forbidden, feature-unavailable, retryable-unavailable | Operator credential or Profiles' service credential only; experiment_close sets endsAt and closedAt to the current time; 5-second call budget |
+| ReadExperiments | operator's tooling or Profiles → Socket call listener | page → at most 64 definitions, without salt and with the override count instead of the overrides | forbidden, feature-unavailable, retryable-unavailable | Operator credential or Profiles' service credential only; Profiles answers ListExperiments from it; writes nothing |
+| RecordObservation | Engine context worker or optional service → Socket call listener | experimentId, object, subjectId, gameId or none, sessionId or none, ownerEpoch and tick or none → observationId, variant | the closed error set of "Experiment endpoint route" | Service credential naming the subject, source module for the Engine and source service for an optional service; the operator credential receives forbidden; 2-second call budget; 1000 calls per second per instance and caller service kind |
+| ReadVariants | Engine context worker → Socket call listener | experimentIds or none, subjectId, gameId → state per experiment | unauthenticated, forbidden, feature-unavailable, message-invalid, rate-limited, retryable-unavailable | Only experiments whose sources hold module and whose gameId matches; inside the 2-second context budget of the player context bundle |
+
+Every Socket instance holds a copy of the definitions in effect in its region, merged from the experiments configuration group and the experiment registry {experiments:G}, one field per experimentId plus a rev field. It reads the rev field every 10 seconds and loads the key only when rev moved. It writes the key only through three store-side procedures: experiment_define for DefineExperiment, experiment_close for CloseExperiment and experiment_restore. experiment_restore recreates every absent field at its stored revision when the instance finds the key absent after an ephemeral store restart while its copy holds live definitions. A field lives until endsAt + 7 days, or closedAt + 7 days after an early close, and the key until its latest field, so every registry key carries a positive expiry. Through a store outage the instance answers from its last copy, and no gateway relay, Inspector route or experiment reply waits for a refresh. The definitions, their lifetimes and the definer rules are those of "A/B testing tool" in "Observability and logging".
 
 socket-unknown means the call named a socketId this process does not hold, which happens after a restart. An instance whose directory entry expired keeps serving its connections, keeps consuming its Socket queue and receives no projection until a heartbeat succeeds again. Default heartbeat: every **20 seconds**; directory entry lifetime: 60 seconds.
 
@@ -2926,7 +2954,7 @@ Budgets apply before any business call, in the order of the table, so a refused 
 | Room operations | 5 per minute per principal | Instance | rate-limited |
 | Guest issuance | 60 per minute per address digest | Instance | rate-limited |
 
-The parser ceiling applies to the frame length before any decoding, and the 64 KiB cap applies to the decoded control message. A frame above the ceiling closes the connection because its remaining bytes cannot be skipped safely; a message between the two figures is refused and the connection stays open. Room operations are CreateRoom, UpdateRoom, CloseRoom, JoinRoom, LeaveRoom, BlockInRoom and UnblockInRoom. Pausing reads under the inbound budget delays the control stream of the same connection; the flooding client pays for its own traffic, never another client.
+The experiment endpoint adds its own per-connection limits and its 2 KiB object cap inside the control rate and the 64 KiB cap (see "Experiment endpoint route"). The parser ceiling applies to the frame length before any decoding, and the 64 KiB cap applies to the decoded control message. A frame above the ceiling closes the connection because its remaining bytes cannot be skipped safely; a message between the two figures is refused and the connection stays open. Room operations are CreateRoom, UpdateRoom, CloseRoom, JoinRoom, LeaveRoom, BlockInRoom and UnblockInRoom. Pausing reads under the inbound budget delays the control stream of the same connection; the flooding client pays for its own traffic, never another client.
 
 Every Socket limit lives in process memory per instance, so a client spread over N instances meets up to N times a per-instance limit. The authoritative limits live elsewhere. Inspector enforces room quotas, the room-operation limit of 5 per minute per principal through rate_take, and the 2 concurrent connections per principal and region at the connect report. Socket's room-operations row is a per-instance pre-filter of that limit. The owning Engine enforces the reconnect limit of 3 per minute per principal at Attach, because only the Engine verifies the resume token that keys it.
 
@@ -2938,7 +2966,7 @@ Socket reports pressure above 80% of maxConnections, relayMbps or memoryBytes, t
 
 The client offers subprotocol tokens in the upgrade request; Socket selects the token of the highest protocol both support. An upgrade without a recognized token is accepted, because Hello is the authority and the token is a hint for proxies. Hello is the first message on the control stream, and any other first message closes the connection with message-unknown. Socket answers HelloAck with the chosen protocol, its supported range and the region directory revision. A protocol outside the range closes with version-mismatch before any payload field is parsed.
 
-The protocol integer is 1 for this contract. schemaHash and clientBuild are connection context, not admission criteria: the Engine negotiates the positional codec at Attach (see "Transports and wire codec"). simulationEncodings, the ordered list of simulation encodings the client implements, is an admission criterion at Inspector, not at Socket. Socket keeps it on the Client connection, as binary only when Hello omits it, and relays it in the connection context of JoinRoom and Admit. Inspector refuses JoinRoom and Admit with encoding-unsupported when the game's simulationEncoding is absent from that list, and Socket relays that refusal unchanged. Socket's own control messages are HelloAck, SocketDraining, CredentialExpiring, ProjectionsDropped and the error replies of this section; every other message it delivers was produced by another service.
+The protocol integer is 1 for this contract. schemaHash and clientBuild are connection context, not admission criteria: the Engine negotiates the positional codec at Attach (see "Transports and wire codec"). simulationEncodings, the ordered list of simulation encodings the client implements, is an admission criterion at Inspector, not at Socket. Socket keeps it on the Client connection, as binary only when Hello omits it, and relays it in the connection context of JoinRoom and Admit. Inspector refuses JoinRoom and Admit with encoding-unsupported when the game's simulationEncoding is absent from that list, and Socket relays that refusal unchanged. Socket's own control messages are HelloAck, SocketDraining, CredentialExpiring, ProjectionsDropped, the replies of RecordObservation and ReadVariants and the error replies of this section; every other message it delivers was produced by another service.
 
 Authenticate verifies the signature by kid, the notBefore and expiresAt bounds and the issuer offline, with the errors expired and issuer-unknown. The connect report then lets Inspector assign the control generation, enforce the connection limit and check revocation, as "Client connection and presence" defines. A valid signature is necessary, not sufficient: the connection becomes authenticated only when Inspector accepts the connect report. The verification key set refreshes every hour and on an unknown kid, at most once per 10 seconds, so a flood of forged kids costs one fetch per 10 seconds.
 
@@ -2953,6 +2981,7 @@ Socket dispatches on type + version + authorized channel, from the route table g
 | Message class | Destination | Socket checks | Answered by Socket |
 | --- | --- | --- | --- |
 | Hello, Authenticate, ListRegions | Socket | Connection state, size | version-mismatch, expired, issuer-unknown |
+| RecordObservation, ReadVariants | Socket, through the experiments feature of the kernel library | Authenticated state, experiment rates, 2 KiB object cap, size | Every outcome, under "Experiment endpoint route"; never forwarded |
 | IssueGuest, ListRooms, ReadBoard, GetRoom, room mutations, StartSession, Admit, IssueControlTicket, Quota, ForgetGuest; SetPresenceStatus while presence tracking is on | Inspector of the region | State, rates, size | unauthenticated; retryable-unavailable after 2 seconds, after 11 seconds for a saga operation |
 | Attach on a new attachment stream | Engine resolved by "Gateway attachment routing" | Stream budget, ticket signature | ticket-invalid; retryable-unavailable |
 | SignalDescription and SignalCandidate on an attachment stream, the first SignalDescription opening a new stream | Engine resolved by "Gateway attachment routing" from the ticket the first SignalDescription carries | Stream budget, ticket signature on the first SignalDescription, size | ticket-invalid; retryable-unavailable |
@@ -2960,6 +2989,7 @@ Socket dispatches on type + version + authorized channel, from the route table g
 | ReadOwnProgression | The progression owner: Statistics when declared, otherwise Profiles | State, rates, size | feature-unavailable when neither is declared; retryable-unavailable after 5 seconds |
 | ReadHistory, ReadSessionHistory, ReadSessionEvents | The history owner: Statistics when declared, otherwise Profiles for ReadHistory only | State, rates, size | feature-unavailable when no history owner is declared, and for ReadSessionHistory and ReadSessionEvents when Profiles owns the history; retryable-unavailable after 5 seconds |
 | ListRecordings, AuthorizePlayback, IssueRecordingToken, DeleteRecording | The playback authorizer of Recording | State, rates, size | feature-unavailable without Recording; retryable-unavailable after 5 seconds |
+| DefineExperiment, CloseExperiment, ListExperiments from a client | Profiles when declared, which answers only the admin role | State, rates, size | feature-unavailable without Profiles; retryable-unavailable after 5 seconds |
 | Other client-facing messages of a declared optional service | That service | State, rates, size | feature-unavailable; retryable-unavailable after 5 seconds |
 | Any other type + version | None | | message-unknown |
 
@@ -2976,7 +3006,7 @@ flowchart LR
   Inspector -->|close orders| Socket
   Socket <-->|gateway link with attachment streams| Engine[Engine]
   Socket <-->|declared client-facing routes| Optional[Declared optional services]
-  Socket -->|registry writes| Store[(Coordination store)]
+  Socket -->|connection registry writes, experiment registry refresh and procedures| Store[(Coordination store)]
   Client <-->|direct transports| Engine
 ```
 
@@ -2998,7 +3028,25 @@ Every relayed history reply obeys the 64 KiB control cap. A ReadHistory page of 
 
 In the Minimal profile no optional service is declared, so the route table holds Socket, Inspector and Engine routes only, and a message of an optional domain is answered with feature-unavailable without any network call. In traceless mode a declared optional service fails start (see "Anonymous traceless mode"), so the same holds there by construction. Optional services never deliver to connections through Socket: their facts reach clients through Inspector projections after a projection operation, or as replies to a routed call. Social and Feed reach a principal's connections only through DeliverToPrincipals of "Delivery to principals", a message on the delivery topic. Inspector turns it into DeliverProjection messages with roomId none on Socket topics (see "Socket topic and queue"). Provider webhooks of Payment are not client traffic and never pass through Socket.
 
-### 9.7 Gateway attachment routing
+### 9.7 Experiment endpoint route
+
+RecordObservation and ReadVariants are Socket's own control operations, not relayed routes. The instance answers both itself through the experiments feature of the kernel library, with the definitions in effect in its region. It makes no call to Inspector, to an Engine or to an optional service for them. The route exists in every profile, the Minimal profile included, because it needs no optional service. While experiments.enabled=false both operations answer feature-unavailable without any network call. In traceless mode the route answers only with privacy.experimentsAllowed=true also set (see "Anonymous traceless mode").
+
+Only an authenticated connection reaches the route: on an open connection both operations answer unauthenticated. A connection becomes authenticated only when Inspector accepts its connect report, so a validly signed credential alone submits nothing. The subject is the principal of the call context, the playerId of a guest and the profileId of a member, never a connectionId, an address digest or a device identifier. A client that names a subjectId in either operation receives forbidden. Socket never reads a variant from a submission: AssignVariant computes the variant of every record and every reply, so an object member named variant is an ordinary declared field or field-unknown.
+
+ReadVariants answers for the connection's principal and only for experiments whose sources hold client. It names at most 16 experimentIds and answers message-invalid beyond; with none it lists every running such experiment whose audience admits the principal, at most 64. Each entry carries the state, and for a running experiment the variant, overridden and endsAt. No reply reveals a salt, a weight or another subject's variant.
+
+Socket checks a RecordObservation in a fixed order, answers the first failure with its code and emits nothing for it. The order is access (unauthenticated, forbidden, feature-unavailable) → size (object-too-large) → experiment (experiment-unknown, experiment-scheduled, experiment-closed) → source (forbidden when the definition's sources lack client) → enrollment (not-enrolled) → rate (rate-limited) → fields (field-unknown, field-missing, field-invalid) → headroom (retryable-unavailable). The error object of a field refusal names the field, and only the submitting connection receives it. A malformed ExperimentObject answers message-invalid, and no refusal of the closed error set closes the connection.
+
+The object's encoded bytes are at most **2 KiB**, measured before the object is decoded, so an oversized object costs one length comparison and no parse. The control message around it stays under the 64 KiB control cap and the 256 KiB parser ceiling of "Connection admission budgets". The generated codec decodes ExperimentObject in one pass as a map of at most 32 members whose values are JSON booleans, numbers or strings of at most 64 characters. It refuses nesting, arrays, null and duplicate members with message-invalid. The check against the definition is the kernel's fixed validator, never a general schema engine.
+
+Per connection, Socket admits 60 RecordObservation calls per minute with a burst of 10 and 6 ReadVariants calls per minute. Both count toward the 20 control messages per second of "Connection admission budgets", and a call beyond its own limit answers rate-limited with a retry hint. The counters live in process memory per connection, never in a store. Because they are per connection, not per instance, spreading connections over instances raises nothing. A principal holds at most 2 concurrent connections per region, which Inspector enforces at the connect report, so it submits at most 120 client observations per minute in a region. These figures are starting values for the load test, not advertised capacity.
+
+On success Socket answers observationId, which equals the request's messageId, and the variant. It emits exactly one experiment-observation line of at most 4 KiB on standard output (see "Observability and logging"). While the process log queue is above 75% of its bound, RecordObservation answers retryable-unavailable with a 1-second retry hint and emits nothing. An accepted line is therefore never dropped from that queue. Socket keeps no idempotency record and never retries an observation. A client retry with the same messageId may emit a second line with the same observationId, which every analysis counts once. The line carries no playerId, profileId, username, address, connectionId, credential, salt or free-text string, and in traceless mode no subject field and no digest of one.
+
+The route waits on no other path, and no other path waits on it. Gateway relay, projections and Inspector routes keep their budgets while observations arrive, and a coordination store outage leaves the route answering from the instance's last copy of the definitions. Socket never forwards an observation to Inspector, the event sink, a topic or the analytics store; collection is the operator's log pipeline, not a Socket path. Debug logs every accepted or refused submission with its code, never its object, and warn coalesces refusals per experiment and code. Track experiment_observations_total by experiment, variant and source, experiment_rejections_total by experiment and code, experiment_rate_limited_total by source and experiment_records_refused_total. The experiment and variant labels are bounded identity labels from the definitions in effect, at most 64 and 8, and no label names a subject.
+
+### 9.8 Gateway attachment routing
 
 An attachment stream opens with Attach, which Socket relays to the owning Engine unchanged. Socket resolves the owner from two sources, both signed by Inspector or derived from Inspector: the ticket inside the Attach and the instance's routing cache. A ticket names the owning engine's addresses per allowed transport, and its gateway entry is the engine's gateway-link address when WebSocket is allowed. Socket checks only the ticket's signature for routing; expiry, nonce, seat and epoch are the Engine's checks.
 
@@ -3012,7 +3060,7 @@ A WebRTC attachment uses its gateway stream for signaling only (see "Transports 
 
 A session move reaches routing in three ways. From the freeze to the completed move, and earlier while the source node stands at or above the 90% refusal threshold with an offer open, Inspector answers JoinRoom and Admit for a new member with session-moving and a 1-second retry hint. For a session that no free engine could take it answers capacity-exhausted with a 30-second retry hint. Socket relays both refusals unchanged. From the freeze until migration_complete the source closes an Attach for the session with session-moving. After migration_complete it keeps a tombstone for 60 seconds and closes an Attach with session-moved, and Socket relays that close and removes the routing cache entry of that session at that ownerEpoch or lower. After the target completes the move, Inspector delivers AttachRedirect with a ticket for the target at the new ownerEpoch, and the next Attach routes by that ticket, because its epoch is above every cached entry. A cached placement is never preferred over a redirect ticket of a higher epoch, and Socket never infers a move from a failed link.
 
-### 9.8 Gateway link to the Engine
+### 9.9 Gateway link to the Engine
 
 Socket opens one link per pair of Socket instance and Engine incarnation, on the first Attach routed to that engine. The link runs on the private network, optionally under mutual TLS, and Socket presents its service credential when it opens it. An Engine accepts gateway links only from that credential, and a draining Engine keeps accepting links because it keeps accepting rejoins. Socket closes a link that has carried no stream for 60 seconds.
 
@@ -3026,7 +3074,7 @@ A link that drops without a close reason is treated as an engine fault. Socket r
 
 A session move closes no link. The source sends SessionMoving on each attachment's reliable-ordered lane, which reaches a WebSocket client through its stream like any other frame, and then stops ticking. A WebSocket attachment re-attaches on a new stream of a link to the target, opened on its first Attach as for any engine. The source closes the old stream with session-moved, and Socket relays that close like any other. No stream is rebound across engines, because no transport state moves between hosts, and the handoff rebind of the planned restart applies only within one engineId.
 
-### 9.9 Socket topic and queue
+### 9.10 Socket topic and queue
 
 Every Socket incarnation owns exactly one topic and exactly one queue of the topic role and the queue role (see "Integration bus"). socketId is new at every process start, so the topic is {bus:G:socket:S} for region G and socketId S. A restarted process declares a new topic and a new queue and never consumes those of its predecessor. Socket declares the topic with the 60-second hint horizon and the 16 KiB message cap, and its queue with a 10-second visibility timeout, a delivery limit of 10 and a 60-second idle expiry. It binds the queue to the topic with binding mode fan-out, no group and the type DeliverProjection. Inspector is the only producer on the topic and the instance is its only consumer. The binding is never round-robin, because a projection belongs to the connections of exactly one process and no other instance may take it.
 
@@ -3050,7 +3098,7 @@ The queue expires 60 seconds after its last Consume and its binding ends with it
 
 In the Minimal profile the Socket topic lives on the coordination-store stream adapter of the one store and carries room projections and AttachRedirect only, because no delivery topic exists and no principal projection is produced. In traceless mode the coordination-store stream adapter is the only legal one. The Socket topic, its queue and its dead-letter stream are keys with positive expiries: the 60-second horizon, the 60-second idle expiry and the 1-hour dead-letter retention. A dead-lettered message is logged with its type, a keyed digest of its messageId and its reason, never with its body or an identifier.
 
-### 9.10 Fanout and backpressure
+### 9.11 Fanout and backpressure
 
 Socket fans out Inspector projections and nothing else. Game frames are relayed per attachment stream, never fanned out by Socket. The Engine encodes once per interest class and sends one copy per attachment, so group visibility and the mute matrix are decided where the session lives. A projection is a hint, not authority. A client acts on the next Inspector reply, ticket or AttachAck, and repairs a revision gap with GetRoom (see "Room").
 
@@ -3075,7 +3123,7 @@ Each connection has one write buffer toward the client, shared by replies, proje
 
 CloseConnections is the second fan-out path, a call to the delivery address and never a message on the Socket topic. Inspector sends it to every instance of the region directory when a region acknowledges a ProjectBan of installation scope, and Socket closes each local connection of the principal with banned. CloseConnections never reaches an attachment on a direct transport: the leave sagas with PlayerLeaving(reason banned) that Inspector runs for the principal's room memberships in the region end those (see "Operations and sagas" in "Inspector"). ForgetGuest produces the same call keyed by the credential digest, and Socket closes with revoked. In the Minimal profile no durable ban exists, so banned never arrives; Kick and BlockInRoom act in the Engine and Inspector without any Socket close order.
 
-### 9.11 Reconnect and resume
+### 9.12 Reconnect and resume
 
 Socket keeps no resume state. Resume is a contract among the client, Inspector, which keeps room membership through presence fields that expire 60 seconds after the last renewal, and the owning Engine, which holds the seat for the resume window, default 120 seconds. A reconnect through any instance of the region is equivalent to one through the original instance. The procedure and its generations are defined in "Client connection and presence"; the gateway's part is routing the resume Attach by "Gateway attachment routing".
 
@@ -3087,13 +3135,13 @@ A session move is a re-attach, not a reconnect. The control connection stays ope
 
 Close codes are stable and closed. Socket emits: version-mismatch, handshake-timeout, idle-timeout, unauthenticated (reply only), message-unknown (reply only), payload-too-large, rate-limited, limit-exceeded (reply only), expired, revoked, banned, quota-exceeded (from the connect report), slow-consumer, link-lost (per stream), socket-draining and retryable-unavailable (reply only). Every close carries a retry hint when reconnecting can succeed, and never one for version-mismatch, revoked or banned.
 
-### 9.12 Dependency failure
+### 9.13 Dependency failure
 
 Socket fails per dependency and never blocks one path on another. The table lists each fault with the behavior it requires and what keeps working.
 
 | Fault | Socket behavior | What continues |
 | --- | --- | --- |
-| Coordination store unavailable | Registry writes fail and are retried at the next renewal, never awaited; under the coordination-store stream adapter Consume on the Socket queue fails and is retried, so no projection arrives | Authentication, gateway relay, resume at a reachable owner; Inspector replies retryable-unavailable |
+| Coordination store unavailable | Registry writes fail and are retried at the next renewal, never awaited; under the coordination-store stream adapter Consume on the Socket queue fails and is retried, so no projection arrives | Authentication, gateway relay, resume at a reachable owner, the experiment endpoint on the last copy of the definitions; Inspector replies retryable-unavailable |
 | Inspector unreachable | Inspector-bound calls answered retryable-unavailable after 2 seconds; the status endpoint reports region-unavailable after 10 seconds | Authenticate for connections already reported, gateway relay, Attach routing by ticket and cache |
 | Credential issuer unreachable | Cached key set kept; an unknown kid yields issuer-unknown | Every principal whose kid is cached |
 | One Engine unreachable | Its link retried for 2 seconds, then its streams closed with link-lost | Streams of every other engine |
@@ -3104,7 +3152,7 @@ Socket fails per dependency and never blocks one path on another. The table list
 
 A connection whose connect report cannot reach Inspector follows the rule of "Client connection and presence": it relays Attach, answers Inspector-bound calls with retryable-unavailable and retries the report with backoff. A declared optional service that is unreachable stays declared; Socket starts without it and never treats it as absent.
 
-### 9.13 Socket maintenance runbook
+### 9.14 Socket maintenance runbook
 
 Socket has no connection-preserving restart in this version: TLS state lives in the process, so every restart drops its client connections. Session continuity through resume is the guarantee, and clients on direct transports keep playing through it. The runbook below covers rolling updates, scale-down and node maintenance, with the update order start-first.
 
@@ -3116,17 +3164,17 @@ Socket has no connection-preserving restart in this version: TLS state lives in 
 
 A finite termination grace cannot prove every client reconnected; the drain report and the forced-close counter are the evidence. Membership survives every step because Socket deletes none, and seats survive because each drained client resumes inside the resume window. A drain closure counts as one reconnect toward the Engine's limit of 3 per minute, which one maintenance pass never exceeds. An instance stopped without Drain behaves as a crash and increments the undrained-exit counter at its successor's start.
 
-### 9.14 Traceless mode, logs and metrics
+### 9.15 Traceless mode, logs and metrics
 
 Socket requires the mode setting like Inspector and the Engine and refuses to start when it is unset. In traceless mode Socket writes nothing to disk and keeps no access log of its own; {conn:C} holds playerId only under its 60-second expiry and never an address. The client address lives in process memory only, as the rotating keyed digest of the admission budgets. Credentials, tickets, resume tokens, attachment secrets, recording tokens, playback URLs and payloads, principal projection bodies included, never appear in a log line at any level. At every level sessionId and roomId appear only as keyed digests. In traceless mode start is refused when debug logging or a per-session debug flag is configured without privacy.debugAllowed=true; with it, a warning prints at start. An AttachRedirect lives in a projection slot in process memory only until it is written to the client, exactly like an Admit reply. A session move therefore adds nothing to disk or to the store at Socket beyond its message on the expiring Socket topic.
 
-Log levels follow "Observability and logging". Debug: every connection and stream state transition, every routing decision with destination and duration, every refusal with its budget, every AttachRedirect delivery with its ownerEpoch, every principal projection delivery with its projection type and delivered count, every Consume batch of the Socket queue with its size, every declaration of the Socket topic and queue, every pending-stream close and every cache entry removed after session-moved. Info: process start with the effective configuration and secrets redacted, region directory loaded, drain report. Warn: slow-consumer closes above 1% of connections per minute, Inspector calls answered retryable-unavailable, key set refresh failures, pressure above 80%, coalesced to one line per key per 10 seconds. Error: listener bind failure, configuration invalid, key set unavailable at start, link authentication failure, a dead-lettered message of the Socket queue.
+Log levels follow "Observability and logging". Debug: every connection and stream state transition, every routing decision with destination and duration, every refusal with its budget, every AttachRedirect delivery with its ownerEpoch, every principal projection delivery with its projection type and delivered count, every Consume batch of the Socket queue with its size, every declaration of the Socket topic and queue, every pending-stream close and every cache entry removed after session-moved. Info: process start with the effective configuration and secrets redacted, region directory loaded, drain report, experiment-observation per accepted observation and experiment-definition per definition in effect, each in its experiment class, and experiment-defined per registry write in the security class. Warn: slow-consumer closes above 1% of connections per minute, Inspector calls answered retryable-unavailable, key set refresh failures, pressure above 80%, experiment-refused per experiment and code, coalesced to one line per key per 10 seconds. Error: listener bind failure, configuration invalid, key set unavailable at start, link authentication failure, a dead-lettered message of the Socket queue, experiment-definition-invalid, experiment-restore-failed. The experiment events and their fields are those of "A/B testing tool" in "Observability and logging".
 
-Track connections by state, messages per second by route, relay throughput, projection slots occupied, closes by reason, admission refusals by budget, links per engine and rebind duration. Track saga route latency, saga route deadlines reached, pending streams and their wait, pending-stream closes, AttachRedirect deliveries and session-moved closes relayed. Track principal projections by type, principal slots occupied and ProjectionsDropped notices sent. Track Lag of the Socket queue as gauges (ready, in flight, dead-lettered, oldest ready age) and expired and dead-lettered messages as counters. Metric labels carry region, instance, route and reason only, never a sessionId or a playerId.
+Track connections by state, messages per second by route, relay throughput, projection slots occupied, closes by reason, admission refusals by budget, links per engine and rebind duration. Track saga route latency, saga route deadlines reached, pending streams and their wait, pending-stream closes, AttachRedirect deliveries and session-moved closes relayed. Track principal projections by type, principal slots occupied and ProjectionsDropped notices sent. Track Lag of the Socket queue as gauges (ready, in flight, dead-lettered, oldest ready age) and expired and dead-lettered messages as counters. Metric labels carry region, instance, route and reason only, and on the experiment series the bounded experiment, variant, source and code labels, never a sessionId or a playerId.
 
-### 9.15 Conformance
+### 9.16 Conformance
 
-1. A Socket build performs no coordination-store key read in any test scenario; its only store calls are {conn:C} writes with a positive expiry, the messaging adapter's calls on its own Socket topic and queue and, in traceless mode, the start-time persistence query.
+1. A Socket build reads no coordination-store key other than the experiment registry {experiments:G} in any test scenario; its only store calls are {conn:C} writes with a positive expiry, the registry refresh and the experiment_define, experiment_close and experiment_restore procedures, the messaging adapter's calls on its own Socket topic and queue and, in traceless mode, the start-time persistence query.
 2. An upgrade arriving while the instance holds 90% of maxConnections is refused with a retry hint and no Inspector call is made.
 3. A connection that completes the upgrade and sends no Hello within 5 seconds is closed with handshake-timeout.
 4. A Hello whose protocol lies outside the supported range is closed with version-mismatch before any other field is parsed.
@@ -3189,6 +3237,15 @@ Track connections by state, messages per second by route, relay throughput, proj
 61. A ReadHistory or ReadSessionHistory whose subjectId or viaSubjectId names another principal is forwarded unchanged to the history owner as exactly one call, its forbidden reaches the client unchanged, Socket makes no call to Social for it, and no relayed history page exceeds the 64 KiB control cap.
 62. In the Minimal profile, in traceless mode and in a Standard profile with neither Statistics nor Profiles, ReadHistory, ReadSessionHistory and ReadSessionEvents are answered with feature-unavailable without any network call.
 63. A Hello without simulationEncodings is kept on the Client connection as binary only, every JoinRoom and Admit Socket forwards carries the connection's simulationEncodings in its call context, and an encoding-unsupported refusal from Inspector reaches the client unchanged, in the Minimal profile and in traceless mode as well.
+64. On an open connection RecordObservation and ReadVariants answer unauthenticated, with experiments.enabled=false both answer feature-unavailable, and in neither case is a line emitted or a network call made.
+65. A valid client observation yields exactly one experiment-observation line with the variant AssignVariant gives for the connection's principal, and the reply carries the request's messageId as observationId and the same variant.
+66. A client RecordObservation or ReadVariants naming a subjectId answers forbidden, and an object member named variant never changes the record's variant.
+67. An object whose encoded bytes exceed 2 KiB answers object-too-large before it is decoded with the connection open, a nested value, an array, a null or a duplicate member answers message-invalid, and no line is emitted for either.
+68. The 11th observation inside a connection's burst and the 61st inside a minute answer rate-limited with a retry hint, the 7th ReadVariants inside a minute does too, and two connections of one principal on two instances together pass at most 120 observations in a minute.
+69. With the process log queue above 75% of its bound, RecordObservation answers retryable-unavailable with a 1-second retry hint and emits nothing, and no accepted line is dropped under a burst of error lines.
+70. A client retry with one messageId yields at most two lines with one observationId, and Socket makes no store write and no Inspector call per observation.
+71. With the coordination store unavailable, a client observation for a running experiment is still answered from the instance's last copy of the definitions while gateway relay keeps its tick rate.
+72. In the Minimal profile with experiments enabled, a client observation is answered by Socket with no process beyond Socket, Inspector, Engine and the store, and in traceless mode with privacy.experimentsAllowed=true no line carries a subject field, a playerId, an address or a token.
 
 ## 10. Inspector
 
@@ -3267,6 +3324,7 @@ Profile keys exist per principal and region. The meta hash exists for guests onl
 | {profile:P}:revoked | string | until the ban ends; for a ban without end, an unban tombstone or a forgotten guest, the longest configured credential lifetime + 1 hour | Inspector through ProjectBan, RevokeBan and ForgetGuest | until, scope, reason, revision |
 | {profile:P}:settled | set | 10 minutes | Inspector | sessionIds whose deltas this profile already received |
 | {conn:C} | hash | 60 seconds, renewed every 20 seconds | Socket | socketId, playerId, generation, state, attachments |
+| {experiments:G} | hash, per-field expiry | each field until endsAt + 7 days, or closedAt + 7 days after an early close; the key until its latest field | Socket through experiment_define, experiment_close and experiment_restore | experiment registry: experimentId → ExperimentDefinition with revision, salt and overrides, and a rev field; exists only with experiments.enabled=true |
 | {auth}:keys | hash | longest configured credential lifetime + rotation period + 1 hour, 8 days + 1 hour with the defaults, renewed at every rotation | Inspector; Profiles through PublishSigningKey and RetireSigningKey | kid → issuer, material, notBefore, retiredAt: signing keys and the region's relay secret |
 | {events:G:n} | stream | entries trimmed to 10 minutes; key renewed on append | Engine, Inspector, Profiles | sink shards, 16 per region; created only when a consumer is declared |
 | {presence:G:n} | sorted set | 60 seconds, renewed by every write and by Reconcile | Inspector | exists only with presence tracking on; 16 per region by playerId hash: playerId scored by the expiry of its latest conns field; the reconciler's presence sweep |
@@ -3838,7 +3896,7 @@ One Engine process per node hosts many sessions. Each component below passes wor
 | Pressure sampler | one per process | weight and usage sampling, growth, nomination, offers and claims | one sample per second; one nomination per 15 seconds |
 | Fleet tailer | one per process | Consume of the engine's fleet queue, bound fan-out to the fleet topic, for SessionPressure and CapacityAvailable; Ack on receipt | hints only; 60-second horizon |
 | Tap flusher | zero or one per process | Publish of fact batches to the sink topic of the engine's region | 256 facts or 250 ms per batch; 4 KiB per fact |
-| Context worker | one per process | service channel calls for the player context bundle, the item ledger and the progression writes; InventoryChanged served at the registered service address | 64 requests in flight per session; 2-second context budget; 5-second request timeout |
+| Context worker | one per process | service channel calls for the player context bundle, the item ledger, the progression writes and the experiment operations ReadVariants and RecordObservation on Socket; InventoryChanged served at the registered service address | 64 requests in flight per session; 2-second context budget; 5-second request timeout; 10 Observe submissions per second per session with 64 queued |
 | Handoff endpoint | one local handoff socket | class A protocol | 20-second node bound |
 | Operator endpoint | one local socket | end session, drain | no network exposure by default |
 
@@ -3881,9 +3939,10 @@ flowchart LR
   Pressure <-->|fleet topic and fleet queue| Queue
   Sim -->|event ring| Tap
   Tap -->|sink topic| Queue
-  Sim -->|context, ledger and progression requests| Ctx
+  Sim -->|context, ledger, progression and Observe requests| Ctx
   Ctx -->|context and outcome host events| Sim
   Ctx <-->|service channel calls| Owners
+  Ctx <-->|ReadVariants and RecordObservation on the service channel| Socket
   Pressure <-->|offer, claim and handover| Store
   Adapters <-->|descriptors and state records| Successor
 ```
@@ -3900,7 +3959,7 @@ A session is the unit of placement, isolation and failure. Each session owns its
 
 Faults stay inside their session. A sandbox trap, a native panic and state-invalid from Encode or Snapshot each end that session with faulted, and every other session keeps its tick. Containment of a native build covers only failures the host can intercept. A native module that corrupts process memory is outside what the Engine can contain, which is why the sandboxed runner exists.
 
-Resources are charged before a session exists. Placement reserves the session weight in capacity units and the memory estimate in bytes through engine_reserve. A sandboxed session adds its full sandboxMemory in bytes, never converted to units. Per-session bounds, all starting values: input queue 128 per player, which holds the 16-tick early edge at 128 Hz with 8 inputs per tick; event ring 1024 entries of at most 4 KiB at every rate; baseline ring 32 × k(sendRate) encoded updates per interest class, 32 up to a 64 Hz send rate and 64 at a 128 Hz send rate, so a missing acknowledgement for the whole ring spans 500 ms at either; spectator delay ring of effective send rate × delay frames of at most 1200 bytes, 4.4 MiB at 128 Hz and 30 seconds, charged in the memory estimate at placement; 64 context worker requests in flight, of which at most 16 progression requests queued or in flight; one offload slot. A full bound drops and counts; it never grows and never blocks the tick.
+Resources are charged before a session exists. Placement reserves the session weight in capacity units and the memory estimate in bytes through engine_reserve. A sandboxed session adds its full sandboxMemory in bytes, never converted to units. Per-session bounds, all starting values: input queue 128 per player, which holds the 16-tick early edge at 128 Hz with 8 inputs per tick; event ring 1024 entries of at most 4 KiB at every rate; baseline ring 32 × k(sendRate) encoded updates per interest class, 32 up to a 64 Hz send rate and 64 at a 128 Hz send rate, so a missing acknowledgement for the whole ring spans 500 ms at either; spectator delay ring of effective send rate × delay frames of at most 1200 bytes, 4.4 MiB at 128 Hz and 30 seconds, charged in the memory estimate at placement; 64 context worker requests in flight, of which at most 16 progression requests queued or in flight; 64 Observe submissions queued in the context worker, submitted at most 10 per second; one offload slot. A full bound drops and counts; it never grows and never blocks the tick.
 
 Fan-out workers serve every session of the process. Each job encodes one committed view of a send tick for one interest class in the session's simulation encoding, and its duration is charged to that session's encode budget. A session whose encoding falls behind loses its own pending views (see "Tick loop and deadline accounting"). It never delays another session's Tick, which runs only on that session's own worker.
 
@@ -4020,7 +4079,7 @@ The simulation encoding of a game profile, GameProfile.simulationEncoding, is bi
 | Simulation plane | InputFrame, StateUpdate, full-class updates, Fragment, TickFrame, DigestReport | the session's simulation encoding |
 | Media on the frame-envelope path | audio frames and video chunks | binary in both encodings, because codec bytes are not contract records |
 | Session channel on the control lane | Attach, AttachAck, HostEvents, Desync, SessionMoving, RecordingNotice, Detach and signaling | JSON |
-| Service channel and placement channel | the player context fetch, the item ledger, the progression writes, MigrateSession and ReportSessionEnded | JSON |
+| Service channel and placement channel | the player context fetch, the item ledger, the progression writes, ReadVariants, RecordObservation, MigrateSession and ReportSessionEnded | JSON |
 | Topics and queues | every inbox, fleet, work and sink message | JSON |
 | Engine-written store records | snapshot envelope and journal batches | binary positional |
 
@@ -4256,7 +4315,7 @@ A game developer implements two interfaces, GameModule and GameSession, specifie
 
 | Operation | Inputs → outputs | Errors | Contract |
 | --- | --- | --- | --- |
-| Describe | none → GameProfile | none | constant per build; carries tickRate, sendRate, simulationEncoding, seat and spectator limits, late-join, input window and late-input policy, snapshot interval, durability class, sync model, artifacts per runner kind, sandboxMemory, groups, media policy, host controls and migration, the migratable flag for session moves, abandon policy, service requirements, spectator delay, achievement definitions with their source, maxInterestClasses, the recording setting GameProfile.recording, history.events, history.customKinds and history.resultStats (see "Session history record" in "Statistics service"), the progression schema and saveConflict, and the extension message domain |
+| Describe | none → GameProfile | none | constant per build; carries tickRate, sendRate, simulationEncoding, seat and spectator limits, late-join, input window and late-input policy, snapshot interval, durability class, sync model, artifacts per runner kind, sandboxMemory, groups, media policy, host controls and migration, the migratable flag for session moves, abandon policy, service requirements, spectator delay, achievement definitions with their source, maxInterestClasses, the recording setting GameProfile.recording, history.events, history.customKinds and history.resultStats (see "Session history record" in "Statistics service"), the progression schema and saveConflict, GameProfile.experiments, the experimentIds the module reads and logs, at most 8, and the extension message domain |
 | New | sessionContext → GameSession | none | called on allocation, adoption and class A import; touches nothing outside the new instance |
 
 Lifecycle. On allocation the host calls New, then Init, then per tick the host events, OnInput, Tick and Commit, and finally End. On adoption and on a class A successor it calls New, then Upgrade when needed, then Restore. Init is not called there, because the complete canonical state holds the Init arguments, seeds included. Close is the host's release of the instance on every exit path, not a module operation. The module never calls End: it commands EndAt(tick), and the host calls End at that tick.
@@ -4303,6 +4362,8 @@ Threading contract. Init, Upgrade, UpgradeProgression, Restore, every host event
 | --- | --- | --- |
 | Roster, Groups | query | views delivered at the last tick boundary |
 | Inventory(player), Entitlements(player), Progression(player) | query | views of the player context bundle; inventory absent without Inventory; entitlements from the ticket, role defaults without Payment; progression session-only without a progression owner |
+| Variant(player, experimentId) → variant or none | query | the experiments part of the player context bundle; none for an experiment that is not running for the player, an experimentId GameProfile.experiments does not list and while the part is not ready |
+| Observe(player, experimentId, object) | command | recorded by the host and submitted by the context worker after the tick boundary as RecordObservation; no outcome reaches the module |
 | CreateGroup, MoveToGroup, DissolveGroup, SetMute, SetVisibility | command | applied at the next tick boundary as a host event |
 | SetInterest, TagEntity | command | used from the next encode |
 | Send(player, lane, payload), Broadcast(group, lane, payload) | command | enqueued after Commit under group visibility |
@@ -4323,17 +4384,19 @@ A trap at the memory limit, at the fuel ceiling, on invalid access or on an unre
 
 ### 11.15 Player context and progression
 
-The context worker is the Engine's only worker for calls whose answers a session object needs: the player context bundle, the item ledger of "Inventory service" and the progression writes. It calls Inventory and the progression owner over the service channel, never through a repository, and it never runs on a simulation worker. An answer reaches the module only as a host event at a tick boundary, and a lapsed budget only as a pending or unavailable outcome, never as a late tick. The Engine's other outbound work runs on the lifecycle worker: RegisterEngine and Heartbeat, store procedures the Engine runs itself, and MigrateSession and ReportSessionEnded on the placement channel. The only operation the context worker serves is InventoryChanged, at the service address the Engine registered through RegisterEngine; it refreshes the cached inventory view. Every body the context worker sends or receives is JSON in the control encoding, written and read by the generated reflection-free codecs, whatever the session's simulation encoding.
+The context worker is the Engine's only worker for calls whose answers a session object needs: the player context bundle, the item ledger of "Inventory service", the progression writes and the experiment operations of the A/B testing tool that Socket hosts (see "Socket"). It calls Inventory and the progression owner over the service channel, never through a repository, and it calls Socket on the service channel at the region's internal Socket address. It never runs on a simulation worker. An answer reaches the module only as a host event at a tick boundary, and a lapsed budget only as a pending or unavailable outcome, never as a late tick. The Engine's other outbound work runs on the lifecycle worker: RegisterEngine and Heartbeat, store procedures the Engine runs itself, and MigrateSession and ReportSessionEnded on the placement channel. The only operation the context worker serves is InventoryChanged, at the service address the Engine registered through RegisterEngine; it refreshes the cached inventory view. Every body the context worker sends or receives is JSON in the control encoding, written and read by the generated reflection-free codecs, whatever the session's simulation encoding.
 
 A Progression is the saved state of one player in one game, carried from session to session and keyed by gameId + subjectId. subjectId is a member's profileId, or a guest's playerId only where Statistics owns progression. The progression owner is configuration that the validate command derives from the declared services, never a probe. It is Statistics when declared, Profiles when declared without Statistics, and none otherwise (see "Statistics service" and "Profiles service"). Without an owner, in the Minimal profile and in traceless mode, and for a guest where Profiles owns progression, progression is session-only. The context worker then delivers the progression part as session-only with the declared initial values, SaveProgress answers session-only and the end updates are discarded with the session, so nothing leaves the Engine.
 
-At the admission of a seat holder the context worker fetches the player context bundle. It calls ReadProgression(subjectId, gameId, progressionSchemaHash) on the owner and View(profileId, gameId) on Inventory in parallel, from the first receipt of the player's PlayerJoining or ticket, under one budget. The entitlements come from the ticket's feature list and need no call. Default context budget: **2 seconds**; request timeout: 5 seconds; both are starting values, not latency guarantees.
+At the admission of a seat holder the context worker fetches the player context bundle. It calls ReadProgression(subjectId, gameId, progressionSchemaHash) on the owner, View(profileId, gameId) on Inventory and, for a game whose GameProfile.experiments lists an experiment, ReadVariants for the player and the game on Socket. The calls run in parallel from the first receipt of the player's PlayerJoining or ticket, under one budget. The entitlements come from the ticket's feature list and need no call. Default context budget: **2 seconds**; request timeout: 5 seconds; both are starting values, not latency guarantees.
 
-The bundle reaches the module only after the verification of "Saga verification before attachment" passed. It arrives as one OnPlayerContext(player, context) host event immediately before OnJoin, at the tick boundary at which the attachment becomes live. That boundary is the first after the pass at which every part answered or the budget lapsed, so OnJoin never waits on the bundle beyond the budget. The context carries playerId, a state per part among ready, absent, session-only, pending, incompatible and unavailable, and the progression view: revision, saveRevision, saveSchemaHash, stats, unlocks, save and updatedAt. A part still pending at the budget arrives in a later OnPlayerContext once answered, or as unavailable after the request timeout.
+The bundle reaches the module only after the verification of "Saga verification before attachment" passed. It arrives as one OnPlayerContext(player, context) host event immediately before OnJoin, at the tick boundary at which the attachment becomes live. That boundary is the first after the pass at which every part answered or the budget lapsed, so OnJoin never waits on the bundle beyond the budget. The context carries playerId, a state per part among ready, absent, session-only, pending, incompatible and unavailable, and the progression view: revision, saveRevision, saveSchemaHash, stats, unlocks, save and updatedAt. For a game that lists experiments it also carries the experiments part, ready, pending or unavailable: per listed experiment its state and variant. A part still pending at the budget arrives in a later OnPlayerContext once answered, or as unavailable after the request timeout.
 
 The module reads the view through Progression(player) and may reject the player in OnJoin on it; that is how a game gates a room on a level. Inspector never reads progression. Stat and unlock keys the build does not declare are omitted from the view, not deleted. A save whose saveSchemaHash differs from the build's goes through UpgradeProgression(oldSaveSchemaHash, bytes), and without it or on its refusal the save part is delivered as incompatible. A rejoin inside the resume window keeps its tenure and fetches nothing, and spectators and observers receive no context.
 
-In server-authoritative mode an OnPlayerContext reaches only its subject's attachment through HostEvents. Lockstep mode has no hidden information, so every runner receives every player's context, and a game that keeps progression private uses the server-authoritative model. The journal records OnPlayerContext and OnProgressionResult like every host event, and both stay in the event ring; neither reaches the sink topic (see "Integration bus"). The generator refuses a progression schema whose maximal OnPlayerContext exceeds the 4 KiB host event payload cap: at most 32 stat keys, 128 unlock keys and a save of 2 KiB.
+In server-authoritative mode an OnPlayerContext reaches only its subject's attachment through HostEvents. Lockstep mode has no hidden information, so every runner receives every player's context, and a game that keeps progression private uses the server-authoritative model. The journal records OnPlayerContext and OnProgressionResult like every host event, and both stay in the event ring; neither reaches the sink topic (see "Integration bus"). The generator refuses a progression schema whose maximal OnPlayerContext exceeds the 4 KiB host event payload cap: at most 32 stat keys, 128 unlock keys and a save of 2 KiB. It counts the experiments part, at most 8 pairs of experimentId and variant name, in that maximal OnPlayerContext.
+
+Every experiment call runs on the context worker and never on the tick path. The module reads its player's variant through Variant(player, experimentId), which answers from the experiments part. It logs through Observe(player, experimentId, object), a command that the host records with the index of the call among that player's Observe calls for that experiment in the tick. After the tick boundary the context worker submits each recorded call as RecordObservation with source module, the player's playerId, gameId, sessionId, ownerEpoch and tick. Its observationId is the first 128 bits of a cryptographic hash over sessionId + experimentId + playerId + tick + that index, so an adopter that re-simulates a tick re-issues the same identity. The context worker submits at most 10 observations per second per session, queues at most 64 and drops the rest with a counter. No outcome reaches the module and no host event answers an Observe. Refusals are counted per game and code and logged at warn, coalesced, and nothing on the tick path waits for the call. The experiments part is fixed for the tenure, a rejoin inside the resume window fetches nothing, and Socket checks each submission against the definition in effect when it arrives. A client runner discards Observe and answers Variant from the context records of its replay stream. In lockstep every runner receives every player's experiments part, as for the rest of the context. Restore voids every observation not yet submitted. A game whose GameProfile.experiments lists none, and every game while experiments.enabled=false, makes no ReadVariants call and carries no experiments part.
 
 A tenure is one seat holding, sessionId + playerId + joinedAtTick. Every write is one CommitProgress(subjectId, gameId, write, baseRevision or none, final, update) on the owner. The write names its tenure, the writer's ownerEpoch and incarnation and a counter that the context worker increments per write of that tenure. The triple (ownerEpoch, incarnation, counter) therefore orders every write of one tenure across retries, class A handoffs, moves and adoptions. The update is the tenure's cumulative update since its join: its contribution per sum key, its candidate per max or min key, the unlocks gained, the save or none with its saveSchemaHash and at most 8 achievement claims. baseRevision is the revision of the view the tenure's context delivered, or none when the part was not ready. The owner applies only the difference from what the tenure already applied (see "Statistics service"), so no retry, resend or adopter's write applies a contribution twice.
 
@@ -4342,9 +4405,9 @@ A tenure is one seat holding, sessionId + playerId + joinedAtTick. Every write i
 
 A suspended or fenced engine sends no end write. A session ending faulted or failed sends none, and the checkpoints it already applied stay. A module that wants a departed tenure written keeps its update in its state until End, or until an applied outcome of a SaveProgress it issued after that player's OnLeave. Defaults: one write in flight per tenure; 16 progression requests queued or in flight per session; 3 attempts per checkpoint; all starting values.
 
-The snapshot envelope carries each tenure's baseRevision and context part states, never a pending write (see "Offload worker"). An adopter, a move target and a class A successor write under their own ownerEpoch and incarnation, so their first write of a tenure supersedes the predecessor's last. An adopter that resumed from an older snapshot reports the contribution and the save of the state it holds, so the sum keys and the save rewind exactly as far as the session did, never further. Max and min keys and unlocks keep every value a checkpoint applied, even when the session rewinds. After Restore the context worker fetches the bundle again for every seated tenure under the context budget. It delivers the answers in a later OnPlayerContext without a second OnJoin, and each tenure keeps its baseRevision.
+The snapshot envelope carries each tenure's baseRevision and context part states, never a pending write or an unsubmitted observation (see "Offload worker"). An adopter, a move target and a class A successor write under their own ownerEpoch and incarnation, so their first write of a tenure supersedes the predecessor's last. An adopter that resumed from an older snapshot reports the contribution and the save of the state it holds, so the sum keys and the save rewind exactly as far as the session did, never further. Max and min keys and unlocks keep every value a checkpoint applied, even when the session rewinds. After Restore the context worker fetches the bundle again for every seated tenure under the context budget. It delivers the answers in a later OnPlayerContext without a second OnJoin, and each tenure keeps its baseRevision.
 
-Track context budget lapses, progression writes by outcome, save refusals, progression-busy answers and progression-lost. Alert on progression-lost above zero and on context budget lapses above 5% of admissions for 5 minutes. Log every call at debug, a lapsed context budget and save-refused at warn, and progression-lost at error. Metric labels carry region, engine, game and outcome only, never a playerId or a subjectId. In traceless mode no progression call exists, and the context worker's log lines follow "Anonymous traceless mode".
+Track context budget lapses, progression writes by outcome, save refusals, progression-busy answers and progression-lost, and experiment_module_observations_total by game and outcome, submitted, dropped or refused, and by code for outcome refused, with the experiments part in the context series. Alert on progression-lost above zero, on context budget lapses above 5% of admissions for 5 minutes and on Observe drops above 1% of Observe calls for 10 minutes. Log every call at debug. Log a lapsed context budget, save-refused and, coalesced, Observe refusals by experiment and code as experiment-refused and Observe drops as experiment-module-dropped at warn, the last two with component experiments. Log progression-lost at error. Metric labels carry region, engine, game and outcome only, and code on outcome refused, never a playerId or a subjectId. In traceless mode no progression call exists, an experiment call exists only when privacy.experimentsAllowed=true accompanies experiments.enabled=true, and the context worker's log lines follow "Anonymous traceless mode". The Minimal profile carries the experiment path with no process beyond Socket, Inspector, Engine and the store.
 
 ### 11.16 Recording setting and session history
 
@@ -4506,6 +4569,13 @@ With an event sink consumer declared, the flusher publishes the session's remain
 126. In traceless mode the dump tool and the replay writer are refused at start, and both encodings run in the Minimal profile with no optional service.
 127. The Minimal profile runs a 128 Hz session with no optional service, and in traceless mode no file appears under any writable path of the Engine container.
 128. No simulation worker waits for a service channel call at any tick rate or in either simulation encoding, which the testkit asserts with the service channel stalled for 60 seconds.
+129. No ReadVariants or RecordObservation call is issued from a simulation worker in the scripted sessions, which the testkit asserts by failing any call made on one, and no host event answers an Observe.
+130. A 60 Hz session of 16 players calling Observe on every tick keeps its p99 tick below 80% of the period while Socket is unreachable, submits at most 10 observations per second per session with at most 64 queued and counts every drop, and with Socket reachable each accepted submission yields one experiment-observation line with gameId, sessionId, ownerEpoch and tick.
+131. A player of a game listing two experiments receives their variants in the experiments part of OnPlayerContext within the 2-second context budget, or pending and then a later OnPlayerContext, and Variant answers the same variant on the server runner and on the client runner.
+132. A game whose GameProfile.experiments lists none, and every game while experiments.enabled=false, makes no ReadVariants call, and a rejoin inside the resume window makes none either.
+133. A session adopted from an older snapshot re-issues the observationIds of the re-simulated ticks, and an observation recorded before Restore and not yet submitted is never submitted.
+134. The generator counts 8 experiment pairs in the maximal OnPlayerContext it checks against the 4 KiB host event payload cap.
+135. The Minimal profile runs the experiment path with no process beyond Socket, Inspector, Engine and the store, and in traceless mode the context worker issues no experiment call unless privacy.experimentsAllowed=true accompanies experiments.enabled=true.
 
 ## 12. Transports and wire codec
 
@@ -5121,7 +5191,7 @@ Canonical delivery order: every host event is stamped with the tick at which it 
 
 ### 13.3 Capabilities granted to the session
 
-The session context is the whole capability set; nothing else is public. Queries are Roster, Groups, Inventory, Entitlements and Progression(player), and each answers from a view the host delivered at a tick boundary. Commands are CreateGroup, MoveToGroup, DissolveGroup, SetMute, SetVisibility, SetInterest, TagEntity, Send, Broadcast, Emit, Schedule, Consume, Grant, SaveProgress, Kick, TransferHost, EndAt, Log and Metric.
+The session context is the whole capability set; nothing else is public. Queries are Roster, Groups, Inventory, Entitlements, Progression(player) and Variant(player, experimentId), and each answers from a view the host delivered at a tick boundary. Commands are CreateGroup, MoveToGroup, DissolveGroup, SetMute, SetVisibility, SetInterest, TagEntity, Send, Broadcast, Emit, Schedule, Consume, Grant, SaveProgress, Observe, Kick, TransferHost, EndAt, Log and Metric.
 
 The host records a command and applies it only through a later host event at a defined tick, so no command returns data in the tick that issued it. Consume, Grant and SaveProgress return a requestId derived from the issuing tick and the command's index within that tick, so the identifier is the same on every runner. The outcome of SaveProgress reaches the session only through OnProgressionResult, and neither Progression(player) nor SaveProgress waits for the service channel. Schedule(tick, token) falls due as a scheduled host event delivered through OnScheduled(token). A host of role predicted or shadow discards every command and answers queries from the replay stream; this is what lets one session code run on every runner.
 
@@ -5748,9 +5818,14 @@ Clients reach these operations only through the Profiles route of "Socket". Ever
 | Ban(target, scope, roomId or none, until or none, reason) | moderator or admin | revision | forbidden, not-found, audit-unavailable |
 | Unban(target, scope, roomId or none) | moderator or admin | revision | forbidden, not-found, audit-unavailable |
 | ListAudit(filter, page) | admin | bounded page | forbidden |
+| DefineExperiment(definition) | admin | revision | forbidden, audit-unavailable and the closed error set of Socket's DefineExperiment |
+| CloseExperiment(experimentId, revision) | admin | ok | forbidden, audit-unavailable |
+| ListExperiments(page) | admin | bounded page | forbidden |
 | EraseProfile() | member on itself | ok | erased |
 
 ResolveNames accepts at most 100 playerIds and answers the username of each member id; a guest id, an unknown id and an erased id answer none. It returns no other field and appends no audit record, because a username is the display name every room roster already shows. Clients use it to label leaderboard rows and history entries, which carry playerIds only (see "Statistics service").
+
+DefineExperiment and CloseExperiment reference the core messages of "A/B testing tool" instead of duplicating them. Profiles appends the AuditRecord and enqueues one call per region of the installation directory in one unit of work and relays each with its service credential (see "Calls to Inspector and the outbox"). The definition is therefore in effect in a region only from that region's acknowledgement. ListExperiments answers from Socket's ReadExperiments. Without the admin role each of the three answers forbidden, and with experiments.enabled=false each answers feature-unavailable.
 
 When Statistics is declared, ReadProfile for a moderator includes the first page of the target's games history, at most 100 HistoryEntry rows newest first, fetched through Statistics' ReadHistory with the Profiles service credential. It also includes the target's Progression per game, fetched through Statistics' ReadProgression. If Statistics does not answer within 2 seconds, the view carries historyUnavailable=true or progressionUnavailable=true instead of failing; the audit record names the view either way. Without Statistics the view holds the target's summary list of "Games history without Statistics", and Profiles composes it and the member's Progression from its own repositories without a call.
 
@@ -5796,6 +5871,7 @@ Profiles changes Inspector state only through operations that Inspector exposes 
 | PublishSigningKey, RetireSigningKey | Inspector of every region | key rotation |
 | ClaimGuest | Inspector of every pending region | RegisterMember, CompleteClaim |
 | CloseRoom | Inspector of the room's region | EraseProfile for every open owned room |
+| DefineExperiment, CloseExperiment | Socket of every region, on its call listener at its internal Socket address | an admin's DefineExperiment, CloseExperiment |
 | GuestClaimed, ProfileErased, RoleChanged | event sink | the same unit of work |
 
 Projection calls are idempotent by revision, so a redelivery changes nothing at or below the stored revision. A region enforces a ban or accepts a key from its own acknowledgement, never earlier and never through a cross-region read. A region outage therefore delays enforcement in that region only.
@@ -5822,7 +5898,7 @@ The password verifier is the output of a salted memory-hard password-hashing fun
 
 Every call from Profiles to Inspector carries the Profiles service credential; Inspector refuses a projection or ClaimGuest from any other caller with forbidden. Client traffic reaches Profiles only through Socket, so Profiles never accepts a client connection directly. A guest credential presented as claim proof is held in memory for one request and never written to the Profiles store or its outbox.
 
-Logs follow "Observability and logging": lines carry profileId only as a keyed digest above debug and never carry email, personal fields, passwords, tokens or addresses. Every ReadProfile on another principal, SetRole, Ban, Unban and erasure appends an AuditRecord in the same unit of work, under the security and abuse retention class of 6 to 12 months with pseudonymous identifiers. An action whose audit append fails is refused with audit-unavailable, so no unaudited moderator action exists.
+Logs follow "Observability and logging": lines carry profileId only as a keyed digest above debug and never carry email, personal fields, passwords, tokens or addresses. Every ReadProfile on another principal, SetRole, Ban, Unban, DefineExperiment, CloseExperiment and erasure appends an AuditRecord in the same unit of work, under the security and abuse retention class of 6 to 12 months with pseudonymous identifiers. An action whose audit append fails is refused with audit-unavailable, so no unaudited moderator action exists.
 
 ### 15.12 Conformance
 
@@ -5868,12 +5944,13 @@ Logs follow "Observability and logging": lines carry profileId only as a keyed d
 40. With neither Profiles nor Statistics declared, every history route answers feature-unavailable without a network call.
 41. With Profiles as history owner, a stranger lists only the room's summary entries whose roomVisibility was public at the session's start, a member whose own list holds an entry of one of the room's sessions lists the room's history, and a guest receives forbidden from the participant row.
 42. A durable room profile closed and then reopened by its owner through CreateRoom with its profileId receives a new roomId, its entry is open again under a higher revision, and its games history lists the sessions of both roomIds.
+43. An admin's DefineExperiment commits one AuditRecord and one outbox entry per region in one unit of work, a moderator's DefineExperiment, CloseExperiment or ListExperiments answers forbidden and enqueues nothing, and a DefineExperiment whose audit append fails answers audit-unavailable and enqueues nothing.
 
 ## 16. Statistics service
 
 Statistics owns the event trace, analytics, the session history, the settlement ledger, achievements, seasons, leaderboards and, when declared, the Progression of every player. It is the service of the events library and links the progression library. The statistics bundle image composes the profiles and events libraries in one process for small operators, and production runs the Profiles and Statistics images separately because they fail differently. Statistics is optional. In the Minimal profile no consumer is declared, the event sink is the null adapter and the Engine appends nothing anywhere, so no trace, ledger or board exists.
 
-Statistics derives the trace, the session history, the ledger and the boards from facts: SessionEvents, SessionResult and Inspector's placement facts from the event sink, SealedRecording and RecordingRemoved from Recording, and GuestClaimed and ProfileErased from Profiles. Progression is the one aggregate it receives through calls, because a write needs an answer: the Engine's context worker reads and writes it over the service channel (see "Progression"). It never calls an Engine and never blocks a tick. Its one outbound call is ReadAudience on Social, for the friend check of a history read (see "History reads and visibility"). It writes the coordination store only for its own leaderboard projections, never an Inspector key. Statistics may run without Profiles; it then keys every record by the pseudonymous guest playerId.
+Statistics derives the trace, the session history, the ledger and the boards from facts: SessionEvents, SessionResult and Inspector's placement facts from the event sink, SealedRecording and RecordingRemoved from Recording, and GuestClaimed and ProfileErased from Profiles. Progression is the one aggregate it receives through calls, because a write needs an answer: the Engine's context worker reads and writes it over the service channel (see "Progression"). It never calls an Engine and never blocks a tick. Its one outbound call is ReadAudience on Social, for the friend check of a history read (see "History reads and visibility"). It writes the coordination store only for its own leaderboard projections, never an Inspector key. Statistics may run without Profiles; it then keys every record by the pseudonymous guest playerId. The experiment observations table is the one analytics input that is not a fact: the operator's log pipeline writes it, and Statistics only reads it (see "Experiment observations").
 
 ### 16.1 Event trace
 
@@ -5887,9 +5964,30 @@ A gap fact from an Engine, or a sink unavailability that trimmed facts before St
 
 ### 16.2 Analytics reports
 
-Analytics is an operator surface, not a client one. Reports are named, parameterized read-only queries declared in the Statistics configuration and validated at start. RunReport(reportId, parameters) → rows, at most 10,000 rows per answer, is callable by an admin principal through the Statistics route of "Socket" or with an operator service credential. No client-supplied query text is ever executed, and no session reads a report: a session object reads only its player context bundle.
+Analytics is an operator surface, not a client one. Reports are named, parameterized read-only queries declared in the Statistics configuration and validated at start. RunReport(reportId, parameters) → rows, at most 10,000 rows per answer, is callable by an admin principal through the Statistics route of "Socket" or with an operator service credential. No client-supplied query text is ever executed, and no session reads a report: a session object reads only its player context bundle. One named report is built in rather than declared: experiment-summary, which exists only with statistics.experimentIngest=true (see "Experiment observations").
 
-### 16.3 Session history record
+### 16.3 Experiment observations
+
+With statistics.experimentIngest=true Statistics holds the experiment observations table, the one analytics table that no fact feeds. The key defaults to false and exists only in the Statistics configuration, so a deployment without Statistics has no such table. The operator's log pipeline delivers into it every line of the three experiment classes, experiment-short, experiment and experiment-long (see "Log retention classes"). These are the experiment-observation lines that Socket emits per accepted observation and the experiment-definition lines beside them. The pipeline is the table's only writer. Statistics never reads another process's standard output, consumes no experiment line from the event sink and writes no row, so ingestion adds no fact, topic, consumer group or store to the A/B testing tool. The table carries the delivery guarantee of the operator's pipeline, not of the core: a line the pipeline loses is a missing observation, never an altered one.
+
+The events library's migrations create the table when experimentIngest is true, under "Persistence abstraction". Its typed columns are the fields of the experiment lines: time, class, event, regionId, instance, correlationId, experimentId, experimentRevision, variant, overridden, source, callerKind, observationId, subjectKind, subjectDigest, gameId, sessionId, ownerEpoch and tick. One structured column holds the verified object of an experiment-observation line, or the definition of an experiment-definition line without its salt or override subjects, with its override count and state. The table is partitioned by day on time, and each row's time-to-live equals the retention of its class, not privacy.retentionDays. Expired rows can remain until the next merge; the retention is a deletion target, not an instant purge.
+
+Observation rows are deduplicated at merge by observationId, keeping the row with the highest ownerEpoch, so a module record re-issued by an adopter survives once. The analytics store merges at an unspecified time, so experiment-summary deduplicates by observationId itself instead of trusting background merges, as the rebuild does by settlementSeq. Definition rows are kept as delivered, and only the newest one per experimentId is read, so their repetitions change nothing.
+
+RunReport(experiment-summary, parameters) takes experimentId and windowDays, 1 to 90 and 7 by default. The window ends at the current time and is intersected with the experiment's startsAt to endsAt. A windowDays above the retention of the experiment's class answers parameters-invalid, because older rows no longer exist. The report reads only the table, never the registry of "Socket" and never a log store:
+
+1. Definition. It takes the definition from the newest experiment-definition row of the experimentId, and an experimentId without one in the window answers parameters-invalid.
+2. Records. It keeps one experiment-observation row per observationId, the one with the highest ownerEpoch for a module record, and excludes overridden rows.
+3. Per variant. It computes the records, the distinct subjects when subjectDigest is present, for each numeric field the count, mean, standard deviation, minimum and maximum, for each boolean field the true ratio and for each enum field the count per value. It computes them per subject first when digests are present and per record otherwise.
+4. Against the control variant. It computes for each variant the difference of means with a two-sided 95% Welch interval and the difference of ratios with a two-sided 95% normal interval. It runs the sample-ratio check of subjects, or of records without digests, against the weights: a chi-square test that flags srm below p = 0.001.
+
+Over the same lines, delivered any number of times, experiment-summary answers the figures of the experiments report command, and the conformance vectors of the experiments report command fix both. An answer holds one row per variant and per field figure, aggregates only, and never a subjectDigest, an observationId, a sessionId or the object of a single record. With experimentIngest=false experiment-summary answers report-unknown, and rows left by an earlier setting expire under their time-to-live.
+
+The table decides nothing. No settlement, board, achievement, progression, history, feed item, entitlement or bill reads it or a figure of experiment-summary, and no session object reads either. GuestClaimed and ProfileErased rewrite nothing in it, because no row holds a playerId, a profileId or a username. subjectDigest is a per-experiment pseudonym that links to no subject without the experiment's salt, which the table never holds. In the Minimal profile and in every deployment without Statistics, the log store query and the experiments report command are the whole analysis. In traceless mode no Statistics may be declared, so no table exists. Ingestion and experiment-summary run outside every Engine, and nothing on the tick path waits for them.
+
+Statistics exposes the table's rows and the age of its newest row per class as gauges and experiment-summary runs by outcome. Logs carry debug for every run with its experimentId and window, warn for a run refused with parameters-invalid and error for a failed migration of the table.
+
+### 16.4 Session history record
 
 Every profile, user and room alike, has a games history: the sessions in which the user held a tenure or which the room hosted, newest first, with every item timestamped. With Statistics declared the history is a read model over one SessionHistory record per session, the only holder of a session's history content, and the index of "History index" lists the records per user profile and per room profile. A session enters the history when it ends; a running session has no entry, because a running session is presence, not history. No admission, placement, settlement, progression or feed computation reads a history: it records what happened and decides nothing.
 
@@ -5914,13 +6012,13 @@ Whether a session has a recording entry is the game developer's setting, never a
 
 Without Statistics no SessionHistory exists. The manifest is then the recording's own record with its own retention, and the owner lists recordings through ListRecordings of the playback authorizer (see "Recording").
 
-### 16.4 History index
+### 16.5 History index
 
 A HistoryEntry is one row per subject and session: subjectId (a member profileId, a guest playerId or a room profileId), subjectKind user or room, sessionId, gameId, gameBuild, roomId, regionId, startedAt, endedAt, finalState, endReason, playerCount, recorded and revision. recorded is true while the recording entry is neither deleted nor redacted for that subject. A user subject's row also holds its highest role, first seat, first joinedAt, last leftAt and the sum of its tenures' results.
 
 Rows are unique on subjectId + sessionId and ordered by subjectId + endedAt descending + sessionId descending. They live in SessionHistoryRepository beside the records, are written in the unit of work of the fact that changes them and are read through the aggregate-specific queries ByUser(subjectId, filter, cursor, limit) and ByRoom(subjectId, filter, cursor, limit). One record per session with one index row per subject keeps one copy of every event list and recording entry. Retention and erasure therefore act once per session, while each subject lists its sessions through one index range.
 
-### 16.5 History construction
+### 16.6 History construction
 
 Statistics builds every record from facts it already consumes in its round-robin group on the sink topic of every region, each idempotently by eventId and in any delivery order:
 
@@ -5934,7 +6032,7 @@ A fact lost beyond the 10-minute sink horizon leaves the record partial, as it l
 
 Statistics exposes records sealed by endReason, lost seals, omitted tenures and events, read latency by operation and refusals by reason. It alerts on lost seals above 1% of sealed records over 1 hour and on an erasure past its 24-hour deadline. Logs carry debug for every applied fact and read, warn for a lost seal and a truncated record and error for an erasure past its deadline.
 
-### 16.6 History reads and visibility
+### 16.7 History reads and visibility
 
 Each read reaches the history owner through Socket's route of the statistics domain, or of the profiles domain when Profiles owns the history (see "Games history without Statistics"), with the principal from the call context. Every relayed reply obeys the 64 KiB control cap, so pages are bounded by bytes as well as by rows. Every operation may also answer feature-unavailable, rate-limited and retryable-unavailable. The reads are calls on the service channel with the default 5-second budget, and none runs on a simulation worker.
 
@@ -5961,7 +6059,7 @@ Inside a record, a hidden observer's tenure and the history events whose actor i
 
 A record and an entry state, as a hint under the effective recording, the caller's playback access class: owner, participant, moderator or none. AuthorizePlayback of the playback authorizer stays the only grant, and no history read returns a URL or an object key, so Statistics never enters the authorization path. Raw event rows reach no client. An admin reads them through RunReport, a permitted participant sees a scope's events in its timeline rendition and a history reader receives only the history events.
 
-### 16.7 History retention, bounds and erasure
+### 16.8 History retention, bounds and erasure
 
 Default session history retention: **365 days** through history.retentionDays, configurable from 1 to 3650 days; it is a deletion target, not an instant purge. A record's index rows and history events live as long as the record, while the raw trace keeps privacy.retentionDays in the analytics store, after which the record states its events expired. A recording never outlives its record: the recorder sets each class's retentionUntil at sealing to the earlier of the game profile's retention and startedAt plus the history retention. The validate command refuses a game profile retention above the history retention, and a record outliving its recording shows the recording deleted with reason retention.
 
@@ -5973,7 +6071,7 @@ On GuestClaimed Statistics re-keys the guest's index rows and tenures to the mem
 
 In traceless mode no optional service may be declared, so no history owner exists. Socket answers the history routes with feature-unavailable, nothing about a past session is written anywhere and the Engine releases roster, ring and result at session end (see "Anonymous traceless mode").
 
-### 16.8 Settlement ledger
+### 16.9 Settlement ledger
 
 The Engine emits exactly one SessionResult per session, after Inspector accepted ReportSessionEnded for that ownerEpoch (see "Engine runtime"). Statistics reads from it sessionId, ownerEpoch, gameId, regionId, finalState, resultDigest and, per player, playerId, point delta, the module's integer statistics by key and the item rewards that Inventory consumes. Statistics settles each result into an append-only ledger through SettlementRepository.
 
@@ -5983,7 +6081,7 @@ Each settlement receives settlementSeq, a Counter that the ledger assigns in com
 
 Corrections are new ledger entries, never edits. CorrectSettlement(sessionId, deltas, reason) is an admin operation that appends a correction with its own settlementSeq, applies its deltas and appends an AuditRecord through Statistics' own AuditRepository. The original entry stays unchanged, so the ledger always explains every total.
 
-### 16.9 Points and achievements
+### 16.10 Points and achievements
 
 PointsSettled carries settlementSeq, sessionId and the point delta per playerId. Profiles applies the deltas of members idempotently by profileId + sessionId; Inspector keeps settling guest points from ReportSessionEnded in every deployment (see "Profiles service"). A playerId claimed by a member before the fact was built is replaced by the member id, using the claim mapping Statistics holds after GuestClaimed. No delta is applied twice and none is applied by two writers.
 
@@ -5991,13 +6089,13 @@ Achievement definitions are game content declared by the module's Describe: achi
 
 AchievementUnlocked carries eventId, playerId, gameId, achievementId, settlementSeq, settledAt and the reward skus. For a trace-sourced unlock, settlementSeq and settledAt are those of the settlement that crossed the threshold, so the fact states when the unlock happened, not when it was relayed. For a session-sourced unlock, settlementSeq is none and settledAt is the store clock of the progression write that recorded the claim. The claim replacement above applies to its playerId too, so a fact built after GuestClaimed names the member id. An unlock the guest already received is re-keyed with it and never unlocks again for the member, so a claimed unlock never yields a second fact.
 
-### 16.10 In-session achievement unlocks
+### 16.11 In-session achievement unlocks
 
 A session-sourced achievement is claimed by the session object inside a progression update, at most 8 claims per write, and reaches Statistics in that write's CommitProgress, never through a fact. Statistics, as owner, records a claimed unlock once per playerId + achievementId in the unit of work of the write. It enqueues AchievementUnlocked through its outbox in the same unit of work, so Inventory and Feed receive it like a trace-sourced unlock. The write's outcome holds one outcome per claim. A claim repeated in a later write of the tenure, in a retry or in another session answers applied again and enqueues nothing. A claim naming an achievementId that the game does not declare with source session is an undeclared key under the bounds rule of "Progression writes and conflicts".
 
 The module shows the unlock to its player at once through its own extension message, which is presentation, not the record; the record exists only when the write applies. With Profiles as owner every claim answers feature-unavailable while the rest of the write applies, and in a session-only deployment the claims are discarded with the update. No claim is confirmed from the trace, because the Engine runs the game developer's own server code.
 
-### 16.11 Progression
+### 16.12 Progression
 
 A Progression is the saved state of one player in one game, carried from session to session, so the statistics, levels, unlocked content and save data a session leaves reach the player's next session of that game. Its identity is gameId + subjectId, where subjectId is the member's profileId or, only where Statistics owns progression, a guest playerId. It holds revision, a Counter incremented by every applied write; saveRevision, the revision at which the save last changed, and saveTenure, the tenure that wrote it; progressionSchemaHash and saveSchemaHash; stats, a value per declared stat key; unlocks, the set of declared unlock keys gained; save, a module-defined closed object of the game's extension domain; updatedAt; and the tenure table of "Progression writes and conflicts".
 
@@ -6024,7 +6122,7 @@ Read at admission. At the admission of a seat holder the Engine's context worker
 
 The module reads the view through the session context's Progression(player) and may reject the player in OnJoin on it, which is how a game gates a room on a level; Inspector never reads progression. A rejoin inside the resume window keeps its tenure and fetches nothing, and spectators and observers receive no context. A save whose saveSchemaHash differs from the build's passes through the module's optional UpgradeProgression(oldSaveSchemaHash, bytes) → bytes; when the module has none or the call fails, the save part is delivered as incompatible. In server-authoritative mode a context host event is visible only to its subject's attachment. In lockstep mode every runner receives every player's context, so a game that keeps progression private uses the server-authoritative model.
 
-### 16.12 Progression writes and conflicts
+### 16.13 Progression writes and conflicts
 
 A tenure is one seat holding, sessionId + playerId + joinedAtTick. Every write names its tenure, the writer's ownerEpoch and incarnation and a counter that the context worker increments per write of that tenure. The triple (ownerEpoch, incarnation, counter) therefore orders every write of one tenure across retries, class A handoffs, moves and adoptions. Each write carries the tenure's cumulative update since its join: the contribution for each sum key, the candidate for each max or min key, the unlocks gained, the save or none with its saveSchemaHash and at most 8 achievement claims. baseRevision is the revision of the view the tenure's context delivered, or none when the part was not ready; it is the expected revision of the save, and the tenure keeps it across Restore. There are two write points:
 
@@ -6039,7 +6137,7 @@ Conflicts. Two sessions of one player ending close together are two tenures, and
 
 Bounds, erasure and claims. The owner refuses a write naming an undeclared key, holding a value outside its scalar form or exceeding a bound of the schema with progression-invalid and changes nothing. On ProfileErased the owner deletes every Progression and tenure entry of the member within 24 hours, and a later write naming the erased id is acknowledged without effect. On GuestClaimed Statistics moves each of the guest's Progressions to the member in one job idempotent on the claim: when the member holds none for that game the guest's becomes the member's, and otherwise the two merge by the merge rules, the unlocks unite and the member's save stays. The merge carries the guest's tenure entries into the member's tenure table. A later write naming the claimed guest playerId applies to the member's Progression through the claim mapping, so a guest who registers in the middle of a session loses nothing gained after the claim and the difference rule stays exact. A guest's Progression expires the guest credential lifetime after its last write; ForgetGuest reaches no owner, because Inspector produces no fact for it.
 
-### 16.13 Leaderboard definitions
+### 16.14 Leaderboard definitions
 
 A board is declared in the Statistics configuration and validated at start. metric, sortOrder, aggregation, tiePolicy and scope are fixed for a boardId. Changing any of them requires a new boardId, because rows computed under the old rule cannot be compared with rows under the new one. A change to schedule, resetPolicy, includeGuests or visibility takes effect at the next season. A change to feedBands takes effect at the next board_apply, because it changes no row and no rank.
 
@@ -6059,7 +6157,7 @@ A board is declared in the Statistics configuration and validated at start. metr
 
 A game-scoped board ranks every settlement of the game in every region. A region-scoped board ranks only settlements whose regionId equals the board's regionId. A public board is readable by an open connection without a principal; an authenticated board requires one. feedBands is read only when Feed is declared, under the rule of "Standing changes"; without Feed it is inert.
 
-### 16.14 Sort and rank semantics
+### 16.15 Sort and rank semantics
 
 A metric value is an integer from −(2^53 − 1) to 2^53 − 1. A value outside that range, or a missing value for a player, skips that player on that board for that settlement, with an error log and a counter. Other boards and players settle normally. The bound exists because the coordination store orders rows by a 64-bit floating-point score, which represents exactly every integer in that range. Fractional scores are scaled to integers by the module.
 
@@ -6077,7 +6175,7 @@ Rank depends on tiePolicy. Under first-achiever, rank is 1 + the number of rows 
 
 A player with no settlement in the season has no row and no rank. A row never disappears during its season except by erasure or claim re-keying. A sum row whose value returns to 0 keeps its row, because a value of 0 earned in play is not an absent value.
 
-### 16.15 Live projection
+### 16.16 Live projection
 
 Live boards are a projection in the coordination store under the aggregate tag {board:B}, where B is boardId + "." + seasonId. One tag holds the sorted rows, the row hash, the applied set of eventIds and the meta hash (definition fields, state, watermark, watermarkAt). The row hash maps playerId → value, achievedSeq and, with Feed declared, the previousRank, rank and settlementSeq of the row's latest application. Statistics is the only writer, through its own store-side procedures loaded under a versioned library name: board_apply and board_swap. Inspector only reads these keys.
 
@@ -6091,7 +6189,7 @@ A game-scoped board is written into every region's keyspace as a fan-out of the 
 
 A board key's lifetime is the season end + 7 days. For a season without end, every board_apply and a daily refresh renew it to 7 days ahead, so an idle board never expires while Statistics runs. Each row costs one sorted entry and one hash field, and each applied settlement one set member until the key expires. Statistics exposes rows and applied settlements per board as gauges for store sizing.
 
-### 16.16 Reading boards
+### 16.17 Reading boards
 
 ReadBoard(boardId, seasonId or current, page) is an Inspector operation reached through "Socket". The page is either offset and limit or aroundPlayerId and limit, with limit at most 100. Each row holds rank, playerId, value and achievedAt, the settledAt of the row's achievedSeq. The answer holds the region's watermark and watermarkAt, so a client sees how current the copy is.
 
@@ -6101,7 +6199,7 @@ Rows carry playerIds, never usernames, so a board holds no display name and eras
 
 ReadBoard is a client read; no session reads a board. No board operation exists for an Engine, and a session object receives no rank, row or watermark through its context or any host event. A module that needs a rating inside a session keeps it as a progression stat, read at admission with the player context bundle (see "Progression"). A per-player standing query from a session is outside this version.
 
-### 16.17 Seasons
+### 16.18 Seasons
 
 A schedule of none gives one season without end. weekly gives seasons of 7 days from the anchor. monthly gives calendar months from the anchor's day of month, clamped to the last day of a shorter month and returning to the anchor day afterwards. days N gives seasons of N × 24 hours. Every boundary is computed in UTC, and every season is the half-open interval [start, end).
 
@@ -6117,7 +6215,7 @@ A season closes through this procedure, run by the Statistics instance holding t
 
 Standings computed from the ledger are identical for every region of a game-scoped board, whatever a region's projection lag. The closed season's projection stays readable through ReadBoard until end + 7 days and then expires. ReadStandings(boardId, seasonId, page) answers from SeasonRepository at any time after close, in pages of at most 100 rows. Feed reads the first page with its service credential after SeasonClosed for its season-final items (see "Season-final items").
 
-### 16.18 Rebuild, claims and erasure
+### 16.19 Rebuild, claims and erasure
 
 A projection is rebuilt from the analytics store at a watermark into a fresh key, then swapped in. The analytics store keeps a settlements table that the outbox feeds with every ledger entry. That table follows the history retention, not privacy.retentionDays, so a season longer than the event retention can still be rebuilt. The rebuild deduplicates by settlementSeq itself instead of trusting background merges.
 
@@ -6127,13 +6225,13 @@ Statistics checks every board key of every open season in every region every 60 
 
 GuestClaimed re-keys the guest's ledger entries, history index rows and tenures, achievement progress and events to the member id and merges the guest's Progressions into the member's under "Progression writes and conflicts". It runs as one job idempotent on claimId, then rebuilds the open seasons of every board holding a guest row. ProfileErased replaces the member id and every former guest id by one random tombstone id within 24 hours in the ledger, standings, events and boards, and treats the session history records and index rows under history.erasure (see "History retention, bounds and erasure"). It also deletes the member's Progressions and keeps no mapping back. Recording applies the erasure value of the game profile's recording setting to the member's recordings within the same 24 hours and publishes RecordingRemoved with reason erased or redacted, which the history record shows. Board rows of a tombstone id remain, so ranks of other players do not shift. A fact built after the replacement names the tombstone id, which ResolveNames answers as none, so Feed creates no item for it. The re-keying of a claim and the replacement of an erasure publish no AchievementUnlocked and no StandingChanged.
 
-### 16.19 Storage through repositories
+### 16.20 Storage through repositories
 
 SessionHistoryRepository holds session history records and their HistoryEntry index rows, revision-checked, with the aggregate-specific queries ByUser and ByRoom of "History index". SettlementRepository holds the ledger, corrections, achievement progress and unlocks, all append-only except progress, which is revision-checked. ProgressionRepository holds every Progression with its tenure table, revision-checked, and the idempotency record of each CommitProgress commits in the unit of work of its write. SeasonRepository holds season instances, their state and final standings. AuditRepository holds correction audit records and the audit records of moderator and admin history reads. OutboxRepository holds PointsSettled, AchievementUnlocked from settlements and from claims, SeasonClosed and the settlements-table feed. These repositories use the relational or the document store reference adapter.
 
-The analytics store is written only by the ingester, append-only, with no Put by revision. The coordination store holds only the board projections, each with a lifetime. Migrations follow "Persistence abstraction": forward-only, in the events library's own namespace, under a store-side advisory lock.
+The analytics store is written only by the ingester, append-only, with no Put by revision, except the experiment observations table, whose only writer is the operator's log pipeline. The coordination store holds only the board projections, each with a lifetime. Migrations follow "Persistence abstraction": forward-only, in the events library's own namespace, under a store-side advisory lock.
 
-### 16.20 Public operations
+### 16.21 Public operations
 
 | Operation | Caller | Result | Errors |
 | --- | --- | --- | --- |
@@ -6147,27 +6245,27 @@ The analytics store is written only by the ingester, append-only, with no Put by
 | RunReport(reportId, parameters) | admin; operator service credential | at most 10,000 rows | forbidden, report-unknown, parameters-invalid |
 | CorrectSettlement(sessionId, deltas, reason) | admin | settlementSeq | forbidden, not-found, audit-unavailable |
 
-### 16.21 Events consumed and produced
+### 16.22 Events consumed and produced
 
-Statistics consumes every session fact, the recording SessionEvents included, SessionResult and Inspector's placement facts from the event sink, SealedRecording and RecordingRemoved from Recording, GuestClaimed and ProfileErased from Profiles, and SubscriptionChanged and PurchaseChanged from Payment. It acknowledges each fact after its effect is durable and acts idempotently by eventId. It produces PointsSettled, AchievementUnlocked and SeasonClosed through its outbox with the sink-fact envelope and one durable producerId. Progression travels through no fact in either direction: ReadProgression and CommitProgress are calls from the Engine's context worker, and Statistics never calls an Engine back.
+Statistics consumes every session fact, the recording SessionEvents included, SessionResult and Inspector's placement facts from the event sink, SealedRecording and RecordingRemoved from Recording, GuestClaimed and ProfileErased from Profiles, and SubscriptionChanged and PurchaseChanged from Payment. It acknowledges each fact after its effect is durable and acts idempotently by eventId. It produces PointsSettled, AchievementUnlocked and SeasonClosed through its outbox with the sink-fact envelope and one durable producerId. Progression travels through no fact in either direction: ReadProgression and CommitProgress are calls from the Engine's context worker, and Statistics never calls an Engine back. No experiment line is a fact: experiment-observation and experiment-definition lines reach the experiment observations table through the operator's log pipeline, never through the sink.
 
 With Feed declared, Statistics is Feed's only source. Feed consumes AchievementUnlocked, StandingChanged and SeasonClosed through its own round-robin group (see "Source facts"). StandingChanged is the one fact that exists only for Feed. The board writer publishes it directly to the sink after board_apply rather than through the outbox, because it completes a settlement's board work only after the sink accepted the publish. The fact carries the sink-fact envelope under Statistics' durable producerId and the eventId of "Standing changes". Statistics never computes a feed item, never reads Feed's repositories and never waits on Feed.
 
 If Statistics stays unavailable beyond the 10-minute sink horizon, trimmed facts are a gap. The affected traces are marked partial, a SessionResult lost to the gap is logged at error as result-lost with a counter and its points never reach a member, because Profiles reads PointsSettled only. Guest points are unaffected, because Inspector settles them without the sink.
 
-### 16.22 Absence and degradation
+### 16.23 Absence and degradation
 
-Absent, Statistics leaves no session history record, analytics, durable boards, seasons, achievements or guest progression. ReadBoard answers feature-unavailable, and so do the other operations above. Member progression is then owned by Profiles when Profiles is declared and is session-only otherwise (see "Progression without Statistics"), and a recording keeps its own manifest and retention (see "Recording"). The games history is then the summary list of Profiles when Profiles is declared and does not exist otherwise (see "Games history without Statistics"). Points still settle: guest points through Inspector in every deployment and, with Profiles present, member points through Inspector's SessionSettled. Results reach clients on the reliable-ordered lane and are otherwise forgotten. Feed cannot be declared, because the validate command refuses Feed without Statistics; Social works unchanged.
+Absent, Statistics leaves no session history record, analytics, durable boards, seasons, achievements or guest progression. ReadBoard answers feature-unavailable, and so do the other operations above. Member progression is then owned by Profiles when Profiles is declared and is session-only otherwise (see "Progression without Statistics"), and a recording keeps its own manifest and retention (see "Recording"). The games history is then the summary list of Profiles when Profiles is declared and does not exist otherwise (see "Games history without Statistics"). Points still settle: guest points through Inspector in every deployment and, with Profiles present, member points through Inspector's SessionSettled. Results reach clients on the reliable-ordered lane and are otherwise forgotten. Feed cannot be declared, because the validate command refuses Feed without Statistics; Social works unchanged. No experiment observations table and no experiment-summary exist; the experiment endpoint, assignment and experiment-observation lines are unaffected, and the log store query and the experiments report command are the analysis.
 
-A declared but unreachable Statistics is degraded, never absent. Engines and Inspector keep publishing; the sink holds facts for its 10-minute horizon. Boards stay readable from the projection with an older watermark, member points lag until PointsSettled is relayed and Feed receives no new source fact until Statistics returns. An unreachable analytics store stalls ingestion only: the ingester stops acknowledging, the sink retains, and settlement continues, because the ledger lives in another store. As progression owner, an unreachable Statistics leaves each admitted player's progression part pending and then unavailable, and a checkpoint answers unavailable. Each end write is retried for the 10-minute final-state retention, then logged as progression-lost at error with a counter, while sessions keep ticking and admitting throughout. A history record lags its facts until Statistics reads them again, and history reads answer retryable-unavailable from Socket after 5 seconds. While Social is unreachable a friend's history read answers retryable-unavailable, never a wider view. In traceless mode a declared Statistics fails start, so progression there is session-only and no history record exists.
+A declared but unreachable Statistics is degraded, never absent. Engines and Inspector keep publishing; the sink holds facts for its 10-minute horizon. Boards stay readable from the projection with an older watermark, member points lag until PointsSettled is relayed and Feed receives no new source fact until Statistics returns. An unreachable analytics store stalls ingestion only: the ingester stops acknowledging, the sink retains, and settlement continues, because the ledger lives in another store. experiment-summary then answers retryable-unavailable, and so does RunReport through Socket while Statistics is unreachable. Experiment lines the pipeline cannot deliver meanwhile follow the pipeline's own buffering, and the experiment endpoint keeps accepting observations, because no experiment path calls Statistics. As progression owner, an unreachable Statistics leaves each admitted player's progression part pending and then unavailable, and a checkpoint answers unavailable. Each end write is retried for the 10-minute final-state retention, then logged as progression-lost at error with a counter, while sessions keep ticking and admitting throughout. A history record lags its facts until Statistics reads them again, and history reads answer retryable-unavailable from Socket after 5 seconds. While Social is unreachable a friend's history read answers retryable-unavailable, never a wider view. In traceless mode a declared Statistics fails start, so progression there is session-only and no history record exists.
 
-### 16.23 Security and privacy
+### 16.24 Security and privacy
 
-Statistics holds no email, username, personal field, address or credential. Events carry pseudonymous playerIds, and payloads come from the closed schemas of the message inventory, so a module cannot place free text into the trace beyond its declared extension messages. Operators keep custom event payloads free of personal data; the ingester refuses a payload above 4 KiB like the Engine's ring. A Progression save is a closed object of the game's declared save struct, at most 2 KiB, so the same rule holds for progression. No history read returns a URL, a manifest, an object key, a segment key, a raw event row or a display name.
+Statistics holds no email, username, personal field, address or credential. Events carry pseudonymous playerIds, and payloads come from the closed schemas of the message inventory, so a module cannot place free text into the trace beyond its declared extension messages. Operators keep custom event payloads free of personal data; the ingester refuses a payload above 4 KiB like the Engine's ring. A Progression save is a closed object of the game's declared save struct, at most 2 KiB, so the same rule holds for progression. No history read returns a URL, a manifest, an object key, a segment key, a raw event row or a display name. The experiment observations table holds no playerId, profileId, username, address, connectionId, credential, salt or free-text string, only the fields of the experiment lines. experiment-summary answers an admin or the operator service credential with aggregates only.
 
 Statistics reads the sink and writes its board keys with its own service credential; it holds no right on Inspector keys. It serves ReadStandings to Feed's service credential and calls ReadAudience on Social with its own service credential, receiving only friend recipients and historyVisibility, and its facts for Feed carry playerIds, identifiers and integers only, never a username. Admin operations require a credential with role admin signed by Profiles. Statistics cannot read the stored role, so a demoted admin keeps access for at most its remaining credential lifetime, 1 hour by default. Every correction is audited. Logs follow "Observability and logging" and carry sessionId and playerId only as keyed digests above debug.
 
-### 16.24 Conformance
+### 16.25 Conformance
 
 1. With no consumer declared, a 10-minute Minimal profile session leaves no row in any analytics, relational or document store.
 2. A fact is acknowledged to the sink only after the batch holding it is durable in the analytics store.
@@ -6238,6 +6336,12 @@ Statistics reads the sink and writes its board keys with its own service credent
 67. The Minimal profile and traceless mode answer every history route with feature-unavailable without a network call, write nothing about a past session and keep the file-system diff of "Anonymous traceless mode" empty.
 68. A session ended through OperatorEndSession on the operator endpoint seals with endReason operator in its record and in every HistoryEntry.
 69. A record whose counted bounds would exceed 1 MiB is stored at most 1 MiB with truncated set, having dropped non-kept history events before viewer tenures and viewer tenures before player tenures, and keeps its ended, result and recording events.
+70. With statistics.experimentIngest=false no experiment observations table exists and RunReport(experiment-summary) answers report-unknown.
+71. With experimentIngest=true, experiment-summary over the committed line set delivered twice into the table before any merge answers the figures of the experiments report command over that line set, counting one record per observationId, keeping the highest ownerEpoch for a module record and excluding overridden records.
+72. A windowDays of 0, of 91 or above the retention of the experiment's class answers parameters-invalid, and so does an experimentId without an experiment-definition row in the window.
+73. Every row of the table expires with the retention of its class whatever privacy.retentionDays, ProfileErased and GuestClaimed change no row, and no answer of experiment-summary carries a subjectDigest, an observationId, a sessionId or a record's object.
+74. Statistics consumes no experiment line from the event sink and writes no row of the table, and with the analytics store unavailable experiment-summary answers retryable-unavailable while the experiment endpoint keeps accepting observations.
+75. No settlement, board, achievement, progression write, history record or feed item changes when experiment rows are added to or removed from the table.
 
 ## 17. Payment service
 
@@ -7438,9 +7542,9 @@ A protected byte is a byte derived from a principal identifier, a username, a ne
 
 Volatile memory is the process memory of Socket, Inspector and Engine, plus the memory of the coordination store running in its ephemeral profile. A transfer between two of these processes over a network link or the local handoff socket stays inside volatile memory, because no byte is staged on disk on the way. A participant entitled to a byte is a session participant who receives it under the visibility rules of "Session, players, teams, groups, observer and session events" and "Audio and video". Delivery to such a participant is the purpose of the installation, not a trace.
 
-A trace is any of three things. First, a protected byte that exists outside volatile memory, other than at a participant entitled to it. Second, a protected byte in the coordination store under a key or hash field without a positive expiry. Third, a record that outlives its session and that the operator can attribute to a person with means reasonably likely to be used. An installation is traceless when Socket, Inspector and Engine run with mode=traceless and the core produces no trace.
+A trace is any of three things. First, a protected byte that exists outside volatile memory, other than at a participant entitled to it or, only with privacy.experimentsAllowed=true, as the variant and the verified object of an experiment-observation line of "Socket", which carries no subject field and no digest of one. Second, a protected byte in the coordination store under a key or hash field without a positive expiry. Third, a record that outlives its session and that the operator can attribute to a person with means reasonably likely to be used. An installation is traceless when Socket, Inspector and Engine run with mode=traceless and the core produces no trace.
 
-The third clause holds by construction for the records that outlive a session. The guest record, the quota, settled and idempotency fields, the room keys and the session index hold no address, no device identifier and no personal field. A playerId is 128 random bits minted by Inspector, and a username is free text that the guest chose and that nobody verifies. The core holds no means to link either to a person; the treatment of the guest record is a product decision recorded in "Open questions".
+The third clause holds by construction for the records that outlive a session. The guest record, the quota, settled and idempotency fields, the room keys and the session index hold no address, no device identifier and no personal field. A playerId is 128 random bits minted by Inspector, and a username is free text that the guest chose and that nobody verifies. The core holds no means to link either to a person; the treatment of the guest record is a product decision recorded in "Open questions". An experiment-observation line outlives its session in the operator's log store. In traceless mode it holds the variant, the verified object and sessionId only as a keyed digest under a key held only in process memory, never a subject field or a digest of a subject. Its schema admits only booleans, bounded numbers and enum strings under names that declare no identifier; a definer who encodes an identifier into a numeric range defeats that rule, which this section states rather than hides. The override entries of {experiments:G} name guests by playerId only, under the expiry of "Key lifetimes".
 
 The conformance list turns each clause into observable checks: file-system and store data directory diffs for the first, a key scan for the second, and log and metric scans for standard output. A memory dump is not a test, because a managed runtime may keep copies that the host cannot reach. The design claims data minimization by default, not defeat of a hostile operator who can copy memory on hosts it controls. Traces outside the core are listed in "Residual traces outside the core".
 
@@ -7451,11 +7555,12 @@ The table classifies every protected class by where it may exist in traceless mo
 | Data class | Examples | Permitted locations in traceless mode | Never |
 | --- | --- | --- | --- |
 | Credentials and secrets | guest credentials, admission and control tickets, resume tokens, attachment secrets, TURN credentials, signing keys and the ticket-encryption key | process memory; key material in {auth}:keys; resume token digests in {session:S}:players | disk, log lines, metrics, sink facts |
-| Principal identifiers | playerId, guest profileId, ownerProfileId of a guest, the saga messageId derived from a playerId | process memory; Inspector keys with expiry, player locks and saga records included; service queue messages in coordination-store streams with expiry; delivery to room members | disk, log lines at any level, metric labels |
+| Principal identifiers | playerId, guest profileId, ownerProfileId of a guest, the saga messageId derived from a playerId | process memory; Inspector keys with expiry, player locks and saga records included; service queue messages in coordination-store streams with expiry; override entries of {experiments:G} with expiry; delivery to room members | disk, log lines at any level, metric labels, experiment configuration definitions |
 | Usernames | guest display names | process memory; the guest record; delivery to room members | disk, log lines, metrics |
 | Network addresses | client address and port, forwarded headers, ICE candidates | memory of the Socket or Engine that received them; keyed digests in limiter memory | disk, store keys, snapshots, log lines, metrics |
-| Payloads and session state | control and input payloads, chat, host events, snapshots, journal batches | process memory; entitled participants; snapshot and journal keys with expiry | disk, log lines, metrics |
+| Payloads and session state | control and input payloads, chat, host events, snapshots, journal batches | process memory; entitled participants; snapshot and journal keys with expiry | disk, log lines other than experiment-observation lines, metrics |
 | Media frames | audio and video packets | Engine memory; participants entitled by the mute matrix and groups | disk, store keys |
+| Experiment observations | the ExperimentObject of RecordObservation, the variant AssignVariant gives a subject | Socket and Engine memory; only with privacy.experimentsAllowed=true, the variant and the verified object in one experiment-observation line on standard output | subjectKind, subjectDigest or any other digest of a subject, a clear sessionId, disk, store keys, metric labels other than experiment and variant |
 
 Never written to disk by the core: credentials, tickets, resume tokens, usernames, playerIds, client addresses, snapshots, journals, events, media and chat. No core process writes a file under any writable path at run time. The build artifact, the configuration and the certificates are read, never written. The one file-system object the core creates is the socket inode of the class A handoff, which holds no bytes on disk; the file-system diff ignores socket inodes and nothing else.
 
@@ -7475,6 +7580,8 @@ The mode setting takes the values traceless and standard and has **no default**.
 | offload.forensicPath, integration.recordingSpool, logging.debugPath | local paths; default unset | Engine | must be unset |
 | queue.adapter | store-streams or broker; default store-streams | Socket, Inspector, Engine | must be store-streams |
 | queue.brokerAddresses | list of addresses; default unset | Socket, Inspector, Engine | must be unset |
+| experiments.enabled | true or false; default false | Socket, Engine | true refused unless privacy.experimentsAllowed=true; false in the traceless preset |
+| privacy.experimentsAllowed | true or false; default false | Socket, Engine | a warning at start when true; experiment-observation lines then carry no subject field whatever experiments.subjectPolicy says |
 
 Every key whose value names a local path is typed as a path in the configuration schema, so the gate refuses every path-typed key by its type, not by a list maintained by hand. The journal of durabilityClass snapshot-and-journal is a coordination-store stream under a key with an expiry, never a directory. snapshot-and-journal therefore stays permitted in traceless mode, and the gate refuses only local-disk paths.
 
@@ -7492,6 +7599,8 @@ The start-time gate runs before any listener binds. Each refusal logs configurat
 | Debug logging or a per-session debug flag without privacy.debugAllowed=true | Socket, Inspector, Engine | start refused |
 | Store persistence reported enabled, or the persistence query unanswered | each service at start; Inspector every 60 seconds | start refused; at run time, error log and StartSession refused |
 | A registered game profile whose recording setting has sessions=on with requiresRecording=true | validate command and Engine | start refused with configuration-invalid naming the profile |
+| experiments.enabled=true without privacy.experimentsAllowed=true | validate command, Socket and Engine | start refused; with both set, a warning at start |
+| A configuration definition of the experiments group holding an override entry | validate command and Socket | start refused with configuration-invalid naming the experimentId |
 
 ### 22.4 Detection of absent services
 
@@ -7519,7 +7628,7 @@ Each service queries the persistence settings of every store node it reaches at 
 
 Eviction is never a memory guard for the coordination store, because the protocol reads the absence of a lock, lease or registry key as its expiry. Operators size the memory limit from the load test so that the declared capacity fits below it. At the memory bound the store refuses writes with an out-of-memory error, which every caller treats as store unavailability and fails closed; Inspector alerts when used memory exceeds 80% of the bound. Inspector also reads the store's eviction counter with the 60-second check and logs at error when it rises, which only a misconfigured policy allows.
 
-A restart of the ephemeral store loses the whole dataset. Engines keep simulating, run index_restore for every session they hold and re-register, and guests whose signing key was generated at Inspector start re-register unless the operator supplies AUTH_SIGNING_KEY. That loss is the intended behavior of the profile: durable state exists only when an optional service holds it.
+A restart of the ephemeral store loses the whole dataset. Engines keep simulating, run index_restore for every session they hold and re-register, and guests whose signing key was generated at Inspector start re-register unless the operator supplies AUTH_SIGNING_KEY. That loss is the intended behavior of the profile: durable state exists only when an optional service holds it. With experiments enabled, each Socket instance that finds {experiments:G} absent while its copy holds live definitions writes them back through experiment_restore, under their stored revisions and expiries.
 
 The same restart removes every player lock, saga record and service queue stream. An Engine holding a join message whose saga record vanished refuses its Attach with saga-incomplete after the verification wait, and the client retry runs the saga afresh. Attachments admitted before the restart continue. A recreated fence counter starts at the store clock in milliseconds × 1024, so no fence issued after the restart repeats one issued before it. A session move in flight completes or aborts under the store failover rule of "Engine runtime", never with two owners.
 
@@ -7559,16 +7668,17 @@ The table gives the lifetimes in traceless mode by key family; "Inspector" holds
 | {profile:P} quota, idempotency, settled | 24 hours; 10 minutes after completion; 10 minutes | room ids, payload hashes |
 | {profile:P} revoked after ForgetGuest | longest configured credential lifetime + 1 hour | none |
 | {auth}:keys | longest configured credential lifetime + rotation period + 1 hour, 8 days + 1 hour by default | key material |
+| {experiments:G}, only with experiments.enabled=true and privacy.experimentsAllowed=true | each definition field until endsAt + 7 days, or closedAt + 7 days after an early close, so at most 97 days after startsAt; the rev field and the key until the latest definition field; written only by Socket through experiment_define, experiment_close and experiment_restore (see "Socket") | guest playerIds in override entries, at most 64 per definition |
 
-A clean session end deletes the snapshot, journal and players keys inside lease_release; the index, which holds no playerId, username or address, expires 10 minutes later. A crashed engine's session keys expire 10 minutes after its last write unless an adopter renews them. ForgetGuest drops a guest record before its lifetime ends. No key family outlives {auth}:keys. While Inspector runs only {auth}:keys, the keys of live engines, regions, rooms and principals, the saga records of the last 10 minutes and the service queue streams remain.
+A clean session end deletes the snapshot, journal and players keys inside lease_release; the index, which holds no playerId, username or address, expires 10 minutes later. A crashed engine's session keys expire 10 minutes after its last write unless an adopter renews them. ForgetGuest drops a guest record before its lifetime ends. No key family outlives {auth}:keys except {experiments:G}, whose fields follow their experiments' windows and which names a guest only in an override entry that a definer wrote. While Inspector runs only {auth}:keys, the keys of live engines, regions, rooms and principals, the saga records of the last 10 minutes and the service queue streams remain, and with experiments enabled {experiments:G} as well.
 
 A session move writes only into keys of this table: the offer, claim, excluded, previousOwner, cooldownUntil and pressure fields of the session index, the final snapshot and the service queue messages of the move. The source's frozen copy and its 60-second tombstone live in Engine memory, never in a store key or a file. A player whose last saga ended leaves its saga fields and fence counter for 10 minutes after their last write, not for the guest record's lifetime.
 
-No {events:G:n} key exists, because no consumer can be declared, no {bus:G:deliver} key exists, because neither Social nor Feed can be declared, and no {board:B} key exists, because Statistics cannot be declared. Social cannot be declared either, so {profile:P}:conns fields carry no status or activity, and no {profile:P}:presence hash, {presence:G:n} key, {room:R}:grants field, {social:journal:N} lease or {social:rate:P} counter exists. Idempotency records of Inspector live in {profile:P} under their 10-minute expiry, which "Identifiers, time, counters and envelopes" permits. The store holds no key without a lifetime in mode=standard either; traceless mode adds the ephemeral profile and the 1-hour room lifetime.
+No {events:G:n} key exists, because no consumer can be declared, no {bus:G:deliver} key exists, because neither Social nor Feed can be declared, and no {board:B} key exists, because Statistics cannot be declared. Social cannot be declared either, so {profile:P}:conns fields carry no status or activity, and no {profile:P}:presence hash, {presence:G:n} key, {room:R}:grants field, {social:journal:N} lease or {social:rate:P} counter exists. No {experiments:G} key exists unless experiments.enabled=true and privacy.experimentsAllowed=true are both set. RecordObservation writes no key in any mode, because Socket counts its rate limits in memory and keeps no idempotency record for it. Idempotency records of Inspector live in {profile:P} under their 10-minute expiry, which "Identifiers, time, counters and envelopes" permits. The store holds no key without a lifetime in mode=standard either; traceless mode adds the ephemeral profile and the 1-hour room lifetime.
 
 ### 22.7 Logs, metrics and traces
 
-The logging interface accepts typed fields only and refuses at construction any field typed as credential, token, address, username, email or payload. Free-text messages cannot interpolate identifiers. In traceless mode no log line at any level carries a playerId, username, address, token, ticket, attachment secret or payload. sessionId and roomId appear there only as keyed digests. correlationId stays, because it is random per unit of work and names no person (see "Identifiers, time, counters and envelopes"). engineId, incarnation, region, seat and sequence numbers stay, because none of them names a person.
+The logging interface accepts typed fields only and refuses at construction any field typed as credential, token, address, username, email or payload. Free-text messages cannot interpolate identifiers. In traceless mode no log line at any level carries a playerId, username, address, token, ticket, attachment secret or payload. The one exception is the verified ExperimentObject of an experiment-observation line, which exists only with privacy.experimentsAllowed=true and then carries neither subjectKind nor subjectDigest nor any other digest of a subject. The debug line of each accepted or refused submission carries its code and never its object. sessionId and roomId appear there only as keyed digests. correlationId stays, because it is random per unit of work and names no person (see "Identifiers, time, counters and envelopes"). engineId, incarnation, region, seat and sequence numbers stay, because none of them names a person.
 
 Saga and move log lines follow the same policy. A saga messageId, a fence and a connectionId appear only as keyed digests, because the messageId derives from a playerId and the fence and connectionId belong to one player's saga. claimId, offerId and the engineIds of a move stay, because each is random or names an engine. A dead-lettered service queue message is logged at error with its type, topic, reason and keyed-digest messageId, never with its data, and the dead-letter reader prints only the same fields unless privacy.debugAllowed=true.
 
@@ -7576,7 +7686,7 @@ The keyed digest is the first 64 bits of HMAC-SHA-256 over the identifier's byte
 
 In traceless mode start is refused when debug logging or a per-session debug flag is configured without privacy.debugAllowed=true; with it, a warning prints at start. With that setting, debug lines add volume, not fields: they follow the same field policy, so no address or playerId appears even at debug. Distributed traces are sampled at 0% by default. A nonzero sample rate exports spans that follow the same field policy as log lines.
 
-Metric labels come from the closed set of "Metrics and bounded labels" in "Observability and logging": the identity labels region, cluster, engine, game, profile and capacityClass, and the enum labels reason, state, transport, lane, medium, queue, topic, binding, group, procedure, operation, projection, kind and level. In traceless mode the identity labels are limited to region, engine, game and capacityClass. No label carries a sessionId, roomId, playerId, username or address, in either mode. Prediction counters, digests and lead figures of client runners stay in metrics without identifiers. Repeated warnings under a degraded dependency are coalesced to one line per key per 10 seconds with a count, as "Observability and logging" specifies.
+Metric labels come from the closed set of "Metrics and bounded labels" in "Observability and logging": the identity labels region, cluster, engine, game, profile, capacityClass, experiment and variant, and the enum labels reason, state, transport, lane, medium, queue, topic, binding, group, procedure, operation, projection, kind, level, peer, code, status, part, encoding, form, source and outcome. In traceless mode the identity labels are limited to region, engine, game, capacityClass, experiment and variant. experiment and variant take their values from the definitions in effect, at most 64 and 8, never from a client, and no label names a subject. No label carries a sessionId, roomId, playerId, username or address, in either mode. Prediction counters, digests and lead figures of client runners stay in metrics without identifiers. Repeated warnings under a degraded dependency are coalesced to one line per key per 10 seconds with a count, as "Observability and logging" specifies.
 
 Log lines go to standard output only; the orchestrator's capture of it is the operator's retention surface, and the captured lines hold no protected byte. In mode=standard, logging.identifiers=raw puts sessionId and roomId in clear at info, and addresses still never appear above debug.
 
@@ -7590,7 +7700,7 @@ Inspector never receives a client address: no Inspector operation takes an addre
 
 At session end the Engine zero-fills every buffer the session held before it returns to a pool. The scrub covers snapshot and journal buffers, encode and baseline rings, the event ring, input and send queues, roster and mute records, transport state records, media buffers and sandbox linear memory. The pool scrub counter increments once per session leaving the process, on every exit path, failed restore included. A move source counts its session when it drops the frozen copy, and a target counts a session whose restore it refused. Zero-filling is best effort against memory inspection in a managed runtime; the counter, not a memory dump, is what the conformance suite asserts.
 
-Socket and Inspector hold protected bytes only for one request or one connection, and the digest keys and limiter tables vanish with the process. The coordination store frees the memory of expired keys without zero-filling it, which the residual list records.
+Socket and Inspector hold protected bytes only for one request or one connection, beside Socket's copy of the experiment registry, whose override entries name guests for as long as {experiments:G} holds them. The digest keys, the limiter tables and the experiment rate counters vanish with the process. The coordination store frees the memory of expired keys without zero-filling it, which the residual list records.
 
 ### 22.10 Residual traces outside the core
 
@@ -7603,6 +7713,7 @@ These traces arise outside Socket, Inspector and Engine. The core cannot prevent
 | TLS session tickets and certificate transparency entries | TLS terminator and certificate authority | tickets in memory only; certificate entries name hostnames, not players |
 | DNS resolver logs | client and provider resolvers | outside the installation |
 | Orchestrator events and captured standard output | container orchestrator | operational retention class, 30 days at most |
+| Experiment lines in the operator's log store | experiment-observation and experiment-definition lines of captured standard output, routed by class, only with privacy.experimentsAllowed=true | the definition's experiment class, experiment 30 days by default and experiment-long 90 days at most; no subject field in any line |
 | Store replication traffic and manual online backups | operator action | private network; no backup job in the reference manifests |
 | External relay metadata | a TURN server outside the Engine | the Engine's embedded relay instead |
 | Swap and core dumps | host operating system | core dumps disabled in the reference images; no swap in the reference manifests |
@@ -7611,11 +7722,12 @@ These traces arise outside Socket, Inspector and Engine. The core cannot prevent
 
 ### 22.11 Traces in standard mode
 
-An installation that declares an optional service runs in mode=standard, as in the Standard and Full profiles. Each declared service adds exactly the records of its row, under the retention its own section states. Socket, Inspector and Engine keep every rule of this section except the five that mode=standard relaxes: raw identifiers at info, debug logging, local diagnostic paths, the store's persistence and an adapter of a broker family for the service topics or the sink topic.
+An installation that declares an optional service runs in mode=standard, as in the Standard and Full profiles. Each declared service adds exactly the records of its row, under the retention its own section states. Socket, Inspector and Engine keep every rule of this section except the six that mode=standard relaxes: raw identifiers at info, debug logging, local diagnostic paths, the store's persistence, an adapter of a broker family for the service topics or the sink topic, and experiments without privacy.experimentsAllowed=true. Their experiment-observation lines carry subjectKind and subjectDigest unless experiments.subjectPolicy=none, and their configuration definitions may hold override entries.
 
 | Source | Records added | Store | Default retention |
 | --- | --- | --- | --- |
 | Core in mode=standard | raw sessionId and roomId at info; debug lines; forensic snapshots and replay files when their paths are set | standard output; local paths; store disk when the operator enables persistence | operator's retention classes: security 6 to 12 months, operational 30 days, debug hours |
+| Experiments of "Socket", when enabled | experiment-observation lines with subjectKind and the per-experiment subjectDigest unless experiments.subjectPolicy=none; experiment-definition and experiment-defined lines; definitions with override entries in {experiments:G}; with Statistics and statistics.experimentIngest=true, the experiment observations table | standard output and the operator's log store; coordination store; analytics store | experiment-short 7 days, experiment 30 days, experiment-long 90 days, each 1 to 90 days; registry fields endsAt + 7 days; the table the class retention |
 | Event sink | sink facts | coordination-store streams or a broker family | 10-minute horizon; dead-letter queues 24 hours |
 | Service topics on a broker family | join, leave, regroup, placement, move, delivery and projection messages with playerIds and connectionIds | the broker or cloud queue and topic service | operator-set, at least the 10-minute horizon; dead-letter queues 24 hours |
 | Profiles | members, personal fields, bans, audit records, guest claims; member progressions without Statistics | relational or document store | until erasure; audit records under the security class |
@@ -7640,11 +7752,11 @@ Statistics and Recording may run without Profiles and then key every record by t
 9. A scripted 10-minute session with 4 guests, audio and groups leaves no changed file under any writable path of any container except the handoff socket inode.
 10. After that session every store node's data directory is empty.
 11. Every key and every hash field written during that session, {auth}:keys and the {region:G} keys included, carries a positive expiry.
-12. No log line of Socket, Inspector or Engine at any level, and no line of the store's own log, matches a playerId, username, address, token or payload pattern.
+12. No log line of Socket, Inspector or Engine at any level, and no line of the store's own log, matches a playerId, username, address, token or payload pattern, the verified object of an experiment-observation line excepted.
 13. Every sessionId and roomId in a log line is a 16-character keyed digest, and two processes log different digests for the same session.
 14. Every metric label belongs to the closed label set, and no label value matches an identifier or address pattern.
 15. A clean session end removes the snapshot, journal and players keys within 1 second, and a crashed engine's snapshot expires within 10 minutes of its last write.
-16. After the guest credential lifetime without activity, the store holds no key referencing the session or the guest.
+16. After the guest credential lifetime without activity, the store holds no key referencing the session or the guest, an override entry that a definer wrote into {experiments:G} excepted.
 17. The pool scrub counter equals the number of sessions that left the process, failed restores and dropped move copies included.
 18. The store holds no {events:G:n} or {board:B} key, and no Engine allocates a tap.
 19. No snapshot envelope, journal batch, service queue message, store key or sink fact contains a client address, in either mode.
@@ -7660,6 +7772,10 @@ Statistics and Recording may run without Profiles and then key every record by t
 29. An Engine started with mode=standard against an Inspector with mode=traceless is refused at RegisterEngine and never becomes ready.
 30. Start in traceless mode with Social or Feed declared fails with configuration-invalid naming the key, and after the scripted session the store holds no {profile:P}:presence hash, {presence:G:n} key, {room:R}:grants field or {social:journal:N} key, and no conns field carries a status.
 31. In traceless mode CreateRoom and UpdateRoom answer feature-unavailable for the private visibility, Social and Feed routes answer feature-unavailable from Socket without a network call, and no connection holds a principal slot.
+32. Start of Socket or Engine in traceless mode with experiments.enabled=true fails with configuration-invalid naming the key unless privacy.experimentsAllowed=true is also set, with both set each process logs a warning at start, the traceless preset sets experiments.enabled=false, and a configuration definition holding an override entry fails the validate command and the start of Socket naming its experimentId.
+33. In traceless mode with experiments.enabled=false no {experiments:G} key exists and every experiment operation answers feature-unavailable.
+34. In traceless mode with both settings true, the scripted session of statements 9 and 10 extended with client and module observations still passes statements 9 to 14, no experiment-observation line carries subjectKind, subjectDigest, a playerId, a username, an address, a token or a clear sessionId, the debug line of a submission never carries its object, {experiments:G} and each of its fields carry a positive expiry, and no other key is written for an observation.
+35. After an ephemeral store restart in traceless mode with experiments enabled, {experiments:G} is back within one 10-second registry refresh through experiment_restore, with every field under its original expiry.
 
 ## 23. Integration bus
 
@@ -7980,7 +8096,7 @@ The service channel is the request-and-reply channel between services. It stands
 | Call | peer, request, deadline → reply | unavailable; over-deadline, which the caller handles as unavailable; issued only by a worker that holds the budget, never by a simulation worker |
 | Serve | operations, each with its type, version and caller list → none | refusals before dispatch follow the status table of this subsection; exactly one handler per type + version |
 
-A request is one control envelope of "Identifiers, time, counters and envelopes" holding a command or a query. Its reply is one control envelope whose data carries requestId, equal to the request's messageId, and either the result or an error object holding a code of the operation's closed error set. A peer is addressed by service kind: Inspector by its region's internal Inspector address, an optional service by its configured address, an Engine by the service address it registered through RegisterEngine and the writer of a Social shard by the address its lease key names. No simulation worker issues a call or waits for one. An answer a session object needs reaches it as a host event at a tick boundary, and a lapsed budget reaches it as a pending or unavailable outcome, never as a late tick.
+A request is one control envelope of "Identifiers, time, counters and envelopes" holding a command or a query. Its reply is one control envelope whose data carries requestId, equal to the request's messageId, and either the result or an error object holding a code of the operation's closed error set. A peer is addressed by service kind: Inspector by its region's internal Inspector address, an optional service by its configured address, an Engine by the service address it registered through RegisterEngine, the writer of a Social shard by the address its lease key names and Socket, for the experiment operations of "Socket" only, by its region's internal Socket address. That address is the internalSocketAddress of the region's region.directory entry, a private address balanced over the call listeners of every Socket instance of the region. No simulation worker issues a call or waits for one. An answer a session object needs reaches it as a host event at a tick boundary, and a lapsed budget reaches it as a pending or unavailable outcome, never as a late tick.
 
 The reference adapter is command-style RPC over HTTP carrying the generated contract messages unchanged. It is the only adapter shipped beside the in-memory adapter of the testkit. Another adapter conforms only by passing statements 54 to 64 of the Conformance list of this section. HTTP carries the bytes and decides no outcome. The adapter follows eight rules: one request per operation, bodies, mutual authentication, the idempotency key, timeouts, retries, error mapping and transport only.
 
@@ -7990,7 +8106,7 @@ Bodies: one content type, application/json, with identity content encoding, and 
 
 Mutual authentication on every call: the caller signs the request with a keyed hash under its service credential of "Service authentication". The signature covers the callee's service kind, the caller's service kind and instance, type, version, messageId, a cryptographic digest of the body and issuedAt, and travels in the Call-Signature header. The callee signs its reply the same way over requestId, the caller's service kind, the reply body's digest and its own issuedAt. Each side verifies with the peer's current or previous credential from auth.trustedServices and refuses a signature whose issuedAt lies more than 60 seconds from its own clock. Mutual TLS, where enabled, authenticates the connection in addition to the signatures, never instead of them. The callee authorizes by the caller's service kind against the operation's caller list. Only a Socket caller may carry a principal context (playerId, role, regionId, connectionId and generation) in a request, and a callee trusts that context from no other kind.
 
-Idempotency key: the envelope's messageId is the call's idempotency key. The caller mints it once per logical call and reuses it with a byte-identical body on every retry. A command whose owning section names its own duplicate basis, such as a revision, a request key, the settled set or the tenure rule of progression writes, keeps that basis. For every other command the callee records caller service kind + type + messageId with the body digest and the reply for 10 minutes. It writes the record in the unit of work of the effect when it owns a store, and under a key with an expiry otherwise. A duplicate returns the recorded reply, and a different body under the same messageId answers idempotency-conflict. A query keeps no record and may be repeated freely.
+Idempotency key: the envelope's messageId is the call's idempotency key. The caller mints it once per logical call and reuses it with a byte-identical body on every retry. A command whose owning section names its own duplicate basis, such as a revision, a request key, the settled set, the tenure rule of progression writes or the observationId of RecordObservation, keeps that basis. For every other command the callee records caller service kind + type + messageId with the body digest and the reply for 10 minutes. It writes the record in the unit of work of the effect when it owns a store, and under a key with an expiry otherwise. A duplicate returns the recorded reply, and a different body under the same messageId answers idempotency-conflict. A query keeps no record and may be repeated freely.
 
 Timeouts: every request carries the caller's remaining budget in milliseconds in the Call-Deadline header. Default call timeout: **5 seconds**; the interaction catalog of this subsection names every other budget. The callee never starts work past the deadline and abandons work it has not committed when the deadline passes; committed work keeps its recorded reply for the retry. A caller whose budget lapsed records over-deadline and handles it as unavailable.
 
@@ -8034,12 +8150,19 @@ RegisterEngine and Heartbeat are not cross-service interactions and appear in no
 | Entitlement change during a session | projection, then topic (EntitlementUpdated) | Payment; Inspector | outbox retry | the projection's last entitlement holds until until + 24 hours |
 | Live leaderboards | projection, {board:B} | Statistics writes; Inspector serves ReadBoard | 250 ms after settlement, a target | an older watermark; feature-unavailable during a rebuild |
 | Scheduled live events | projection: configuration resolved by Inspector at StartSession into the session settings | Inspector | none, a local read | an entry added later reaches later sessions only |
+| Experiment observations and variants of a client | none: Socket answers RecordObservation and ReadVariants itself on the control connection | Socket | the per-connection limits of "Socket" | the endpoint's codes; a refused observation emits no line |
+| Experiment observations of an optional service | call, service channel to the region's internal Socket address (RecordObservation with source service) | Socket | 2 seconds | the endpoint's codes |
+| Experiment definitions | call, service channel to the internal Socket address of every region (DefineExperiment, CloseExperiment; ReadExperiments for a listing) | the operator's tooling; Profiles for an admin, through its outbox | 5 seconds; until each region acknowledges | in effect per region from its acknowledgement |
+| Experiment lines into analysis | none: log lines that the installation's log pipeline collects and its log analysis tools read | the operator | the experiment class retention of "Observability and logging" | a lost line is a missing observation, never an altered one |
 
-The second table holds the interactions that carry state into and out of a session: the player context bundle, progression and items.
+Two rows of the first table name no pattern, because Socket answers a client itself and the log pipeline belongs to the operator. They stand in the catalog so that every path of the experiments feature appears in it, and neither is a cross-service interaction.
+
+The second table holds the interactions that carry state into and out of a session: the player context bundle, progression, items and experiment variants and observations.
 
 | Interaction | Pattern and path | Owner | Budget | Failure behavior |
 | --- | --- | --- | --- | --- |
-| Player context bundle at admission | call, service channel, Engine context worker | the progression owner; Inventory; entitlements from the ticket | 2 seconds shared | OnJoin with parts pending; late parts as later context host events |
+| Player context bundle at admission | call, service channel, Engine context worker | the progression owner; Inventory; Socket for experiment variants; entitlements from the ticket | 2 seconds shared | OnJoin with parts pending; late parts as later context host events |
+| Experiment variants and observations of a module | call, service channel, Engine context worker to the region's internal Socket address: ReadVariants in the player context bundle, RecordObservation with source module for each Observe after the tick boundary | Socket | within the 2-second context budget; 2 seconds per observation | a pending or unavailable part; a dropped or refused observation counted, never retried past its budget, and never waited for on the tick path |
 | SaveProgress checkpoint | call (CommitProgress), service channel, Engine context worker | the progression owner | 5 seconds, 3 attempts | unavailable outcome; the end write supersedes |
 | End progression writes | call (CommitProgress with final=true), service channel, after ReportSessionEnded acceptance | the progression owner | 5 seconds; backoff 1 second doubling to 30 seconds for 10 minutes | progression-lost at error |
 | In-session achievement claims | call inside a progression write, then topic (AchievementUnlocked) | Statistics | the write's budget | applied once per playerId + achievementId; feature-unavailable with Profiles as owner |
@@ -8062,7 +8185,7 @@ The third table holds the interactions of members, Social, Feed and Recording.
 | Playback | call, service channel through Socket's route | the playback authorizer | 5 seconds | not-ready, forbidden, retryable-unavailable |
 | Guest claims and erasure | topic (GuestClaimed, ProfileErased) | Profiles produces; every holder applies | erasure within 24 hours | redelivered from the sink; error past the deadline |
 
-Budgets are starting values to measure, not latency guarantees. Every call in the three tables runs on a worker that holds its budget and never on a simulation worker. The Engine's calls run on its lifecycle worker and on its context worker, which serves the item ledger, the player context bundle and the progression writes with at most 64 requests in flight per session. The failure behaviors are those of the owning sections: self-fence and suspension in "Engine node, lease, epoch, placement and capacity", the compensations in "Inspector" and "Engine runtime", presence and names in "Social service" and "Feed service", and the session history in "Statistics service" and "Recording". An absent optional service removes every row that names it, and Socket answers its routes with feature-unavailable without a call.
+Budgets are starting values to measure, not latency guarantees. Every call in the three tables runs on a worker that holds its budget and never on a simulation worker. The Engine's calls run on its lifecycle worker and on its context worker, which serves the item ledger, the player context bundle, the progression writes and the experiment calls with at most 64 requests in flight per session. The failure behaviors are those of the owning sections: self-fence and suspension in "Engine node, lease, epoch, placement and capacity", the compensations in "Inspector" and "Engine runtime", presence and names in "Social service" and "Feed service", and the session history in "Statistics service" and "Recording". An absent optional service removes every row that names it, and Socket answers its routes with feature-unavailable without a call.
 
 An interaction absent from the three tables does not exist in this version. The interactions below are outside this version, each with what covers the need.
 
@@ -8077,13 +8200,13 @@ An interaction absent from the three tables does not exist in this version. The 
 | Matchmaking, player abuse reports, item trading and gifting, progression feed items | none in this version |
 | Developer-defined services on the service channel | none; a game's extension domain travels only on the session and simulation channels |
 
-In the Minimal profile the adapter carries only the placement channel's calls between Socket, Inspector and Engine. No progression call exists there, the progression part of every player context bundle is session-only and its inventory part absent, and the module interface is the same as in every other profile. In traceless mode only the core's calls travel on the adapter, which keeps no access log. Its log lines carry type, peer kind, duration and code, with sessionId and roomId as keyed digests, and never a body, a principal context or an address. Track call latency per operation and peer kind, replies by code, statuses other than 200, retries, 429 refusals and signature refusals. Alert on signature refusals above zero and on a call p99 above 80% of its budget for 5 minutes. Log every call at debug, a retried call at warn and a signature refusal or an idempotency-conflict at error.
+In the Minimal profile the adapter carries only the placement channel's calls between Socket, Inspector and Engine and, when experiments are enabled, the Engine's experiment calls to Socket and the operator's definition calls. No progression call exists there, the progression part of every player context bundle is session-only and its inventory part absent, and the module interface is the same as in every other profile. In traceless mode only the core's calls travel on the adapter, the experiment calls only with privacy.experimentsAllowed=true, and the adapter keeps no access log. Its log lines carry type, peer kind, duration and code, with sessionId and roomId as keyed digests, and never a body, a principal context, an address, a subjectId or an ExperimentObject. Track call latency per operation and peer kind, replies by code, statuses other than 200, retries, 429 refusals and signature refusals. Alert on signature refusals above zero and on a call p99 above 80% of its budget for 5 minutes. Log every call at debug, a retried call at warn and a signature refusal or an idempotency-conflict at error.
 
 ### 23.21 Minimal profile and traceless mode
 
 The Minimal profile runs both roles on the coordination-store stream adapter of its one store. The Inspector work, engine inbox, fleet and Socket topics exist, the sink is the null adapter, no delivery topic exists and no process runs beyond Socket, Inspector, Engine and the store. A store outage stops Publish with unavailable, which every path handles as "Inspector" and "Engine runtime" state. A store restart in the ephemeral profile loses the topics with every other key, and each consumer declares its own again on its next Consume answered queue-unknown.
 
-In traceless mode every topic uses the coordination-store stream adapter, the only legal adapter in this mode. The start-time gate of "Anonymous traceless mode" refuses an adapter of any broker family by name, because every family may retain messages on disk. The sink and delivery topics do not exist, because no optional service may be declared. The work, inbox, fleet and Socket topics and their dead-letter streams are keys with expiries: 10-minute and 60-second horizons, a 1-hour dead-letter retention and a 60-second idle expiry. A dead-lettered message is logged with its type, a keyed digest of its messageId and its reason, never with its payload or an identifier. The dead-letter reader prints only the same fields unless privacy.debugAllowed=true. Lag metrics carry only the region and engine identity labels and the topic enum label, whose value is the topic kind, as "Anonymous traceless mode rules" in "Observability and logging" states. Queue messages carry playerId and connectionId only inside these expiring keys, which the definition of a trace permits.
+In traceless mode every topic uses the coordination-store stream adapter, the only legal adapter in this mode. The start-time gate of "Anonymous traceless mode" refuses an adapter of any broker family by name, because every family may retain messages on disk. The sink and delivery topics do not exist, because no optional service may be declared. The work, inbox, fleet and Socket topics and their dead-letter streams are keys with expiries: 10-minute and 60-second horizons, a 1-hour dead-letter retention and a 60-second idle expiry. A dead-lettered message is logged with its type, a keyed digest of its messageId and its reason, never with its payload or an identifier. The dead-letter reader prints only the same fields unless privacy.debugAllowed=true. Lag metrics carry only the region and engine identity labels and the topic enum label, whose value is the topic kind, as "Anonymous traceless mode rules" in "Observability and logging" states. Queue messages carry playerId and connectionId only inside these expiring keys, which the definition of a trace permits. The experiments feature of "Socket" adds no topic, queue, sink fact or dead-letter stream in any profile or mode. Its calls travel on the service channel, its registry is {experiments:G} and its lines go to standard output.
 
 ### 23.22 Deployments without consumers
 
@@ -8156,8 +8279,9 @@ In traceless mode the sink's null adapter is the only legal one, because declari
 61. A request above 64 KiB answers 413 without being parsed, and a request for a type and version the callee does not serve answers 404 and executes nothing.
 62. A 60 Hz session of 16 players whose progression owner and Inventory are unreachable for 10 minutes keeps its p99 tick below 80% of the period and calls OnJoin for every player within 2 seconds with the parts pending.
 63. No call is issued from a simulation worker in the scripted sessions of "Testing strategy and acceptance gates", which the testkit asserts by failing any call made on one.
-64. In the Minimal profile the RPC adapter carries only placement-channel calls between Socket, Inspector and Engine and no progression call, and in traceless mode no call writes an access log and no call log line carries a body, a principal context, a playerId or an address.
+64. In the Minimal profile the RPC adapter carries only placement-channel calls between Socket, Inspector and Engine and, with experiments enabled, the Engine's ReadVariants and RecordObservation calls and the operator credential's DefineExperiment, CloseExperiment and ReadExperiments calls on Socket, and no progression call, and in traceless mode no call writes an access log and no call log line carries a body, a principal context, a playerId, an address, a subjectId or an ExperimentObject.
 65. RegisterEngine and Heartbeat reach the coordination store only as the store procedures engine_register and engine_heartbeat run by the Engine, and no scripted run carries either as a call on the RPC adapter.
+66. Every experiment call of the Engine's context worker, of an optional service, of the operator's tooling and of Profiles' outbox reaches Socket at its region's internal Socket address, a definition reaches every region of the installation directory and is in effect in each from that region's acknowledgement, no experiment message appears on a topic or as a sink fact, and a RecordObservation retried with one messageId under the fault-injecting call adapter yields at most two experiment-observation lines with one observationId and writes no idempotency record.
 
 ## 24. Persistence abstraction
 
@@ -8266,10 +8390,11 @@ The owning service runs one relay per outbox. The relay polls ClaimBatch every *
 | Inspector projection operations | one call per region of the installation directory, idempotent by revision | every region acknowledged; each region's state kept with the entry |
 | Service operations of another optional service | one call over the internal service channel, idempotent by its key | the callee acknowledged |
 | Inspector operation of one region | one call to the Inspector of the region the entry names, such as RevokeInvite, idempotent by its key | that region acknowledged, or the entry's until passed |
+| Socket experiment operations | one DefineExperiment or CloseExperiment call per region of the installation directory, at its internal Socket address, idempotent by the definition's revision | every region acknowledged; each region's state kept with the entry |
 
 An entry whose lease expires without Ack is claimed again, so every target sees duplicates and deduplicates by eventId or revision. Acknowledged entries are deleted within 1 hour. Outbox age above 30 seconds alerts, and a region that has not acknowledged a projection keeps its entry unacknowledged until it does, never skipped. An installation-scope ban or entitlement takes effect in a region from that region's acknowledgement, as "Inspector" states.
 
-Outboxes exist only where a commit has a side effect elsewhere. Profiles relays GuestClaimed, ProfileErased, RoleChanged, CloseRoom calls, bans and signing keys. Statistics relays PointsSettled, AchievementUnlocked and SeasonClosed. Payment relays SubscriptionChanged, PurchaseChanged, entitlement projections and the ApplyPurchase and ApplyRefund calls to Inventory. Inventory relays InventoryChanged as pushes to Engines and as sink facts. Recording states its own publication rule for SealedRecording and RecordingRemoved in "Recording". Social relays FriendshipEnded, BlockAdded, SocialSettingsChanged and the RevokeInvite calls; ProjectInvite is a direct call, because its answer decides whether the invite exists. Feed has no outbox, because it produces no sink fact and no projection that must be retried. The mandatory core has no outbox.
+Outboxes exist only where a commit has a side effect elsewhere. Profiles relays GuestClaimed, ProfileErased, RoleChanged, CloseRoom calls, bans, signing keys and the DefineExperiment and CloseExperiment calls of its admins, each enqueued in the unit of work that appends its AuditRecord. Statistics relays PointsSettled, AchievementUnlocked and SeasonClosed. Payment relays SubscriptionChanged, PurchaseChanged, entitlement projections and the ApplyPurchase and ApplyRefund calls to Inventory. Inventory relays InventoryChanged as pushes to Engines and as sink facts. Recording states its own publication rule for SealedRecording and RecordingRemoved in "Recording". Social relays FriendshipEnded, BlockAdded, SocialSettingsChanged and the RevokeInvite calls; ProjectInvite is a direct call, because its answer decides whether the invite exists. Feed has no outbox, because it produces no sink fact and no projection that must be retried. The mandatory core has no outbox.
 
 ### 24.7 Inbox and idempotency records
 
@@ -8383,6 +8508,7 @@ These are required runtime tests, **not tests already performed by this specific
 38. A subject at history.maxEntries loses its oldest HistoryEntry and no record on the next insert, and a record keeps at most 1024 player tenures, 256 viewer tenures and 512 history events with the omitted counts.
 39. Within 24 hours of ProfileErased no HistoryEntry of the member exists, no SessionHistory holds the member's profileId in a tenure, an event actor, roomOwnerId or a history event payload, and every SessionHistory names the tombstone id in its place, or under history.erasure=remove holds none of its tenures and none of the events about it, and no custom history event payload of the member remains.
 40. A Minimal profile deployment, and every deployment in traceless mode, holds no SessionHistory, HistoryEntry or summary list anywhere.
+41. An admin's DefineExperiment or CloseExperiment at Profiles commits its AuditRecord and its outbox entry in one unit of work, and the entry stays unacknowledged until every region of the installation directory acknowledged the call.
 
 ## 25. Clustering, regions and deployment
 
@@ -8440,7 +8566,7 @@ Social and Feed are installation-scoped and run in one region only. Social runs 
 
 ### 25.2 Region directory and discovery
 
-The region directory is static configuration. Each entry holds regionId, displayName, socketAddresses, the advertised protocol range, the capacity classes the region offers with the maxTickRate each declares and a residency statement. Every region's configuration carries the whole installation directory with one directory revision, a decimal counter the operator increases on every change. A dynamic region registry does not exist in this version; adding or removing a region is a configuration change rolled out by the upgrade runbook.
+The region directory is static configuration. Each entry holds regionId, displayName, socketAddresses, internalSocketAddress (the region's internal Socket address, a private address resolving to the call listener of every ready Socket instance, required with experiments.enabled=true), the advertised protocol range, the capacity classes the region offers with the maxTickRate each declares and a residency statement. Every region's configuration carries the whole installation directory with one directory revision, a decimal counter the operator increases on every change. A dynamic region registry does not exist in this version; adding or removing a region is a configuration change rolled out by the upgrade runbook.
 
 Every Socket serves the directory on a public status endpoint over TLS, without authentication and before any Hello. The status endpoint returns the directory, its revision and the availability of the serving region: available, or region-unavailable when Inspector reports that the store is unreachable or Inspector itself has not answered for 10 seconds. It returns no identifier, no address and nothing derived from the caller. ListRegions on an open control connection answers from the same configuration, and HelloAck carries the directory revision so a client refetches only when the revision changed.
 
@@ -8575,18 +8701,18 @@ Every process that serves calls binds one call listener on the private network, 
 | Service | Call listener | Serves | Addressed by |
 | --- | --- | --- | --- |
 | Inspector | inspector.listenAddress | Socket relays, the Engine's Inspector operations, projection operations and ReadPresence | the region's internal Inspector address, resolving to every ready process |
-| Socket | socket.deliveryAddress | CloseConnections from Inspector only | the address its SocketHeartbeat registered |
+| Socket | socket.deliveryAddress | CloseConnections from Inspector only; with experiments.enabled=true also RecordObservation and ReadVariants from the Engine and the optional services, and DefineExperiment, CloseExperiment and ReadExperiments from the operator credential and Profiles (see "A/B testing tool") | CloseConnections at the address its SocketHeartbeat registered; the experiment operations at the region's internal Socket address, the internalSocketAddress of its region.directory entry, a private address resolving to every ready Socket process |
 | Engine | the private service address it registered through RegisterEngine | InventoryChanged from Inventory only | that registered address, never a balancer |
 | Profiles, Statistics, Payment, Inventory | <service>.listenAddress | Socket's routes of its domain; ReadProgression and CommitProgress at the progression owner; ReadHistory, ReadSessionHistory and ReadSessionEvents at the history owner; the item ledger and ApplyPurchase and ApplyRefund at Inventory; the composition of ReadProfile, ResolveNames and ReadStandings | the service's configured address in the integration group, resolving to every ready process |
 | Social, Feed, Recording's playback authorizer | <service>.listenAddress | Socket's routes of its domain; ReadAudience at Social; an append forwarded to its shard's writer | the configured address; a forwarded append goes to the address the shard's lease key names |
 
-Inspector processes and the instances of an optional service are interchangeable, so their address may be an internal balancer or a name that resolves to every ready process. A balancer in front of a call listener forwards each request unchanged, the Call-Signature and Call-Deadline headers included. It never retries, caches, redirects or follows a redirect, because only the caller retries, within its budget and with the same messageId. With auth.mutualTls=true it forwards at layer 4 and never terminates the connection, so the callee sees the caller's certificate. An Engine's call listener is never balanced: InventoryChanged must reach the engine that holds the session, so Inventory calls the address that engine registered. That listener binds a private address only, never an address that a ticket names.
+Inspector processes, Socket processes for the experiment operations and the instances of an optional service are interchangeable, so their address may be an internal balancer or a name that resolves to every ready process. A balancer in front of a call listener forwards each request unchanged, the Call-Signature and Call-Deadline headers included. It never retries, caches, redirects or follows a redirect, because only the caller retries, within its budget and with the same messageId. With auth.mutualTls=true it forwards at layer 4 and never terminates the connection, so the callee sees the caller's certificate. An Engine's call listener is never balanced: InventoryChanged must reach the engine that holds the session, so Inventory calls the address that engine registered. That listener binds a private address only, never an address that a ticket names.
 
 Each process binds its call listener before it becomes ready and before it registers an address that a caller reads: an Engine before RegisterEngine, a Socket before its first SocketHeartbeat and a Social instance before it acquires a writer lease. A callee that is starting, draining or lacking a dependency answers 503 before dispatch, and its callers retry with the same messageId within their budgets. A draining callee finishes every call it dispatched before it exits, inside its drain budget of "Drain and termination". The in-flight bounds of "Service channel" hold per callee instance, so adding a process raises a service's call capacity. 429 refusals are a scaling signal of "Scaling per service", never a correctness input.
 
-A call crosses a region only where its caller or its callee is an optional service: the projection operations that Profiles and Payment fan out to the Inspector of every region, Social's ReadPresence, ProjectInvite and RevokeInvite, the ReadAudience calls of Feed and of the history owner to Social in the home region, and the routes that every region's Socket sends to Social and Feed in the home region. No Socket, Inspector or Engine calls a Socket, Inspector or Engine of another region. The private network that carries these cross-region calls reaches only the call listeners of Inspector and of the optional services.
+A call crosses a region only where its caller or its callee is an optional service or its caller holds the operator credential. These calls are the projection operations that Profiles and Payment fan out to the Inspector of every region, the DefineExperiment, CloseExperiment and ReadExperiments calls that Profiles and the operator's tooling send to the internal Socket address of every region, Social's ReadPresence, ProjectInvite and RevokeInvite, the ReadAudience calls of Feed and of the history owner to Social in the home region, and the routes that every region's Socket sends to Social and Feed in the home region. No Socket, Inspector or Engine calls a Socket, Inspector or Engine of another region. The private network that carries these cross-region calls reaches only the call listeners of Inspector and of the optional services and, for those three experiment operations only, the internal Socket address.
 
-In the Minimal profile the call listeners are those of Socket, Inspector and the Engine, and they carry only the calls of the placement channel. The Engine's listener receives no call, because no Inventory exists. In traceless mode the adapter keeps no access log, and no reference package writes an access log for a balancer in front of a call listener. A call's log line carries type, peer kind, duration and code only, with sessionId and roomId as keyed digests (see "Anonymous traceless mode"). The Minimal profile needs no balancer for calls, and the single-host compose file binds every call listener to loopback or a private host address.
+In the Minimal profile the call listeners are those of Socket, Inspector and the Engine. They carry only the calls of the placement channel and, with experiments.enabled=true, RecordObservation and ReadVariants from the Engine's context worker and DefineExperiment, CloseExperiment and ReadExperiments from the operator credential, all to Socket at the internal Socket address. The Engine's listener receives no call, because no Inventory exists. In traceless mode the adapter keeps no access log, and no reference package writes an access log for a balancer in front of a call listener. A call's log line carries type, peer kind, duration and code only, with sessionId and roomId as keyed digests (see "Anonymous traceless mode"). The Minimal profile needs no balancer for calls, because its internal Socket address is a name that resolves to every ready Socket process. The single-host compose file binds every call listener to loopback or a private host address.
 
 ### 25.11 Social, Feed and the journal store in deployment
 
@@ -8746,7 +8872,7 @@ A cold restart of Social's home region stops Social and Feed with it. Writer lea
 
 ### 25.19 Optional services and the Minimal profile
 
-In the Minimal profile a region is Socket, Inspector, Engine and one coordination store; clustering, placement, scaling, drain and every runbook above run on those alone. Their call listeners carry only the placement channel's calls, and no progression call exists. No relational, document, analytics or object store and no broker exists, so the upgrade runbook skips step 6 and no drain waits on an outbox. openRecordingSegments and pendingSinkBatches are identically zero. In traceless mode the reference deployment writes nothing to local disk, and the store runs in its ephemeral profile. The Inspector work, engine inbox, fleet and Socket topics and their queues are coordination-store streams, no sink topic and no delivery topic exists, and auto-balancing needs only engines and the store. maxTickRate, the send rate and the session weight need no optional service. The Minimal profile therefore places, scales and moves a 128 Hz session on engines of a class declaring 128 as any other session, and in traceless mode it writes nothing new. No history owner exists, so no history read reaches any process beyond Socket. A single-engine installation degrades to capacity-exhausted for new members of a bound session while its existing players continue.
+In the Minimal profile a region is Socket, Inspector, Engine and one coordination store; clustering, placement, scaling, drain and every runbook above run on those alone. Their call listeners carry only the placement channel's calls and, with experiments.enabled=true, the experiment calls to Socket of "Service channel endpoints", and no progression call exists. No relational, document, analytics or object store and no broker exists, so the upgrade runbook skips step 6 and no drain waits on an outbox. openRecordingSegments and pendingSinkBatches are identically zero. In traceless mode the reference deployment writes nothing to local disk, and the store runs in its ephemeral profile. The Inspector work, engine inbox, fleet and Socket topics and their queues are coordination-store streams, no sink topic and no delivery topic exists, and auto-balancing needs only engines and the store. maxTickRate, the send rate and the session weight need no optional service. The Minimal profile therefore places, scales and moves a 128 Hz session on engines of a class declaring 128 as any other session, and in traceless mode it writes nothing new. No history owner exists, so no history read reaches any process beyond Socket. A single-engine installation degrades to capacity-exhausted for new members of a bound session while its existing players continue.
 
 With Profiles, Statistics, Payment or Inventory present, each adds a replicated workload over its own store, a call listener of "Service channel endpoints" and a service credential for its calls and projection operations. The history owner, Statistics or Profiles without Statistics, serves the history reads on that listener and calls ReadAudience on Social in the home region when Social is declared. Each also adds an outbox that fans projections out to every region of the installation directory and its round-robin group in the sink topic of every region. The first declared optional service brings the sink topic into existence, and Social or Feed the delivery topic of every region. With Recording present, engines need a spool directory, which traceless mode refuses, and the normalizer runs as a job workload. With Social present, it adds a workload in its home region over its repository store and presence tracking in the Inspector of every region. It also adds the versioned journal store with its repository host and, outside development, at least one mirror. With Feed present, it adds a workload in the home region and StandingChanged at Statistics. Social and Feed require Profiles, Feed also requires Statistics, and traceless mode refuses both. A declared optional service that is unreachable never blocks the start, readiness or drain of a mandatory service: it is a degraded dependency, never treated as absent.
 
@@ -8814,14 +8940,14 @@ No optional service publishes to or consumes the Inspector work, engine inbox, f
 58. Adding an Inspector instance or an instance of an optional service under load adds one member to its round-robin group, and each message reaches exactly one member of that group except as a redelivery after a visibility lapse.
 59. Stopping an Inspector instance or an instance of an optional service while it holds deliveries and another member of its group runs loses no message: each held delivery reaches another member within the visibility timeout plus one Consume wait.
 60. A 60-second outage of a broker carrying the service topics ends no session, corrupts no saga record, answers new sagas with retryable-unavailable and leaves membership equal to the committed saga entries at quiescence.
-61. Every call listener binds a private address only, and no client-reachable listener, Socket's public listener, an Engine transport listener and the relay listener included, answers a POST to /rpc/<type>/<version>.
+61. Every call listener binds a private address only, the region's internal Socket address that serves the experiment operations included, and no client-reachable listener, Socket's public listener, an Engine transport listener and the relay listener included, answers a POST to /rpc/<type>/<version>.
 62. A process answers 503 before dispatch on its call listener until it is ready and from the instant it starts draining, and every call it dispatched before draining completes with its reply before the process exits.
 63. An Engine registers through RegisterEngine only after its call listener is bound, and InventoryChanged sent to its registered service address reaches it without a balancer.
 64. A balancer in front of Inspector or an optional service forwards the Call-Signature and Call-Deadline headers unchanged, never retries, caches or redirects a call, and with auth.mutualTls=true leaves the caller's certificate visible to the callee.
 65. A forwarded Social append reaches the instance whose address the shard's lease key names, is forwarded at most twice more when that instance no longer holds the lease and otherwise answers retryable-unavailable.
 66. Adding an Inspector process or an instance of an optional service at its in-flight bound reduces 429 refusals, and removing one under call load fails no call that its caller's budget could still retry.
 67. In no test scenario does a Socket, Inspector or Engine call a Socket, Inspector or Engine of another region.
-68. In the Minimal profile in traceless mode the only calls are those of the placement channel between Socket, Inspector and the Engine, no access log of a call listener is written and the local file-system diff stays empty after a 10-minute session.
+68. In the Minimal profile in traceless mode the only calls are those of the placement channel between Socket, Inspector and the Engine and, with experiments.enabled=true and privacy.experimentsAllowed=true, ReadVariants and RecordObservation from the Engine's context worker and DefineExperiment, CloseExperiment and ReadExperiments from the operator credential, all to Socket at the internal Socket address, no access log of a call listener is written and the local file-system diff stays empty after a 10-minute session.
 69. The validate command refuses a call listener on a client-reachable address, a peer absent from auth.trustedServices and auth.mutualTls=true without a certificate and key.
 70. The region directory lists every capacity class of the region with its maxTickRate, and a class that declares none is listed with 60.
 71. After the loss of every engine of one cluster, a 128 Hz session is adopted only on an engine of a class declaring maxTickRate 128 and, when no such engine has capacity, is marked failed after 120 seconds as an orphaned session, although engines of a class declaring 60 have free capacity.
@@ -8919,7 +9045,7 @@ With Social present, chat content has its own key hierarchy outside the installa
 
 ### 26.5 Service authentication
 
-Each service identity holds one service credential, configured per service and never derived from a client credential. Engines accept PlaceSession, EntitlementUpdated and Drain from their inbox on the queue channel only under Inspector's service credential. Socket accepts DeliverProjection and CloseConnections only under Inspector's service credential. Inspector accepts SocketHeartbeat and ReportPresence only under a Socket service credential. It accepts projection operations only from a declared optional service under that service's credential and refuses them from any other caller with forbidden. ReadPresence, ProjectInvite and RevokeInvite are accepted only under Social's credential and DeliverToPrincipals only under Social's or Feed's. Social serves ReadAudience only to Feed's credential and the history owner's, Statistics' or, when Statistics is not declared, Profiles', and Statistics serves ReadStandings to Feed's. The history owner serves ReadHistory, ReadSessionHistory and ReadSessionEvents only to Socket's routed calls carrying a principal context and, at Statistics, to Profiles' credential for an audited ReadProfile. It answers every other service credential with forbidden (see "Games history read authority"). SetPresenceStatus reaches Inspector only through Socket, on the principal's own connection. An Engine accepts InventoryChanged on its call listener only under Inventory's credential, and the progression owner accepts CommitProgress only under the Engine service credential (see "Progression write authority").
+Each service identity holds one service credential, configured per service and never derived from a client credential. Engines accept PlaceSession, EntitlementUpdated and Drain from their inbox on the queue channel only under Inspector's service credential. Socket accepts DeliverProjection and CloseConnections only under Inspector's service credential. With experiments.enabled=true it accepts RecordObservation and ReadVariants on its call listener only under the Engine's or an optional service's credential, and DefineExperiment, CloseExperiment and ReadExperiments only under Profiles' credential or the operator credential. The operator credential is a service credential of kind operator in auth.trustedServices that authorizes those three operations and nothing else, and every other caller of the five operations receives forbidden. Inspector accepts SocketHeartbeat and ReportPresence only under a Socket service credential. It accepts projection operations only from a declared optional service under that service's credential and refuses them from any other caller with forbidden. ReadPresence, ProjectInvite and RevokeInvite are accepted only under Social's credential and DeliverToPrincipals only under Social's or Feed's. Social serves ReadAudience only to Feed's credential and the history owner's, Statistics' or, when Statistics is not declared, Profiles', and Statistics serves ReadStandings to Feed's. The history owner serves ReadHistory, ReadSessionHistory and ReadSessionEvents only to Socket's routed calls carrying a principal context and, at Statistics, to Profiles' credential for an audited ReadProfile. It answers every other service credential with forbidden (see "Games history read authority"). SetPresenceStatus reaches Inspector only through Socket, on the principal's own connection. An Engine accepts InventoryChanged on its call listener only under Inventory's credential, and the progression owner accepts CommitProgress only under the Engine service credential (see "Progression write authority").
 
 Every call on the placement and service channels is authenticated in both directions under the rules of "Service channel". The caller signs each request under its auth.serviceCredential over the callee's service kind, its own service kind and instance, type, version, messageId, a digest of the body and issuedAt. The callee signs its reply over requestId, the caller's service kind, the reply body's digest and its own issuedAt. Each side verifies with the peer's current or previous credential in auth.trustedServices and refuses a signature whose issuedAt lies more than 60 seconds from its own clock. A captured request therefore works nowhere else: its signature names one callee kind, a resend of its messageId returns the recorded reply and its signature is stale after 60 seconds. A request whose signature fails answers 401 and executes nothing, and a reply whose signature fails is unavailable to the caller, which never acts on its body.
 
@@ -9258,7 +9384,7 @@ With Profiles present, members, roles, durable bans, audited moderator reads, me
 
 Every service emits three signals: structured log lines, metrics and spans. All three pass through one telemetry interface in the kernel library, and that interface accepts typed fields only. Redaction is therefore a property of the interface, not of code review. Logs, metrics and spans serve operators; they are not the event trace. No consumer derives statistics, results, points, entitlements or billing from a log line, a metric or a span (see "Integration bus").
 
-Every rule in this section holds in the Minimal profile: Socket, Inspector, Engine and one coordination store, guests only, no optional service. There, log lines go to standard output, metrics are served on a private endpoint and no span is built, because no trace exporter is configured. The subsections "Anonymous traceless mode rules", "Optional services", "Social and Feed signals", "Queue and topic signals", "Service channel and player context signals" and "Simulation encoding and games history signals" state each change that traceless mode or an optional service makes. No other subsection depends on one.
+Every rule in this section holds in the Minimal profile: Socket, Inspector, Engine and one coordination store, guests only, no optional service. There, log lines go to standard output, metrics are served on a private endpoint and no span is built, because no trace exporter is configured. The subsections "Anonymous traceless mode rules", "Optional services", "Social and Feed signals", "Queue and topic signals", "Service channel and player context signals" and "Simulation encoding and games history signals" state each change that traceless mode or an optional service makes, and "A/B testing tool" states what the experiments feature adds once an operator enables it. No other subsection depends on one.
 
 ### 27.1 Signals and destinations
 
@@ -9286,7 +9412,7 @@ flowchart LR
   Tel -->|sampled spans| Exp
 ```
 
-No telemetry call blocks the caller. A log line enters a bounded per-process log queue that a writer drains to standard output. Default log queue: **8192 lines**. When the queue is full, the writer discards debug lines first, then info, then warn; an error line displaces the oldest line of a lower level. Every discarded line is counted in log_lines_dropped_total by level. A simulation worker never performs log I/O itself, so a stalled standard output costs log lines, never a tick.
+No telemetry call blocks the caller. A log line enters a bounded per-process log queue that a writer drains to standard output. Default log queue: **8192 lines**. When the queue is full, the writer discards debug lines first, then info, then warn; an error line displaces the oldest line of a lower level. An experiment-observation line is the one exception: once it entered the queue it is never discarded or displaced. The experiment endpoint refuses an observation instead of accepting it while the queue is above 75% of its bound (see "A/B testing tool"). Every discarded line is counted in log_lines_dropped_total by level. A simulation worker never performs log I/O itself, so a stalled standard output costs log lines, never a tick.
 
 ### 27.2 Log line shape
 
@@ -9297,11 +9423,11 @@ A log line is one closed object. Its human-readable text is the constant text th
 | time | UTC RFC3339 with milliseconds | always |
 | level | debug, info, warn or error | always |
 | event | stable lowercase kebab-case name from the "Log event catalog" | always |
-| class | security, operational or debug | always |
+| class | security, operational or debug; experiment-short, experiment or experiment-long for the experiment lines of "A/B testing tool" | always |
 | service | socket, inspector, engine, profiles, statistics, payment, inventory, recording, social or feed | always |
 | regionId | the region the process serves | always |
 | instance | socketId, engineId + incarnation, or the Inspector process identifier | always |
-| component | the subsystem, such as tick-loop, offload, ownership, adapter, media, relay, handoff, reconciler, saga, module, call or context | always |
+| component | the subsystem, such as tick-loop, offload, ownership, adapter, media, relay, handoff, reconciler, saga, module, call, context or experiments | always |
 | correlationId | the unit of work, see "Correlation in logs and spans" | when the work has one |
 | sessionId, roomId | raw or keyed digest, see "Anonymous traceless mode rules" | when the line is session- or room-scoped |
 | count, windowSeconds | coalesced occurrences and window length | on a coalesced summary line |
@@ -9321,8 +9447,9 @@ The telemetry interface accepts a field only with a declared type. Construction 
 | principal | playerId | security class only, outside traceless mode; the rotating digest in traceless mode |
 | address | client or peer network address | debug level only, outside traceless mode; refused at every level in traceless mode |
 | credential, token, username, email, payload | credentials, tickets, resume tokens, attachment secrets, relay credentials, signing material, content keys and key-encryption keys, chat text, message bodies and invite contents, input and message data, snapshot bytes, media | refused at every level and in every mode |
+| experiment object, experiment pseudonym | object, subjectDigest | only in an experiment-observation line, the object only after the kernel's fixed validator verified it against a definition in effect; refused in every other line |
 
-Payload covers every byte a client or a session object produced: control message data, input payloads, snapshot and delta bytes, media frames, chat text and custom event payloads. A client-supplied correlationId is an untrusted label and is validated as an ID before it is recorded. No other client-supplied string enters a line. Error objects carry codes, never free text, so logging an error never logs its cause's data (see "Identifiers, time, counters and envelopes").
+Payload covers every byte a client or a session object produced: control message data, input payloads, snapshot and delta bytes, media frames, chat text and custom event payloads. A client-supplied correlationId is an untrusted label and is validated as an ID before it is recorded. No other client-supplied string enters a line. The experiment object is the one exception, and only as the verified, identifier-free members of an accepted observation, whose string values are enum tokens of its definition (see "A/B testing tool"). An experiment line refuses every principal, address, username, token and payload field. Error objects carry codes, never free text, so logging an error never logs its cause's data (see "Identifiers, time, counters and envelopes").
 
 The principal type exists for abuse investigation. playerId is an opaque pseudonym, and the security class carries it without username, email or address. No line outside the security class carries playerId at any level; a seat or a viewerIndex identifies a session participant instead. Profiles, Payment and Inventory log profileId only in security-class lines under the same rule. Their audit records belong to AuditRepository and are not log lines (see "Profile, roles, permissions and quotas").
 
@@ -9333,13 +9460,15 @@ The level of a line follows from what happened, never from who asked. Each level
 | Level | Rule | Volume bound |
 | --- | --- | --- |
 | debug | a main program event: a state transition, a decision with its outcome, an I/O call with its duration | off by default; per process through logging.level=debug or per session through the debug flag |
-| info | a fact an operator or player-facing support needs to reconstruct what happened to a process, room or session | scales with lifecycle events, never with messages, inputs, ticks or packets |
+| info | a fact an operator or player-facing support needs to reconstruct what happened to a process, room or session | scales with lifecycle events, never with messages, inputs, ticks or packets; experiment-observation lines alone scale with accepted observations, inside the rate limits of "A/B testing tool" |
 | warn | an absorbed degradation that crossed a numeric threshold while every unit of work still met its contract | coalesced, see "Coalescing" |
 | error | an invariant breach, or a dependency failure beyond its budget, so at least one unit of work failed its contract or the process refuses work | invariant breaches are never coalesced |
 
 A refusal caused by a client's own message is a debug line and a counter, never a warning or an error. Examples are ticket-invalid, rate-limited, message-invalid, payload-too-large and an input dropped as outside-window. A hostile client therefore cannot raise the error rate an operator alerts on. Aggregate thresholds over such refusals may warn; input drops above 1% per minute is one. No level exists above error: a process that cannot continue logs at error and exits with a non-zero code.
 
 A disabled level costs one comparison. The interface checks the level before any field is built, so a disabled debug line allocates nothing and reads no clock. The debug events below therefore stay in the build at no cost to the hot path (see "Performance and memory budgets").
+
+The level filter of logging.level never applies to the experiment classes. While experiments.enabled=true, experiment-observation and experiment-definition lines are emitted at every logging.level, warn and error included, so an accepted observation always yields its one line of "A/B testing tool". Every other info line follows the filter.
 
 Debug covers the main program events of every service. Each of the following emits one debug line: every state transition of sessions, players, groups, leases, connections and attachments; every accepted and dropped input with sequence and tick; every snapshot commit with size and latency; every handoff step; every store procedure call with its duration; every tap batch and every ledger request; every service channel call, on the caller and on the callee, with its operation, peer kind, attempt, outcome and duration; every player context fetch and every progression write; every routing decision in Socket with destination and duration; every refusal with its budget. Debug lines carry only the identifier fields their row of the "Log event catalog" lists, beside positions and measures, and never payload bytes. No debug line is emitted per tick for every session: per-tick timing goes to histograms, not to lines.
 
@@ -9416,7 +9545,7 @@ correlationId is tracing, not authority, and it is never a metric label. Keyed d
 
 Every metric has a fixed name, a fixed unit and a fixed label set declared in the telemetry catalog. Names are lowercase words joined by underscores and end with the unit: seconds, bytes, units, ratio or total. Counters only increase; gauges report a current value; histograms use fixed buckets.
 
-Labels are bounded by construction. Identity labels are region, cluster, engine, game, profile and capacityClass, whose values come from configuration and the module registry. Enum labels are reason, state, transport, lane, medium, queue, topic, binding, group, procedure, operation, projection, kind, level, peer, code, status, part, encoding, form and outcome, whose values come from closed enums of the contracts. No label carries sessionId, roomId, playerId, connectionId, correlationId, an address, a username or any client-supplied string. A label value outside its declared set is recorded as other.
+Labels are bounded by construction. Identity labels are region, cluster, engine, game, profile and capacityClass, whose values come from configuration and the module registry. The experiment and variant labels are identity labels too, whose values come from the experiment definitions in effect and never from a client (see "A/B testing tool"). Enum labels are reason, state, transport, lane, medium, queue, topic, binding, group, procedure, operation, projection, kind, level, peer, code, status, part, encoding, form, source and outcome, whose values come from closed enums of the contracts. No label carries sessionId, roomId, playerId, connectionId, correlationId, an address, a username or any client-supplied string. A label value outside its declared set is recorded as other.
 
 The series count per process has a ceiling. Default ceiling: **10,000 series** per process. A new series beyond it is not created, and metric_series_refused_total counts the refusal. The ceiling is a guard against a catalog error, not a budget a correct catalog approaches.
 
@@ -9480,7 +9609,7 @@ Every request-and-reply call of the placement and service channels reports throu
 | Player context | fetch latency from the first receipt of PlayerJoining or the ticket to the last part; parts by part and state among ready, absent, session-only, pending, incompatible and unavailable; context budget lapses; late parts delivered in a later context host event | the Engine context worker |
 | Progression writes | checkpoints and end writes by outcome, applied, save-refused, session-only, progression-invalid, progression-busy and unavailable; end write retries; progression-lost; requests queued or in flight per session as the largest value across sessions | the Engine context worker |
 
-The peer label takes the service kinds socket, inspector, engine, profiles, statistics, payment, inventory, recording, social and feed. The operation label takes the request types of the service's generated dispatcher, and an undeclared type is recorded as other, as on every label. The status label takes 200, 400, 401, 403, 404, 413, 429, 503 and other. The part label takes progression and inventory. No series carries a messageId, requestId, sessionId, playerId, subjectId, address or path label, so a call's identity appears only in its lines and spans.
+The peer label takes the service kinds socket, inspector, engine, profiles, statistics, payment, inventory, recording, social and feed, and operator for the experiment definition calls of "A/B testing tool". The operation label takes the request types of the service's generated dispatcher, and an undeclared type is recorded as other, as on every label. The status label takes 200, 400, 401, 403, 404, 413, 429, 503 and other. The part label takes progression, inventory and experiments. No series carries a messageId, requestId, sessionId, playerId, subjectId, address or path label, so a call's identity appears only in its lines and spans.
 
 | Level | Event | Fields | When emitted |
 | --- | --- | --- | --- |
@@ -9497,9 +9626,9 @@ The peer label takes the service kinds socket, inspector, engine, profiles, stat
 
 The cause field takes the retry causes of the Retries row, side takes caller and callee, and point takes checkpoint and end. A 400, 403, 404 or 413 refusal before dispatch is a debug call-completed line on both sides and a counter, never a warning, because it names a caller's own defect under the rule of "Log levels". call-signature-refused and call-idempotency-conflict are the only error events of a call. call-signature-refused is of dependency kind and coalesces, so a rotated credential that every caller still lacks raises one line per window while the counter stays exact. call-idempotency-conflict and progression-lost are of invariant kind and are logged every time, as result-lost is. A refusal answered with a code of the operation's closed error set is the operation's outcome, never a call failure, and emits no line beyond call-completed. The ledger-request-completed and ledger-timeout events cover the item ledger requests of the context worker. Every event of the table appears in the "Log event catalog".
 
-No line carries a request or reply body, a principal context, a Call-Signature value, a credential or an address; a principal context is a payload under "Typed fields and redaction". playerId is replaced by the seat, and a call's messageId and requestId are identifier fields at debug only, as keyed digests in traceless mode. In traceless mode the adapter keeps no access log, and its lines carry type, peer kind, duration and code with sessionId and roomId as keyed digests, as "Anonymous traceless mode rules" requires. No progression owner and no Inventory exist there, so every context part is session-only or absent. The Player context row then reports only part states, and the Progression writes row only session-only outcomes.
+No line carries a request or reply body, a principal context, a Call-Signature value, a credential or an address; a principal context is a payload under "Typed fields and redaction". playerId is replaced by the seat, and a call's messageId and requestId are identifier fields at debug only, as keyed digests in traceless mode. In traceless mode the adapter keeps no access log, and its lines carry type, peer kind, duration and code with sessionId and roomId as keyed digests, as "Anonymous traceless mode rules" requires. No progression owner and no Inventory exist there, so every progression and inventory part is session-only or absent. The Player context row then reports only part states, and the Progression writes row only session-only outcomes.
 
-In the Minimal profile the adapter carries only the placement channel's calls between Socket, Inspector and Engine, so the call series exist with the peers socket, inspector and engine only. No context call and no progression write leaves the Engine there: the Player context row reports only part states, the Progression writes row reports only session-only outcomes, context-budget-lapsed is never emitted and progression-lost cannot occur.
+In the Minimal profile the adapter carries only the placement channel's calls between Socket, Inspector and Engine and, with experiments enabled, the Engine's ReadVariants and RecordObservation calls to Socket and the operator's definition calls. The call series therefore exist with the peers socket, inspector and engine only, and operator with experiments enabled. No context call other than the experiments part's ReadVariants and no progression write leaves the Engine there. The Player context row reports only part states and the Progression writes row only session-only outcomes; context-budget-lapsed is emitted only for a pending experiments part and progression-lost cannot occur.
 
 Reference service channel and player context alerts, as starting values: signature refusals above zero; idempotency-conflict answers above zero; a call p99 above 80% of its budget for 5 minutes; 429 refusals above 1% of a callee's requests for 5 minutes; context budget lapses above 5% of admissions for 5 minutes; progression-lost above zero; progression-busy above zero for 10 minutes.
 
@@ -9535,7 +9664,136 @@ The operation label takes ReadHistory, ReadSessionHistory and ReadSessionEvents,
 
 Reference games history alerts, as starting values: lost seals above 1% of sealed records over 1 hour; an erasure past its 24-hour deadline. Without a history owner, in the Minimal profile and in traceless mode included, Socket answers every history route with feature-unavailable without a call and counts it under its refusals by reason, and no history series exists.
 
-### 27.13 Log retention classes
+### 27.13 A/B testing tool
+
+The A/B testing tool is the experiments feature of the kernel library, and Socket hosts it. A client reaches it on its control connection, and a service reaches it on the service channel at the region's internal Socket address (see "Socket" and "Service channel" in "Integration bus"). It adds no service, image, store, extension role or topic, so the optional services stay seven. It has three parts: experiment definitions, a deterministic assignment operation and the experiment endpoint, which verifies a submitted JSON object against its experiment's definition and on success emits exactly one structured log line. Whatever structured logger and log pipeline the installation runs collect those lines, and the installation's own log analysis tools analyze them over a window of days. No component of the core stores, ships, indexes or aggregates an experiment line. The tool is off by default (experiments.enabled=false); once an operator enables it, it works in every profile, the Minimal profile included. An experiment decides nothing: no admission, placement, settlement, entitlement, progression or history operation reads a definition, a variant or an experiment line. The one reader of a variant inside a session is the module, which may use its own players' variants as game input.
+
+An ExperimentDefinition is a closed object of at most 16 KiB encoded.
+
+| Field | Content |
+| --- | --- |
+| experimentId | 1 to 64 characters of lowercase letters, digits and hyphens |
+| revision | a Counter that the definer increments |
+| title | at most 128 characters of operator text that no client reads |
+| salt | 128 random bits in hexadecimal that the definer generates |
+| variants | 2 to 8 entries of a name, lowercase kebab-case of 1 to 32 characters and unique, and a weight, an integer from 0 to 10,000; the weights sum to exactly 10,000, the first variant is the control variant and a variant of weight 0 is reached only through overrides |
+| audience | all, guests or members; all by default |
+| sources | a non-empty subset of client, module and service; client by default |
+| gameId | a game, or none; required when sources holds module |
+| startsAt, endsAt | UTC instants; endsAt after startsAt and at most 90 days later |
+| retentionClass | experiment-short, experiment or experiment-long; experiment by default |
+| schema | the restricted JSON Schema of the next paragraph |
+| overrides | at most 64 entries of a subjectKey and a variant name, for testing |
+| closedAt | the instant of an early close, or none |
+
+The schema is a JSON Schema document of exactly one shape: a root of type object with additionalProperties false, a required list and at most 32 properties. Each property is exactly one of a boolean, an integer with a minimum and a maximum within −(2^53 − 1) and 2^53 − 1, a number with a finite minimum and maximum, or a string with an enum of 1 to 64 values, each a lowercase kebab-case token of at most 64 characters. A description of at most 128 characters may accompany any property, and no other keyword exists. Every string field is therefore an enum, and no field carries free text. Property names are camelCase, 1 to 32 characters and unique.
+
+The definition validator answers definition-invalid with exactly one reason of a closed set. The validate command runs it on configuration definitions and DefineExperiment on registry definitions, so no definition with an identifier field enters effect.
+
+| Reason | Refused definition |
+| --- | --- |
+| schema-unsupported | any other keyword or type: format, pattern, $ref, a composition keyword, a nested object, an array or null |
+| field-identifier | a property whose name, split at its camelCase boundaries, holds a word of the identifier list |
+| field-name-invalid, enum-invalid, range-invalid | a property name, an enum or a range outside the shape rules |
+| weights-invalid, variants-invalid | weights that do not sum to exactly 10,000; a variant list outside 2 to 8 entries or with a malformed or repeated name |
+| window-invalid | endsAt not after startsAt or more than 90 days later; a new registry definition whose startsAt lies less than 10 seconds after the current time |
+| salt-invalid, source-invalid, class-unknown, size-exceeded | a malformed salt; empty sources, or module without a gameId; an unknown retention class; a definition above 16 KiB |
+
+The identifier list is a contracts constant that every validator shares: id, ids, uuid, guid, email, mail, phone, name, username, user, player, profile, account, address, ip, device, token, secret, password, location, latitude and longitude. The rules refuse every field whose name or type declares an identifier. A definer who encodes an identifier into a numeric range defeats them; the specification states that limit and does not hide it.
+
+Definitions come from two sources in every profile, and each Socket instance merges them. The experiments configuration group holds definitions as one JSON document, inline or at a path, which every Socket instance reads at start and the validate command checks. A configuration definition is installation-wide, read-only at run time and changed only by a rollout, and the validate command warns about one whose endsAt lies more than 7 days in the past. The registry is the key {experiments:G} of each region's coordination store: one field per experimentId and a rev field, written only by Socket through the procedures experiment_define, experiment_close and experiment_restore. experiment_define accepts a higher revision, or an equal revision with an equal body, under the lifetime rules below. experiment_close sets endsAt and closedAt to the current time, and experiment_restore creates each absent field at its stored revision. A field lives until endsAt + 7 days, or closedAt + 7 days after an early close, and the key until its latest field, so every registry key carries a positive expiry. At most 64 definitions are in effect per region, configuration and registry together, and an experimentId that configuration defines answers experiment-exists in the registry.
+
+| Operation on Socket's call listener | Reply | Closed error set |
+| --- | --- | --- |
+| DefineExperiment(definition) | revision | definition-invalid, stale-revision, definition-immutable, experiments-full, experiment-exists, forbidden, feature-unavailable, retryable-unavailable |
+| CloseExperiment(experimentId, revision) | ok | experiment-unknown, stale-revision, forbidden, feature-unavailable, retryable-unavailable |
+| ReadExperiments(page) | at most 64 definitions, without salt and with the override count instead of the overrides | forbidden, feature-unavailable, retryable-unavailable |
+
+Two callers may define. The operator's tooling holds the operator credential, a service credential of kind operator in the trusted-services configuration that authorizes these three operations and nothing else, and it defines in every profile. Profiles defines for an admin. Its DefineExperiment, CloseExperiment and ListExperiments routes answer only the admin role; they append an AuditRecord in the unit of work that enqueues the calls in its outbox and relay them with its service credential (see "Profile, roles, permissions and quotas"). A moderator, a member, a guest and every other caller receive forbidden. Keyspaces have no cross-region access, so the definer calls the internal Socket address of every region with the same definition and revision and retries a region until it acknowledges. A definition is in effect in a region from that region's acknowledgement, never earlier.
+
+An experiment's state follows from its times on the Socket instance's clock: scheduled before startsAt, running from startsAt until endsAt, closed from then on, and removed when its field expires or its configuration entry is removed. A closed experiment never reopens. Before startsAt a revision may change every field except experimentId. From startsAt the salt, variants, weights, audience, sources, gameId, retentionClass and schema never change. A revision may then only move endsAt, within 90 days of startsAt and never before the current time, change the overrides or change the title. Anything else answers definition-immutable, so a changed schema is a new experiment. Every Socket instance reads the rev field every 10 seconds and loads the hash only when rev moved. It keeps its last copy through a store outage and, when it finds the key absent after an ephemeral store restart while its copy holds live definitions, writes them back with experiment_restore. An experimentId may be reused after its field expired, with a new salt and a later startsAt, and an analysis separates the two by its window.
+
+AssignVariant(definition, subjectKey) → variant and overridden, or not-enrolled, is a pure function. subjectKey is a member's profileId or a guest's playerId, never a connectionId, an address or a device identifier. A subject outside the audience is not-enrolled, and an override entry for the subject answers its variant with overridden=true. Otherwise b is the first 64 bits, read as an unsigned big-endian integer, of a keyed cryptographic hash under the salt over the bytes of "assign", 0x00, experimentId, 0x00 and subjectKey. bucket is b mod 10,000, and the variant is the first in declared order whose cumulative weight exceeds bucket. The contracts carry conformance vectors of the hash and the bucket per salt, experimentId and subjectKey, so every process in every region computes the same variant (see "Conformance vectors" in "Contracts and code generation"). No assignment is ever stored. Every input is immutable from startsAt, so a subject keeps its variant for the experiment's life. A change of the overrides moves only the overridden subjects. A guest that becomes a member is a new subject, because GuestClaimed carries no experiment, and so is a guest whose credential expired and who holds a new playerId.
+
+ReadVariants(experimentIds or none, subjectId or none, gameId or none) answers per experiment its state: running with the variant, overridden and endsAt, or scheduled, closed, not-enrolled or unknown. It takes at most 16 ids and answers message-invalid beyond. A client reads for the principal of its connection and only experiments whose sources hold client, and none lists every such running experiment whose audience admits the principal, at most 64. The Engine reads for a subjectId and a gameId, and only experiments whose sources hold module and whose gameId matches. No reply reveals a salt, a weight or another subject's variant. The closed error set of ReadVariants is unauthenticated, forbidden, feature-unavailable, message-invalid, rate-limited and retryable-unavailable.
+
+The experiment endpoint is RecordObservation(experimentId, object, subjectId or none, gameId or none, sessionId or none, ownerEpoch and tick or none) → observationId and variant. A client calls it on an authenticated control connection, and Socket answers it itself without a relay, with the subject taken from the connection's principal. A client that names a subjectId receives forbidden. A service calls it on the service channel at the region's internal Socket address with its service credential and names the subject. The Engine's context worker submits for a player of a session it holds, with source module, and an optional service submits for a principal it serves, with source service; the operator credential cannot submit. The object is an ExperimentObject, a map of at most 32 members whose values are JSON booleans, numbers or strings of at most 64 characters. The generated codec decodes it in one pass and refuses nesting, arrays, null and duplicate members with message-invalid. The check against the definition is the kernel's validator over the vocabulary above, a fixed check and never a general schema engine. Socket checks in the order below, answers the first failure with its code and emits no experiment-observation line for it.
+
+| Step | Check | Code on failure |
+| --- | --- | --- |
+| 1. Access | the connection is authenticated; the caller may submit with or without subjectId as above; experiments are enabled | unauthenticated; forbidden; feature-unavailable |
+| 2. Size | the object's encoded bytes are at most 2 KiB, checked before the object is decoded | object-too-large |
+| 3. Experiment | a definition is in effect in the region and running | experiment-unknown; experiment-scheduled, experiment-closed |
+| 4. Source | the definition's sources hold the caller's source, and a module source names the definition's gameId | forbidden |
+| 5. Enrollment | the subject lies inside the audience | not-enrolled |
+| 6. Rate | the rate limits below admit the call | rate-limited, with a retry hint |
+| 7. Fields | every member is a declared field; every required field is present; every value has its field's type, lies inside its range or enum and is finite | field-unknown; field-missing; field-invalid |
+| 8. Headroom | the process log queue is at most 75% full | retryable-unavailable, with a retry hint of 1 second |
+
+A field error names the field, the member name of a field-unknown included, and only the submitter receives it. On success Socket computes the variant through AssignVariant, emits the line and answers observationId and variant. The variant is never read from the submission, so an object member named variant is an ordinary declared field or field-unknown. The closed error set of RecordObservation is unauthenticated, forbidden, feature-unavailable, object-too-large, experiment-unknown, experiment-scheduled, experiment-closed, not-enrolled, rate-limited, field-unknown, field-missing, field-invalid, message-invalid and retryable-unavailable. observationId is the request's messageId for a client and a service. For a module it is the first 128 bits of a cryptographic hash over sessionId + experimentId + playerId + tick + the index of the Observe call among that player's calls for that experiment in the tick, so an adopter that re-simulates a tick re-issues the same identity. RecordObservation names its own duplicate basis (see "Service channel" in "Integration bus"). Socket keeps no idempotency record, and a retry may emit a second line with the same observationId. Every analysis counts distinct observationIds and keeps, for a module record, the one with the highest ownerEpoch.
+
+Socket counts the rate limits in memory, never in a store. A refused call costs one counter update and nothing else, and no limit is enforced by truncation or silent drop.
+
+| Bound | Default | Beyond it |
+| --- | --- | --- |
+| RecordObservation per connection | 60 per minute with a burst of 10, inside the 20 control messages per second of "Per-session and per-player limits" | rate-limited with a retry hint |
+| ReadVariants per connection | 6 per minute | rate-limited with a retry hint |
+| Client observations per principal | at most 120 per minute, over the 2 concurrent connections a principal holds | follows from the per-connection limit |
+| Service channel calls | 1000 per second per Socket instance and caller service kind, inside the in-flight bounds of "Service channel and player context budgets" | rate-limited with a retry hint; 429 at the in-flight bound |
+| Module Observe | 10 submissions per second per session; 64 queued in the context worker | dropped and counted |
+| Object; line | 2 KiB encoded; 4 KiB per experiment-observation line | object-too-large; never truncated |
+| Log queue headroom | 75% of the per-process log queue, 6144 of the default 8192 lines | retryable-unavailable with a retry hint of 1 second |
+| Call budgets | 2 seconds for RecordObservation; ReadVariants inside the 2-second context budget; 5 seconds for DefineExperiment and CloseExperiment | unavailable under the rules of "Service channel" |
+| Registry | 64 definitions in effect per region; 64 overrides per definition; a refresh every 10 seconds | experiments-full; definition-invalid |
+
+An accepted observation yields exactly one line at info, event experiment-observation, in the class of its definition's retentionClass. It carries the common fields of "Log line shape": time, the acceptance instant on the Socket instance's clock in UTC with milliseconds; service socket; regionId; instance, the socketId; component experiments; correlationId. The event fields follow, as the table states per mode. The object holds the verified members in the schema's field order, integers exact and numbers as the shortest decimal that reads back to the same value.
+
+| Field | Mode standard | experiments.subjectPolicy=none | Traceless mode with privacy.experimentsAllowed=true |
+| --- | --- | --- | --- |
+| experimentId, experimentRevision, variant, overridden, source, observationId, object | present | present | present |
+| callerKind | for a service source | for a service source | for a service source |
+| subjectKind, subjectDigest | present | absent | absent |
+| gameId, ownerEpoch, tick | for a module source | for a module source | for a module source |
+| sessionId | for a module source, raw | for a module source, raw | for a module source, only as the keyed digest of "Anonymous traceless mode rules" |
+
+subjectKind is guest or member. subjectDigest is the first 64 bits in hexadecimal of a keyed cryptographic hash under the salt over the bytes of "subject", 0x00, experimentId, 0x00 and subjectKey. It is a per-experiment pseudonym that links neither to the playerId nor across experiments without the salt, and it becomes unlinkable once the definition and its salt expire. No experiment line carries a playerId, a profileId, a username, an address, a connectionId, a credential, a salt or a free-text string in any mode. Beside the observations every Socket instance emits experiment-definition at info in the definition's class at start, on every revision it loads and every 24 hours for each definition in effect. That line carries the definition without its salt or override subjects, with the override count and the state, so an analysis of the logs needs no access to the registry. Every registry write also yields one experiment-defined line in the security class with the caller kind, the experimentId and the revision.
+
+The lines are ordinary lines on standard output, one JSON object per line. The orchestrator's capture of standard output, or any log shipper the operator runs, collects them and routes them by class to a log store that applies the class retention of "Log retention classes". The tool adds no log store, shipper, topic or sink fact for them, and no component writes them to a file, a repository or the analytics store. Accepted means that the line entered the process log queue, from which an experiment-observation line is never dropped. The headroom check refuses instead of accepting while the queue is above 75% of its bound. A process crash loses at most its queued lines, which an analysis sees as missing observations, never as altered ones. Delivery beyond standard output carries the guarantees of the operator's pipeline, not of the core.
+
+An analysis covers a window of 1 to 90 days, 7 days by default, that ends at the current time, intersected with the experiment's startsAt to endsAt and never longer than its class retention. Three internal log analysis tools read the lines and nothing else:
+1. The operator's log store query: lines of event experiment-observation for one experimentId in the window, grouped by variant, which any structured log store answers.
+2. The experiments report command of the operator tooling, shipped in every reference image. It reads experiment lines as JSON lines from a file or standard input, normally an export of that query, and takes the definition from the newest experiment-definition line or from a definition file. It keeps one record per observationId and excludes overridden records. Per variant it reports the records, the distinct subjects when subjectDigest is present, for each numeric field the count, mean, standard deviation, minimum and maximum, for each boolean field the true ratio and for each enum field the count per value. It computes these per subject first when digests are present and per record otherwise. Against the control variant it reports for each variant the difference of means with a two-sided 95% Welch interval and the difference of ratios with a two-sided 95% normal interval. A sample-ratio check of subjects, or of records without digests, against the weights by a chi-square test flags srm below p = 0.001. The command prints a JSON report and a table, and conformance vectors fix its output for a committed line set.
+3. With Statistics declared and statistics.experimentIngest=true, the operator's pipeline also delivers the experiment classes into the experiment observations table that the events library's migrations create in the analytics store. The table is partitioned by day, has a time-to-live equal to the class retention and is deduplicated by observationId at merge. The pipeline is its only writer, and Statistics reads it only through the named report experiment-summary of RunReport, which computes what the experiments report command computes (see "Analytics reports" in "Statistics service").
+
+Reports are an operator and admin surface: no client and no session object reads one, and no figure of a report feeds a result, a point, an entitlement, a settlement or a bill. Without Statistics, and always in traceless mode, the log store query and the experiments report command are the analysis.
+
+A module reads and logs only the experiments its GameProfile.experiments lists, at most 8. At the admission of a seat holder of such a game the Engine's context worker calls ReadVariants for the player and the game as the experiments part of the player context bundle (see "Player context and progression" in "Engine runtime"). The call runs in parallel with the other parts and under the same 2-second budget. The module reads Variant(player, experimentId) → variant or none and logs through Observe(player, experimentId, object), a command that the host records and the context worker submits after the tick boundary as RecordObservation with source module. No outcome reaches the module: refusals are counted per game and code and logged at warn, coalesced. Nothing on the tick path waits for the service channel, and the simulation worker records no experiment signal. A client runner discards Observe and answers Variant from the context records of its replay stream. Restore voids every observation not yet submitted.
+
+In traceless mode the start-time gate refuses experiments.enabled=true unless privacy.experimentsAllowed=true is also set, which prints a warning at start, and the traceless preset keeps experiments.enabled=false. With both set, lines carry no subject field and no digest of one, and an analysis counts records instead of subjects. The registry is then a key of the ephemeral store with an expiry, and the overrides hold guest playerIds only inside that key (see "Anonymous traceless mode"). In the Minimal profile the whole tool runs once an operator enables it: definitions from configuration or from the registry in its one store, written by the operator's tooling; lines on standard output; analysis through the log store query and the experiments report command. With experiments.enabled=false every experiment operation answers feature-unavailable, no registry key exists, no context bundle calls ReadVariants and no experiment series or line exists.
+
+| Concern | Metrics | Reported by |
+| --- | --- | --- |
+| Observations | experiment_observations_total by experiment, variant and source | Socket |
+| Refusals | experiment_rejections_total by experiment and code; experiment_rate_limited_total by source; experiment_records_refused_total for the headroom check | Socket |
+| Registry | experiment_definitions by state; experiment_registry_age_seconds; experiment_registry_writes_total by operation and outcome | Socket |
+| Module path | experiment_module_observations_total by game and outcome, submitted, dropped or refused, and by code for outcome refused; the experiments part in the player context series of "Service channel and player context signals" | the Engine context worker |
+
+experiment and variant are identity labels whose values come from the definitions in effect, at most 64 and 8, and no label names a subject, an observationId or a client-supplied string. The state label takes scheduled, running and closed, the source label client, module and service, and the code label the closed error set of RecordObservation.
+
+| Level | Event | Fields | When emitted |
+| --- | --- | --- | --- |
+| debug | experiment-submission | experimentId, source, outcome, code | every accepted or refused RecordObservation, never with its object |
+| info | experiment-observation | the fields of the record table | an observation was accepted |
+| info | experiment-definition | experimentId, experimentRevision, state, the definition without salt or override subjects, override count | at start, on every loaded revision and every 24 hours per definition in effect |
+| info | experiment-defined | callerKind, experimentId, experimentRevision | a registry write of DefineExperiment, CloseExperiment or experiment_restore, in the security class |
+| warn | experiment-refused | experimentId, code | refusals of one experiment and code, coalesced |
+| warn | experiment-module-dropped | game, dropped | Observe submissions dropped beyond 10 per second or 64 queued, coalesced |
+| error | experiment-definition-invalid | experimentId, reason | a configuration definition failed validation at start, which also fails the start |
+| error | experiment-restore-failed | experimentId | experiment_restore failed after a lost registry key |
+
+A refusal caused by a submitter's own object or rate is a debug line and a counter under "Log levels", never a warning or an error by itself. Reference experiment alerts, as starting values: an experiment's rejections above 20% of its submissions for 10 minutes, the signal of a client build out of step with its definition; refused records above zero for 5 minutes; registry age above 60 seconds; module drops above 1% of Observe calls for 10 minutes. Every event of the table appears in the "Log event catalog".
+
+### 27.14 Log retention classes
 
 Every line carries its retention class, so the operator's capture routes lines by class without parsing events. The configuration schema documents each class with its default, and the reference manifests apply the defaults to their log capture.
 
@@ -9544,28 +9802,31 @@ Every line carries its retention class, so the operator's capture routes lines b
 | security | refusals, bans, sanctions, credential and key events, rate-limit closes; principal as playerId or digest | 6 to 12 months, pseudonymized identifiers only |
 | operational | info, warn and error lines outside the security class | 30 days |
 | debug | every debug line and the replay file | hours, at most 24 hours |
+| experiment-short | experiment-observation and experiment-definition lines of definitions whose retentionClass is experiment-short | 7 days, configurable from 1 to 90 days |
+| experiment | the same lines of definitions whose retentionClass is experiment, the default class | 30 days, configurable from 1 to 90 days |
+| experiment-long | the same lines of definitions whose retentionClass is experiment-long | 90 days, configurable from 1 to 90 days |
 
-Retention is enforced by the operator's capture, not by the core, which keeps no log. The orchestrator's capture of standard output is documented as the operator's retention surface. A longer retention than the defaults is an operator decision recorded in the deployment's configuration, never a property of the code.
+The experiment classes are the one log input from which an analysis derives figures, and those figures are experiment statistics only (see "A/B testing tool"). Retention is enforced by the operator's capture, not by the core, which keeps no log. The orchestrator's capture of standard output is documented as the operator's retention surface. A longer retention than the defaults is an operator decision recorded in the deployment's configuration, never a property of the code.
 
-### 27.14 Reference alerts
+### 27.15 Reference alerts
 
-Reference alerts, as starting values: lease slack below 3 seconds; stale-epoch rejections above zero; orphaned sessions above zero for 60 seconds; tick p99 above 80% of the period; store error rate above 1%; offload queue age above 10 seconds; sink gap; relay share above its cap; forced migrations above zero; result-lost above zero; bound sessions above zero for 60 seconds; move aborts above 10% over 10 minutes; move ping-pong above zero; the queue and topic alerts of "Queue and topic signals"; the service channel and player context alerts of "Service channel and player context signals"; the games history alerts of "Simulation encoding and games history signals". Alert on these metrics, not on log line counts. A log line is evidence for an alert, not its source, because coalescing and queue drops make line counts inexact.
+Reference alerts, as starting values: lease slack below 3 seconds; stale-epoch rejections above zero; orphaned sessions above zero for 60 seconds; tick p99 above 80% of the period; store error rate above 1%; offload queue age above 10 seconds; sink gap; relay share above its cap; forced migrations above zero; result-lost above zero; bound sessions above zero for 60 seconds; move aborts above 10% over 10 minutes; move ping-pong above zero; the queue and topic alerts of "Queue and topic signals"; the service channel and player context alerts of "Service channel and player context signals"; the games history alerts of "Simulation encoding and games history signals"; the experiment alerts of "A/B testing tool". Alert on these metrics, not on log line counts. A log line is evidence for an alert, not its source, because coalescing and queue drops make line counts inexact.
 
-### 27.15 Anonymous traceless mode rules
+### 27.16 Anonymous traceless mode rules
 
 In traceless mode the telemetry interface applies the identifier policy of "Anonymous traceless mode". At every level, sessionId and roomId appear only as 64-bit keyed digests under a per-process key rotated every 24 hours and held only in memory. playerId, username, address, token and payload never appear at any level; the principal type yields the same rotating digest in security-class lines. correlationId stays, because it is random per unit of work and names no person.
 
-In traceless mode start is refused when debug logging or a per-session debug flag is configured without privacy.debugAllowed=true; with it, a warning prints at start. With that setting, debug lines carry sessionId and roomId as the same keyed digests and still never carry playerId, address, token or payload. Spans sample at 0% by default; a configured non-zero rate yields spans with the same digests as info lines. Identity labels on metrics are limited to region, engine, game and capacityClass; enum labels stay, because a closed enum value names no entity. Queue and topic series carry the topic, region and engine labels only. A dead-lettered message is logged with its type, a keyed digest of its messageId and its cause, never with its payload or an identifier. A service channel call is logged with its type, peer kind, duration and code, never with its body, its principal context or an address, and the RPC adapter keeps no access log.
+In traceless mode start is refused when debug logging or a per-session debug flag is configured without privacy.debugAllowed=true; with it, a warning prints at start. With that setting, debug lines carry sessionId and roomId as the same keyed digests and still never carry playerId, address, token or payload. Spans sample at 0% by default; a configured non-zero rate yields spans with the same digests as info lines. Identity labels on metrics are limited to region, engine, game and capacityClass, plus experiment and variant while privacy.experimentsAllowed=true admits the experiments feature. Enum labels stay, because a closed enum value names no entity. Queue and topic series carry the topic, region and engine labels only. A dead-lettered message is logged with its type, a keyed digest of its messageId and its cause, never with its payload or an identifier. A service channel call is logged with its type, peer kind, duration and code, never with its body, its principal context or an address, and the RPC adapter keeps no access log.
 
 The start-time gate refuses a log sink above debug configured with identifier fields, debug logging without privacy.debugAllowed=true and any configured logging.debugPath. In the Minimal profile without traceless mode the same identifier types apply, sessionId and roomId stay raw, and the per-session debug flag may write a replay file to a configured path. Both mode values share one logging contract with two identifier policies.
 
-### 27.16 Optional services
+### 27.17 Optional services
 
 Each optional service logs, counts and traces through the same interface, under the same levels and the same refused field types. Profiles never logs an email or a personal field at any level. Payment never logs a provider payload, a webhook secret or a payment detail; it logs the provider event identifier as an identifier field. Recording never logs a segment key containing an identifier above debug.
 
 With Statistics present, the event trace of a session exists in the analytics store and stays separate from logs. Misprediction and desync rates reach it as session events through the tap, while the same rates remain process metrics. With Recording present, the Engine adds spool usage, segment upload latency and recording-spool-full counts. With any event-sink consumer declared, the tap flusher adds batch latency, ring displacements and gap counts. With Inventory or a progression owner declared, the Engine context worker adds the context and progression series of "Service channel and player context signals". Every optional service adds the call series of its own calls there. As history owner, Statistics or Profiles adds the games history series of "Simulation encoding and games history signals". None of these services changes a level rule, a label rule or a redaction rule. Social and Feed follow "Social and Feed signals".
 
-### 27.17 Social and Feed signals
+### 27.18 Social and Feed signals
 
 Social and Feed log, count and trace through the same interface, under the same levels, coalescing and refused field types. Neither exists in the Minimal profile, and in traceless mode the start-time gate refuses both. No event, series or span of this subsection exists there, and the rules of "Anonymous traceless mode rules" need no exception for them. Their lines carry service social or feed. Social's components are operations, presence, delivery, journal-writer, retention and erasure; Feed's are intake, fan-out, delivery, sweeper and erasure.
 
@@ -9621,7 +9882,7 @@ Social adds a span per journal batch, covering its push to the host and its inde
 
 Reference alerts with Social declared, as starting values: journal-history-diverged above zero; journal-gap-appended above zero; mirror lag above 60 seconds; append acknowledgement p99 above 250 ms over 5 minutes; journal-busy refusals above 1% of appends per minute; an erasure not completed 24 hours after ProfileErased. With Feed declared: feed-gap above zero; feed-fanout-expired above zero; oldest pending fan-out job above 5 minutes; feed consumer lag above 5 minutes, half the sink horizon.
 
-### 27.18 Conformance
+### 27.19 Conformance
 
 1. No log line at any level contains a credential, ticket, resume token, attachment secret, relay credential, username, email or payload byte in a scripted session that exercises every message kind.
 2. Constructing a log field of a refused type emits no line and increments log_fields_refused_total.
@@ -9629,7 +9890,7 @@ Reference alerts with Social declared, as starting values: journal-history-diver
 4. A line emitted for work started by a client message carries that message's correlationId in Socket, Inspector and Engine.
 5. A session-scoped line from the tick loop carries the correlationId of the PlaceSession that gave the current owner the session.
 6. A client refusal with ticket-invalid, rate-limited, message-invalid or outside-window produces no warn or error line.
-7. With logging.level=info, a 600-tick session with 16 players emits no debug line and a number of info lines independent of the tick count.
+7. With logging.level=info, a 600-tick session with 16 players emits no debug line and a number of info lines independent of the tick count, experiment-observation lines of accepted observations aside.
 8. With logging.level=debug, every session state transition and every dropped input of a scripted session appears as one debug line with sequence and tick.
 9. A store outage of 60 seconds produces at most one dependency line per coalescing key per 10 seconds, each summary carrying count and windowSeconds.
 10. Two stale-epoch rejections within one second produce two error lines.
@@ -9648,8 +9909,8 @@ Reference alerts with Social declared, as starting values: journal-history-diver
 23. In traceless mode, no line at any level contains a raw sessionId or roomId, debug lines under privacy.debugAllowed=true included, and the digest of one sessionId changes after the 24-hour key rotation.
 24. In traceless mode, no line at any level contains an address, including debug lines under privacy.debugAllowed=true.
 25. In traceless mode, start is refused when logging.debugPath is configured, and when debug logging is enabled without privacy.debugAllowed=true.
-26. In traceless mode, the default trace sampling rate is 0% and metric identity labels are limited to region, engine, game and capacityClass.
-27. Every line carries a class of security, operational or debug, and playerId appears only in security-class lines outside traceless mode.
+26. In traceless mode, the default trace sampling rate is 0% and metric identity labels are limited to region, engine, game and capacityClass, plus experiment and variant only with privacy.experimentsAllowed=true and experiments enabled.
+27. Every line carries a class of security, operational or debug, or an experiment class of "A/B testing tool" on an experiment-observation or experiment-definition line, and playerId appears only in security-class lines outside traceless mode.
 28. A warn line carries its threshold and its measured value as fields.
 29. With Social and Feed declared, no line at any level contains a message body, an invite content, a content key or a key-encryption key, and no line at info or above contains a raw profileId, conversationId, inviteId, pairKey or itemId, in a scripted run that exercises every Social and Feed operation.
 30. A SendMessage refused with rate-limited produces one social-operation-refused line at debug and a counter increment and no warn or error line, and 1000 appends refused with journal-busy on one shard within one coalescing window produce one journal-busy line at warn and no error line.
@@ -9672,7 +9933,7 @@ Reference alerts with Social declared, as starting values: journal-history-diver
 47. A callee at its in-flight bound counts each 429 refusal, and the reference alert rules fire on a signature refusal, an idempotency-conflict answer, a call p99 above 80% of its budget for 5 minutes and context budget lapses above 5% of admissions for 5 minutes.
 48. With the progression owner and Inventory unreachable, every admission of a 16-player session counts one context budget lapse and produces one context-budget-lapsed line under coalescing, and each end write undelivered past the 10-minute final-state retention produces one progression-lost line at error and one counter increment.
 49. A write applied with its save part refused produces one progression-save-refused line at warn and one save refusal increment, and every checkpoint and end write is counted once under its outcome however many attempts it took.
-50. In the Minimal profile only the peers socket, inspector and engine appear on call series, and in the Minimal profile and in traceless mode no context call, context-budget-lapsed line or progression-lost line exists and every progression write outcome reads session-only.
+50. In the Minimal profile only the peers socket, inspector and engine appear on call series, operator aside with experiments enabled, and in the Minimal profile and in traceless mode no context call other than the experiments part's ReadVariants, no context-budget-lapsed line other than for a pending experiments part and no progression-lost line exists and every progression write outcome reads session-only.
 51. A blocked trace exporter or a blocked standard output delays no call beyond its budget and no tick, and no call, context or progression signal is recorded on a simulation worker.
 52. Every session of a scripted run with a binary and a JSON game counts once on the sessions-by-encoding gauge under its encoding, every attachment under its form, and a client whose schemaHash differs under binary under form map.
 53. A JoinRoom refused with encoding-unsupported increments Inspector's refusal counter for its encoding, and an Attach closed with encoding-unsupported produces one attach-refused line at debug with its code and one counter increment; neither produces a warn or error line.
@@ -9683,6 +9944,22 @@ Reference alerts with Social declared, as starting values: journal-history-diver
 58. A moderator's history read is counted as audited once its AuditRecord commits, a friend read while Social is unreachable is counted under retryable-unavailable, and an erasure not completed 24 hours after ProfileErased fires the reference alert.
 59. With Profiles declared and Statistics not declared, an insert beyond history.summaryEntries counts one dropped summary entry, and no construction, sealing or bounds series exists.
 60. In the Minimal profile and in traceless mode no history series exists and every history route is counted among Socket's refusals as feature-unavailable without a call, while the encoding series exist with the identity labels of "Anonymous traceless mode rules".
+61. The validate command and DefineExperiment refuse with definition-invalid and the matching reason a definition with a field named playerId, userName or deviceToken, a format, pattern or $ref keyword, a nested object, an array, a string field without an enum, weights summing to 9999 or a window above 90 days, and none of them enters effect or emits an experiment-definition line.
+62. AssignVariant reproduces the contracts vectors in every Socket instance of two regions, 100,000 subjects of a 50/30/20 experiment fall within 1 percentage point of the weights, and a subject keeps its variant across 1000 calls, a Socket restart, an ephemeral store restart and revisions that change only endsAt, the title or another subject's override.
+63. After startsAt a revision that changes the salt, a variant, a weight, the audience, the sources, the gameId, the retentionClass or the schema answers definition-immutable, before startsAt it applies, and an override yields its variant with overridden=true and changes no other subject's variant.
+64. A valid client observation yields exactly one experiment-observation line at info with the common fields, component experiments, the class of the definition's retentionClass, the variant AssignVariant gives for the connection's principal and the object in schema field order, and the reply carries the same observationId and variant.
+65. An unknown, a scheduled and a closed experiment, a source the definition does not admit, a subject outside the audience, an unknown member, a missing required member, an out-of-range integer, a value outside an enum, a nested value, an object above 2 KiB and an unauthenticated connection each answer their code with one experiment-submission line at debug, at most one coalesced experiment-refused line at warn per experiment, code and window, and no error or experiment-observation line, and a client naming a subjectId answers forbidden while an object member named variant never changes the line's variant.
+66. The 11th observation inside a connection's burst and the 61st inside a minute answer rate-limited with a retry hint, two connections of one principal together pass at most 120 in a minute, and the counters touch no store.
+67. With the log queue held above 75% of its bound the endpoint answers retryable-unavailable with a retry hint of 1 second, emits no experiment-observation line and increments experiment_records_refused_total, and a burst of error lines displaces no accepted experiment-observation line.
+68. A client retry with one messageId yields at most two lines with one observationId, and the experiments report command counts one; a session adopted from an older snapshot re-issues the observationIds of the re-simulated ticks, and the experiments report command keeps the record with the highest ownerEpoch.
+69. In mode standard a line carries subjectKind and subjectDigest and never a playerId, profileId, username, address, connectionId, credential, salt or free-text string; with experiments.subjectPolicy=none it carries neither subject field; and no line other than experiment-observation accepts an experiment object or a subjectDigest field.
+70. Every Socket instance emits experiment-definition per definition in effect at start, on every loaded revision and every 24 hours, without the salt or override subjects, and every registry write yields one experiment-defined line in the security class.
+71. The experiments report command fed the committed line set prints the committed report byte for byte, including the deduplicated counts, the distinct subjects, the per-field statistics, the intervals and an srm flag for a 52/48 split of a 50/50 experiment over 100,000 subjects.
+72. Each experiment class carries its default retention of 7, 30 or 90 days in the configuration schema, a value outside 1 to 90 days is refused, and with Statistics declared and statistics.experimentIngest=true experiment-summary over the same lines delivered twice answers the figures of the experiments report command.
+73. No experiment series carries a subject, observationId, playerId, sessionId or client-supplied label, experiment and variant take only values of the definitions in effect, and the reference alert rules fire on rejections above 20% of an experiment's submissions for 10 minutes, refused records above zero for 5 minutes, registry age above 60 seconds and module drops above 1% of Observe calls for 10 minutes.
+74. A 60 Hz session of 16 players calling Observe on every tick keeps its p99 tick below 80% of the period while Socket is unreachable, drops beyond 10 per second and 64 queued under experiment_module_observations_total with outcome dropped, and records no experiment signal on the simulation worker.
+75. With experiments.enabled=false every experiment operation answers feature-unavailable, no registry key, experiment line or experiment series exists and no context bundle calls ReadVariants.
+76. In traceless mode start with experiments.enabled=true fails without privacy.experimentsAllowed=true, and with it no line carries a subject field, a digest of a subject, a playerId, an address or a token and sessionId appears only as the keyed digest of "Anonymous traceless mode rules"; the Minimal profile passes items 61 to 71 and 73 to 75 with no process beyond Socket, Inspector, Engine and the store.
 
 ## 28. Performance and memory budgets
 
@@ -9920,7 +10197,7 @@ Every call of the placement and service channels runs on a worker that holds its
 
 Costs per unit of work are starting values for the load test. An admission of a seat holder with a progression owner and Inventory declared costs two calls in parallel and one context host event. A rejoin inside the resume window, a spectator and an observer cost none. A checkpoint costs one call, an end of a session one call per tenure it still holds after Inspector accepted ReportSessionEnded, and a session that ends faulted or failed costs none. An applied write costs the owner one unit of work holding its tenure table entry and its idempotency record. The context worker's memory is bounded by its 64 requests in flight per session and its pending end writes, each holding one cumulative update within the progression schema's bounds. Each is released at its applied outcome or at progression-lost.
 
-In the Minimal profile and in traceless mode the context worker issues no call: it delivers the progression part as session-only with the declared initial values and the inventory part as absent at the admitting tick boundary, answers SaveProgress with session-only and discards the end updates with the session. The only calls are the placement channel's, under the same timeout, retry, size and in-flight budgets.
+In the Minimal profile and in traceless mode the context worker issues no progression or inventory call: it delivers the progression part as session-only with the declared initial values and the inventory part as absent at the admitting tick boundary, answers SaveProgress with session-only and discards the end updates with the session. The only calls are the placement channel's and, with experiments enabled (in traceless mode only with privacy.experimentsAllowed=true), ReadVariants and RecordObservation on Socket, under the same timeout, retry, size and in-flight budgets.
 
 ### 28.14 Optional services and the Minimal profile
 
@@ -10017,7 +10294,7 @@ Every Social and Feed table in process memory loses its entry at its push, at it
 45. Ten checkpoints of one tenure issued within one call's duration send at most two writes, each cumulative, and the session never queues more than one write per tenure.
 46. A session ending with 1025 tenures sends 1024 end writes and logs the last as progression-invalid at error, and an end write unanswered for the 10-minute final-state retention is logged as progression-lost and releases its memory.
 47. After 1000 session lifecycles with a progression owner and Inventory declared, context worker requests in flight, pending end progression writes and service channel calls in flight return to their baselines once the final-state retention has passed.
-48. In the Minimal profile and in traceless mode the context worker issues no call, delivers the progression part as session-only and the inventory part as absent at the admitting tick boundary, and answers SaveProgress with session-only.
+48. In the Minimal profile and in traceless mode the context worker issues no progression or inventory call, delivers the progression part as session-only and the inventory part as absent at the admitting tick boundary, and answers SaveProgress with session-only; the only calls are the placement channel's and, with experiments enabled (in traceless mode only with privacy.experimentsAllowed=true), ReadVariants and RecordObservation on Socket, under the same timeout, retry, size and in-flight budgets.
 49. The baseline ring holds 64 updates per interest class at a 128 Hz send rate and 32 at 64 Hz, a receiver whose acknowledgement is missing for the whole ring receives a full-class update, and the memory estimate at placement charges the spectator delay ring at the send rate, 3840 frames for 30 seconds at 128 Hz.
 50. A 128 Hz session sending at 64 Hz runs Interest and Encode on even ticks only, and a tick that sends nothing records no encode duration.
 51. A 128 Hz session that overruns catches up at most 6 ticks back to back, and a 60 Hz session at most 3.
@@ -10037,7 +10314,7 @@ A library is the unit of source, tests, version, tag and license. Fifteen librar
 | --- | --- | --- |
 | contracts | Generated bindings, one package per target language; each package carries the codecs of both simulation encodings, the JSON codecs and the client runner | nothing |
 | session | Host/session boundary, runner contract, deterministic random source and deterministic math functions | contracts |
-| kernel | Configuration, logging, health, repository contracts, role and tap interfaces with their null adapters; the queue role and the topic role with their coordination-store stream adapter, in-memory adapter and conformance suite | contracts |
+| kernel | Configuration, logging, health, repository contracts, role and tap interfaces with their null adapters; the queue role and the topic role with their coordination-store stream adapter, in-memory adapter and conformance suite; the experiments feature: the definition validator, AssignVariant, the experiment endpoint that Socket hosts and the experiments report command | contracts |
 | socket | Socket, including the gateway adapter | kernel, contracts |
 | inspector | Inspector, its store-side procedures and the reconciler | kernel, contracts |
 | engine | Engine runtime, transport adapters, media router, relay, offload worker and runners | kernel, session, contracts |
@@ -10055,6 +10332,10 @@ The dependency graph is acyclic and has two hard rules. No mandatory library (ke
 
 session depends on contracts alone, so a session object builds and compiles to the portable target without any engine code. WebAssembly is the reference portable target. Repository contracts live in kernel, so every service reaches its stores through the adapters of "Persistence abstraction", never through a store client of its own. The topic role and the queue role live in kernel as well. Socket, Inspector, Engine and every optional service therefore publish to topics and consume from queues only through the operations of "Integration bus", never through a broker client of their own. The coordination-store stream adapter that kernel carries is the only adapter of both roles in the Minimal profile and in traceless mode. The recording library is linked into the Engine image only when Recording is declared, as "Recording" states.
 
+The A/B testing tool is the experiments feature of kernel. It is no library, service, image, store, extension role or topic of its own, so the optional services stay seven and both dependency rules above hold unchanged. The feature has the three parts of "A/B testing tool": experiment definitions checked by the definition validator, AssignVariant and the experiment endpoint. The kernel also ships the experiments report command. The definition validator checks an ExperimentDefinition and the experiment schema vocabulary it carries, and Validate runs it on the definitions of the configuration. AssignVariant(definition, subjectKey) → variant and overridden, or not-enrolled, is a pure function whose keyed hash the conformance vectors fix, so every process in every region computes the same variant and no assignment is ever stored. The experiment endpoint verifies a submitted JSON object against its experiment's definition and on success emits exactly one structured log line through the logging interface of "Observability and logging". The experiments report command of the operator tooling reads experiment lines as JSON lines from a file or standard input and contacts no store and no service.
+
+Socket is the only process that serves the endpoint. It answers RecordObservation and ReadVariants on the control connection and on the service channel at the region's internal Socket address, serves DefineExperiment, CloseExperiment and ReadExperiments on its call listener and reads the registry its own coordination store holds (see "Socket"). The Engine reaches the endpoint only through those calls from its context worker and keeps no copy of a definition. The check of an observation is the kernel's fixed validator over the experiment schema vocabulary, never a general schema engine. Every reference image links kernel, so every image ships the experiments report command. The feature is off by default with experiments.enabled=false and, once an operator enables it, runs in every profile, the Minimal profile included, with no process beyond Socket, Inspector, Engine and the coordination store. In traceless mode the start-time gate refuses experiments.enabled=true unless privacy.experimentsAllowed=true is also set (see "Anonymous traceless mode").
+
 Each service library exposes one entry operation that its reference image calls. The entry is the only way to start a service, so a developer who builds a custom image calls the same checks the stock image calls.
 
 | Operation | Inputs → outputs | Errors | Contract |
@@ -10071,14 +10352,16 @@ A game developer authors four things and nothing else. The Engine, its transport
 
 | Authored artifact | Form | Specified in |
 | --- | --- | --- |
-| GameModule | Describe() → GameProfile, which carries tickRate from 1 to 128 Hz, sendRate, simulationEncoding, the recording setting GameProfile.recording, the progression schema and saveConflict; New(sessionContext) → GameSession | "Engine runtime" |
+| GameModule | Describe() → GameProfile, which carries tickRate from 1 to 128 Hz, sendRate, simulationEncoding, the recording setting GameProfile.recording, the progression schema, saveConflict and GameProfile.experiments, the experimentIds the module reads and logs, at most 8; New(sessionContext) → GameSession | "Engine runtime" |
 | GameSession, the session object | Host-to-session operations, host events including OnPlayerContext and OnProgressionResult, the optional UpgradeProgression and the threading contract | "Portable session object, client prediction and state synchronization" |
 | State schema | Entity types, ordered fields, ownerSeat, tags, metric, thresholds and delta layout | "Contracts and code generation" |
 | Extension domain | Module-defined messages, including tick messages with positional layouts | "Contracts and code generation" |
 
-The session context is the whole capability set of a module: the queries Roster, Groups, Inventory, Entitlements and Progression(player), and the commands CreateGroup, MoveToGroup, DissolveGroup, SetMute, SetVisibility, SetInterest, TagEntity, Send, Broadcast, Emit, Schedule, Consume, Grant, SaveProgress, Kick, TransferHost, EndAt, Log and Metric. Nothing else is public. A module that violates a bound, such as an oversize snapshot or an over-budget tick, is degraded and reported, never silently truncated.
+The session context is the whole capability set of a module: the queries Roster, Groups, Inventory, Entitlements, Progression(player) and Variant(player, experimentId), and the commands CreateGroup, MoveToGroup, DissolveGroup, SetMute, SetVisibility, SetInterest, TagEntity, Send, Broadcast, Emit, Schedule, Consume, Grant, SaveProgress, Observe, Kick, TransferHost, EndAt, Log and Metric. Nothing else is public. A module that violates a bound, such as an oversize snapshot or an over-budget tick, is degraded and reported, never silently truncated.
 
 Progression is the saved state of one player in one game carried from session to session, such as levels and saved statistics. Progression(player) returns the progression view of the player's last OnPlayerContext host event and never calls a service. SaveProgress(player, update) returns a requestId at once, and its outcome reaches the module only through OnProgressionResult(requestId, outcome) at a later tick boundary. End(reason) carries the final update of every tenure the session still holds. Neither operation waits for the service channel. In the Minimal profile, in traceless mode and wherever no progression owner is declared, the view is session-only with the declared initial values and SaveProgress answers session-only, so a module needs no profile-specific code. Whether the sessions of a game include a recording in their session history is the game developer's choice in GameProfile.recording, never a room's, a participant's or an entitlement's (see "Recording policy and consent").
+
+Variant and Observe are the module's whole access to the experiments feature. For a seat holder of a game whose GameProfile.experiments lists an experiment, the Engine's context worker reads the player's variants through ReadVariants as the experiments part of the player context bundle (see "Player context and progression" in "Engine runtime"). Variant(player, experimentId) returns the variant of the player's last OnPlayerContext host event, or none, and never calls a service. The view is fixed for the tenure, and a rejoin inside the resume window fetches nothing. Observe(player, experimentId, object) logs one experiment observation and returns nothing. The host records it, and the context worker submits it after the tick boundary as RecordObservation with source module, the player's playerId, gameId, sessionId, ownerEpoch and tick. The line's variant is the one Socket computes through AssignVariant, never one the module names. No outcome reaches the module. A refusal is counted per game and code and logged at warn, coalesced. The Engine admits 10 Observe submissions per second per session with 64 queued and drops the rest with a counter. Neither operation waits for the service channel, and a restore voids every observation not yet submitted. A client runner discards Observe and answers Variant from the context records of its replay stream. A game that lists no experiment makes no ReadVariants call, and with experiments.enabled=false no context bundle calls ReadVariants, so the module code is the same in every profile and in traceless mode. A variant is game input of the module alone: no admission, placement, settlement, entitlement, progression or history operation reads it.
 
 The rates and the wire format of a game are game profile values as well. tickRate is an integer from 1 to 128 ticks per second. sendRate is the rate of StateUpdates, from 1 Hz to the tick rate. It divides tickRate, equals it in lockstep and defaults to the largest divisor of the tick rate at or below 64 Hz under binary and 15 Hz under json. A profile whose default would fall below a quarter of its tickRate declares its sendRate. simulationEncoding is binary, the default, or json for a slow game such as a social, party or turn-based game. It holds only within the limits of its encoding (see "Simulation encoding and binary tools" in "Engine runtime"). The module code is the same under both encodings, because the session object never sees the bytes on the wire.
 
@@ -10149,7 +10432,8 @@ Every setting is an environment variable under one installation-wide prefix, fix
 | integration | Declared optional services, their addresses and service credentials; the adapter of the service topics and the adapter of the sink topic, with the broker addresses of a selected broker family | every service |
 | quotas | Rooms owned and joined per kind, as "Profile, roles, permissions and quotas" defines | Inspector |
 | logging | Level, sinks, sampling | every service |
-| privacy | privacy.debugAllowed and digest rotation | every service |
+| privacy | privacy.debugAllowed, privacy.experimentsAllowed and digest rotation | every service |
+| experiments | experiments.enabled, the configuration definitions, experiments.subjectPolicy and the three experiment class retentions of "Experiment keys" | Socket; experiments.enabled also Engine |
 | drain | drain.mode and the drain budget | Engine, Socket |
 
 The configuration reference documents every key with its default, unit, the deployment profile in which it takes effect and the services that read it. A key of the mandatory core takes effect in the Minimal profile; a key of an optional service takes effect only when that service is declared. A duration, size or bandwidth key ends with its unit, Ms, Seconds, Days, Bytes or Mbps, as "Configuration reference" fixes. A key marked secret is redacted in PrintEffective and in every log line. A secret key also accepts a file form whose value is a path; the service reads the file once at start and never writes it.
@@ -10255,11 +10539,16 @@ A client written independently against this specification and the published repr
 24. An engine refuses a session whose gameBuild its image does not carry, with build-unknown.
 25. Every service library publishes and consumes only through the topic role and the queue role that kernel exposes, and a Minimal profile image links the coordination-store stream adapter of both roles and no other adapter of either.
 26. A module that passes the testkit in the Minimal profile receives a session-only Progression(player) view and a session-only outcome for every SaveProgress, and passes it unchanged with a progression owner declared.
-27. No session-context operation, Progression(player) and SaveProgress included, issues a call or blocks a tick on the service channel.
+27. No session-context operation, Progression(player), SaveProgress, Variant and Observe included, issues a call or blocks a tick on the service channel.
 28. Validate refuses, naming the profile, a traceless installation whose game profile sets sessions=on with requiresRecording=true, and accepts one whose profile sets requiresRecording=false.
 29. Validate refuses, naming the profile, a game profile with tickRate 129, a sendRate above its tickRate or not dividing it, a lockstep profile whose sendRate differs from its tickRate and a json profile above 30 Hz, above a 15 Hz sendRate or above 64 seats, and accepts a binary profile at 128 Hz with sendRate 64.
 30. The testkit's budget test fails a 128 Hz module whose Tick takes 3.9 ms p99 and passes one at 3.5 ms p99, and a module that passes it in the Minimal profile passes it unchanged under simulationEncoding=json.
 31. Every generated package implements both simulation encodings, and no reference image runs the dump tool, the frame inspector or the replay reader on a production hot path.
+32. The library list, the image list and the extension roles are unchanged by the experiments feature, every reference image ships the experiments report command, and Socket is the only process that answers RecordObservation, ReadVariants, DefineExperiment, CloseExperiment and ReadExperiments.
+33. Validate refuses with definition-invalid and the matching reason a configuration definition with a field named playerId, userName or deviceToken, a format, pattern or $ref keyword, a nested object, an array, a string field without an enum, weights summing to 9999 or a window above 90 days.
+34. A 60 Hz session of 16 players calling Observe on every tick keeps its p99 tick below 80% of the period while Socket is unreachable and drops submissions beyond 10 per second and 64 queued with a counter, and with Socket reachable each accepted call yields one record carrying gameId, sessionId, ownerEpoch and tick.
+35. Variant answers the same variant on the server runner and on the client runner, a game that lists no experiment makes no ReadVariants call, and with experiments.enabled=false no context bundle calls ReadVariants and every experiment operation answers feature-unavailable.
+36. The Minimal profile with experiments.enabled=true serves the experiment endpoint with no process beyond Socket, Inspector, Engine and the coordination store, and a traceless start with experiments.enabled=true fails without privacy.experimentsAllowed=true.
 
 ## 30. Contracts and code generation
 
@@ -10271,7 +10560,7 @@ The catalog has one mandatory domain, eight optional domains and one extension d
 
 | Domain | Services | Optional | Holds |
 | --- | --- | --- | --- |
-| core | Socket, Inspector, Engine | no | Control, placement, queue, session and simulation messages, ReadBoard included; core facts; projection operations |
+| core | Socket, Inspector, Engine | no | Control, placement, queue, session and simulation messages, ReadBoard included; core facts; projection operations; the experiment messages RecordObservation, ReadVariants, DefineExperiment, CloseExperiment and ReadExperiments with ExperimentDefinition and ExperimentObject |
 | profiles | Profiles | yes | Registration, claim, moderation and erasure; member facts |
 | statistics | Statistics | yes | Session history (SessionHistory with its HistoryEntry rows, ReadHistory, ReadSessionHistory and ReadSessionEvents), seasons, achievements, ReadStandings and StandingChanged; ingestion contracts |
 | progression | the progression owner: Statistics, or Profiles without Statistics | yes | Progression, ReadProgression, CommitProgress and ReadOwnProgression |
@@ -10286,12 +10575,26 @@ A message belongs to the domain of the service that produces it. For an event or
 
 By the same rule SetPresenceStatus, ReadPresence, ProjectInvite, RevokeInvite, DeliverToPrincipals, DeliverProjection, PresenceChanged and ProjectionsDropped belong to the core domain, because Inspector or Socket executes or emits them. A principal projection belongs to the domain of the service that builds its body: FriendRequestChanged, FriendPresence and the other Social projections to the social domain, FeedUpdated to the feed domain. DeliverToPrincipals and DeliverProjection carry that body as a bytes value of at most 8 KiB beside its projection type, slotKey and revision. The core unit therefore references no social or feed type (see "Delivery to principals"). StandingChanged belongs to the statistics domain, because Statistics' board writer emits it.
 
+The experiment messages belong to the core domain, because Socket executes every one of them, and they exist as types whether or not an operator enables the feature.
+
+| Message | Kind | Channel and callers | Result | Closed error set |
+| --- | --- | --- | --- | --- |
+| RecordObservation | command | control: a client, for the principal of its connection; service: the Engine's context worker with source module and an optional service with source service, each naming the subject | observationId and variant | unauthenticated, forbidden, feature-unavailable, object-too-large, experiment-unknown, experiment-scheduled, experiment-closed, not-enrolled, rate-limited, field-unknown, field-missing, field-invalid, message-invalid, retryable-unavailable |
+| ReadVariants | query | control: a client, for the principal of its connection; service: the Engine, for a subjectId and a gameId | per experiment its state: running with the variant, overridden and endsAt, or scheduled, closed, not-enrolled or unknown | unauthenticated, forbidden, feature-unavailable, message-invalid, rate-limited, retryable-unavailable |
+| DefineExperiment | command | service: the operator credential and Profiles, on Socket's call listener | revision | definition-invalid, stale-revision, definition-immutable, experiments-full, experiment-exists, forbidden, feature-unavailable, retryable-unavailable |
+| CloseExperiment | command | service: the operator credential and Profiles, on Socket's call listener | ok | experiment-unknown, stale-revision, forbidden, feature-unavailable, retryable-unavailable |
+| ReadExperiments | query | service: the operator credential and Profiles, on Socket's call listener | at most 64 definitions without salt, with the override count instead of the overrides | forbidden, feature-unavailable, retryable-unavailable |
+
+RecordObservation carries experimentId, object, subjectId or none, gameId or none, sessionId or none, and ownerEpoch and tick or none. A client that names a subjectId receives forbidden. The variant is never a field of the request, so an object member named variant is an ordinary declared field or field-unknown. The error object of field-unknown, field-missing and field-invalid names the field, and only the submitter receives it. ReadVariants carries experimentIds or none, subjectId or none and gameId or none, and no reply of either query reveals a salt, a weight or another subject's variant. With experiments.enabled=false every experiment message answers feature-unavailable. Profiles' admin routes DefineExperiment and CloseExperiment reference the core messages instead of duplicating them, and Profiles relays them to Socket through its outbox with its service credential. Its ListExperiments route belongs to the profiles domain, because Profiles answers it, from ReadExperiments. No experiment message travels on the session, simulation, queue or facts channel, and an accepted observation is a log line, never a fact.
+
+ExperimentDefinition is a closed definition of at most 16 KiB encoded. It carries experimentId, revision as a Counter, title, salt, variants with their names and weights, audience, sources, gameId or none, startsAt, endsAt, retentionClass, schema, overrides and closedAt or none, and ReadExperiments returns it without salt. Its schema member carries the restricted experiment schema document as data: the vocabulary gate below governs the catalog's own schema file, and the kernel's definition validator governs that document.
+
 | Channel | Endpoints | Lane and encoding | Holds |
 | --- | --- | --- | --- |
-| control | client ↔ Socket | reliable-ordered; control envelope, JSON | Hello, HelloAck, guest issuance, authentication, room commands, SetPresenceStatus, projections fanned out, principal projections and ProjectionsDropped |
+| control | client ↔ Socket | reliable-ordered; control envelope, JSON | Hello, HelloAck, guest issuance, authentication, room commands, SetPresenceStatus, projections fanned out, principal projections, ProjectionsDropped, and RecordObservation and ReadVariants, which Socket answers itself |
 | placement | Socket ↔ Inspector, Engine → Inspector, optional services → Inspector | request and reply on the adapter of the service channel; control envelope, JSON | Placement calls, projection operations, ReadPresence, ProjectInvite, RevokeInvite and the Engine's calls to Inspector |
 | queue | Inspector ↔ Engine, Engine ↔ Engine, Inspector → Socket, Social and Feed → Inspector | topic role and queue role: at-least-once, order optional, binding mode fan-out or round-robin; service envelope, JSON | Saga, placement and move messages, capacity notices, DeliverToPrincipals on the delivery topic and DeliverProjection on the Socket topic |
-| service | Socket → optional services, Engine ↔ Inventory, Engine → the progression owner, Payment → Inventory, Profiles → Statistics, Payment, Inventory and the progression owner, Social → Social, Social and Feed → Profiles, Feed → Social and Statistics, Statistics and Profiles as history owner → Social | request and reply; reference adapter command-style RPC over HTTP, one POST per call carrying one generated request envelope and answered by one reply envelope; control envelope, JSON | Client-facing optional-service calls routed by Socket, the item ledger and InventoryChanged, ReadProgression and CommitProgress, ApplyPurchase and ApplyRefund, ReadHistory, ReadSessionHistory and ReadSessionEvents, the composition of ReadProfile, an append forwarded to its shard's writer, ResolveNames, ReadAudience and Feed's ReadStandings |
+| service | Socket → optional services, Engine ↔ Inventory, Engine → the progression owner, Payment → Inventory, Profiles → Statistics, Payment, Inventory and the progression owner, Social → Social, Social and Feed → Profiles, Feed → Social and Statistics, Statistics and Profiles as history owner → Social, the Engine and optional services → Socket for experiment observations and variants, the operator's tooling and Profiles → Socket for experiment definitions | request and reply; reference adapter command-style RPC over HTTP, one POST per call carrying one generated request envelope and answered by one reply envelope; control envelope, JSON | Client-facing optional-service calls routed by Socket, the item ledger and InventoryChanged, ReadProgression and CommitProgress, ApplyPurchase and ApplyRefund, ReadHistory, ReadSessionHistory and ReadSessionEvents, the composition of ReadProfile, an append forwarded to its shard's writer, ResolveNames, ReadAudience, Feed's ReadStandings, RecordObservation and ReadVariants at the region's internal Socket address, and DefineExperiment, CloseExperiment and ReadExperiments on Socket's call listener |
 | session | client ↔ Engine | reliable-ordered lane of an attachment; control envelope, JSON | Attach, AttachAck, HostEvents, Desync and session controls |
 | simulation | client ↔ Engine | unreliable-sequenced, reliable-unordered and, for the lockstep class, reliable-ordered; the session's simulation encoding: realtime envelope, binary positional by default, or the JSON frame under simulationEncoding=json; media frame kinds binary in both | InputFrame, StateUpdate, Fragment, TickFrame, DigestReport, media frame kinds and extension tick messages |
 | facts | Engine and Inspector through their Session Taps, optional services through their outbox relays or directly where the owning section says so → sink topic → one round-robin group per consuming service | topic role and queue role: at-least-once, order optional; sink-fact envelope, JSON | Session events, results, membership, placement and presence facts, and the facts of optional services |
@@ -10302,7 +10605,7 @@ The queue and facts channels carry no lane. Both run on the topic role and the q
 
 Message kinds are command, event, query and reply. Six delivery classes exist: control (reliable-ordered, JSON), tick (unreliable; simulation encoding for contract records, binary frame envelope for AudioFrame under both encodings), bulk (reliable-unordered; simulation encoding for contract records, binary frame envelope for VideoChunk under both encodings), lockstep (reliable-ordered, simulation encoding), queue (topic role and queue role on a service topic, at-least-once with order optional, JSON) and sink (topic role and queue role on the sink topic, at-least-once with order optional, JSON). The binding mode, fan-out or round-robin, belongs to a queue's binding, never to a message, so no message declares one. Every message declares one kind, one delivery class and one channel, and the validator refuses a delivery class the channel's lanes or roles cannot carry. StateUpdate is the one exception: it declares tick for deltas and bulk for a full-class update, which baselineAge 0 selects on the reliable-unordered lane. The validator accepts exactly this pair for StateUpdate. TickFrame and DigestReport declare the lockstep class, because they carry every lockstep input at the tick rate, up to 128 per second. The tick, bulk and lockstep classes travel in the session's simulation encoding, which GameProfile.simulationEncoding fixes, except frame-envelope audio frames and video chunks, which are binary under both encodings. Every other class is JSON in every deployment, and no control, placement, queue, service, session or facts message is ever binary. The catalog holds the positional layout of every tick message as data, not as prose.
 
-Entities with prose and schema are Profile, ClientConnection, Attachment, Room, Session, SessionPlayer, SessionEvent, Group, GameProfile, Snapshot, StateUpdate, AdmissionTicket, ControlTicket, Region, Subscription, Entitlement, Purchase, InventoryItem, Progression, PlayerContext, SessionHistory, Recording, Season, Leaderboard, SocialProfile, FriendRequest, Friendship, Block, Conversation, JournalEntry, Invite and FeedItem. Profile covers both user and room profiles; Room is the live lobby a room profile owns. Progression is the saved state of one player in one game and belongs to the progression domain. PlayerContext is the player context bundle that the Engine delivers to a session object as one OnPlayerContext host event, a state per part and the progression view. It belongs to the core domain, and its progression view takes its typed form from the game's progression schema in the extension domain. SessionHistory is the record of one past session and belongs to the statistics domain. It is one record per session, holding its players as one tenure per seat holding or viewer slot, its history events of the kinds the game profile lists and its recording entry or none, every item timestamped. Its index row, HistoryEntry, lists one session in the games history of one user profile or room profile, and the SessionHistory entity page defines both. Neither carries a display name, a URL or an object key. A recording is part of its session history, never a separate history. ClientConnection is the Client connection of "Client connection and presence" and, with presence tracking on, also covers the presence hash of "Presence tracking in Inspector". A chat message is a JournalEntry of kind message whose body is the closed message body of "Entities and storage", and an invite's content is a JournalEntry of kind invite. SocialProfile to Invite belong to the social domain and FeedItem to the feed domain. Each entity names its schema definition and its prose path in the topology file, and a missing prose file fails generation naming the path.
+Entities with prose and schema are Profile, ClientConnection, Attachment, Room, Session, SessionPlayer, SessionEvent, Group, GameProfile, Snapshot, StateUpdate, AdmissionTicket, ControlTicket, Region, Subscription, Entitlement, Purchase, InventoryItem, Progression, PlayerContext, SessionHistory, Recording, Season, Leaderboard, SocialProfile, FriendRequest, Friendship, Block, Conversation, JournalEntry, Invite, FeedItem and ExperimentDefinition. Profile covers both user and room profiles; Room is the live lobby a room profile owns. Progression is the saved state of one player in one game and belongs to the progression domain. PlayerContext is the player context bundle that the Engine delivers to a session object as one OnPlayerContext host event, a state per part and the progression view. It belongs to the core domain, and its progression view takes its typed form from the game's progression schema in the extension domain. SessionHistory is the record of one past session and belongs to the statistics domain. It is one record per session, holding its players as one tenure per seat holding or viewer slot, its history events of the kinds the game profile lists and its recording entry or none, every item timestamped. Its index row, HistoryEntry, lists one session in the games history of one user profile or room profile, and the SessionHistory entity page defines both. Neither carries a display name, a URL or an object key. A recording is part of its session history, never a separate history. ClientConnection is the Client connection of "Client connection and presence" and, with presence tracking on, also covers the presence hash of "Presence tracking in Inspector". A chat message is a JournalEntry of kind message whose body is the closed message body of "Entities and storage", and an invite's content is a JournalEntry of kind invite. SocialProfile to Invite belong to the social domain and FeedItem to the feed domain. ExperimentDefinition is the definition of one experiment of the experiments feature and belongs to the core domain. Each entity names its schema definition and its prose path in the topology file, and a missing prose file fails generation naming the path.
 
 ### 30.2 Envelopes in the catalog
 
@@ -10314,9 +10617,11 @@ A JSON message is a named envelope definition whose type and version are const a
 
 Every object definition is closed: additionalProperties is false and the required list is explicit. Every enum, nested object and array element object is a named definition; an inline enum or inline object is refused by the validator, not degraded to a plain string. An optional field is absent when unset, never null, because the vocabulary has no null type. const appears only for discriminators and literal fields.
 
-The schema file is JSON Schema restricted to a closed vocabulary. Allowed keywords: $ref to a local named definition, type with object, array, string, integer or boolean, properties, required, additionalProperties, items, enum, const, description, format, pattern, minLength, maxLength, minimum, maximum, minItems, maxItems, uniqueItems, and allOf, if, then and not for validation-only constraints. The gate recurses into every subschema, the conditional ones included, and fails closed naming the keyword and its path. A JSON message therefore carries no floating-point field; floating-point values exist only in positional layouts and the state schema. The JSON frame writes a float32 field of a layout as the shortest decimal that reads back to the same float32, so its records equal those of the positional form.
+The schema file is JSON Schema restricted to a closed vocabulary. Allowed keywords: $ref to a local named definition, type with object, array, string, integer or boolean, properties, required, additionalProperties, items, enum, const, description, format, pattern, minLength, maxLength, minimum, maximum, minItems, maxItems, uniqueItems, and allOf, if, then and not for validation-only constraints. The gate recurses into every subschema, the conditional ones included, and fails closed naming the keyword and its path. A JSON message therefore carries no floating-point field; floating-point values exist only in positional layouts, the state schema and the experiment values below. The JSON frame writes a float32 field of a layout as the shortest decimal that reads back to the same float32, so its records equal those of the positional form.
 
 Validation-only constraints travel through the representation as opaque constraints. Every type emitter ignores them uniformly, and the generated validator enforces them. A generated type is not validation: every binding's parse path runs the generated validator before dispatch, and no binding equates a compile-time type with authority validation. Structural validation never checks authorization, signatures, tick windows or transport framing; the receiving service does.
+
+ExperimentObject is the one map-shaped definition, because the member names of an observation come from its experiment's definition, never from the catalog. It types the object of RecordObservation as a map of at most 32 members whose values are JSON booleans, numbers or strings of at most 64 characters. The generated codec decodes it in one pass and refuses nesting, an array, null and a duplicate member with message-invalid, identically in every binding. A number member and a number field's bounds in an experiment schema are the only non-integer JSON values. The codec reads them exactly and writes them as the shortest decimal that reads back to the same value. Socket checks the object's encoded size, at most 2 KiB, before decoding it. The check of the members against their experiment is the kernel's fixed validator over the experiment schema vocabulary. It runs in Socket after the generated validator and is never a general schema engine in any binding.
 
 ### 30.4 Counters and scalar semantics
 
@@ -10440,6 +10745,10 @@ Conformance vectors are generated from the representation plus authored values, 
 | Random | seed, tick, key and draw index | The 64-bit output |
 | Math | Function and input | The output, bit for bit |
 | Hash | Representation subsets and command payloads | schemaHash, snapshotSchemaHash and the payload hash |
+| Experiment assignment | salt, experimentId and subjectKey, with the weights of a definition | The 64-bit hash prefix, the bucket, the variant and the subjectDigest |
+| Experiment object | ExperimentObject samples, valid and invalid: 32 and 33 members, nesting, an array, null, a duplicate member, a string above 64 characters | Accept, or message-invalid |
+| Experiment definition | Definitions, valid and invalid, one per reason of definition-invalid | Accept, or definition-invalid with its reason |
+| Experiment report | A committed set of experiment lines with duplicates and overridden records | The committed report of the experiments report command, byte for byte |
 
 Vectors hold synthetic values only and no identifier of a person. A game's extension domain receives the same vector sets for its own messages and state schema, generated in the game's build and run by the testkit. Vectors prove the binding, not a deployed service: passing them is not evidence that an engine survives a restart.
 
@@ -10449,7 +10758,7 @@ Client binding conformance adds a loopback session per binding, specified in "Te
 
 Each domain generates as its own unit per target. The core unit references no optional unit, so a Minimal profile build and a client of a Minimal profile installation compile from the core unit alone. An optional unit references the core unit and the units of the services its service requires; Payment, Inventory and Social require Profiles, and Feed requires Statistics and Profiles. The feed unit also references the social unit for FriendshipEnded, BlockAdded, SocialSettingsChanged and ReadAudience, which adds no runtime requirement: Feed without Social runs unchanged. An application that imports no optional unit carries no optional binding.
 
-No optional domain declares a message on the session or simulation channel. Optional effects reach a session only as host events of the core domain, OnEntitlementChanged, OnInventoryResult, OnPlayerContext and OnProgressionResult, so the tick path is identical in every deployment. Facts that core services produce belong to the core unit and exist as types even without a consumer; with the null event sink no fact is built.
+No optional domain declares a message on the session or simulation channel. Optional effects reach a session only as host events of the core domain, OnEntitlementChanged, OnInventoryResult, OnPlayerContext and OnProgressionResult, so the tick path is identical in every deployment. The experiments part of OnPlayerContext belongs to the core domain as well, and Observe leaves the session only as a RecordObservation call of the context worker after the tick boundary. Facts that core services produce belong to the core unit and exist as types even without a consumer; with the null event sink no fact is built.
 
 Client-facing messages of an optional domain travel on the control channel to Socket, which routes them on the service channel only when the service is declared. Otherwise Socket answers feature-unavailable without a network call (see "Socket"). Principal projections of the social and feed domains reach a client on the control channel through DeliverToPrincipals and DeliverProjection, never on the service channel. A client dispatcher that lacks an optional unit refuses its types with message-unknown. In traceless mode a declared optional service fails start, so no traceless installation dispatches an optional message.
 
@@ -10467,7 +10776,7 @@ Adding or removing an optional domain changes no core definition and neither has
 8. Every binding passes every conformance vector set.
 9. Every binding's dispatcher refuses a type + version pair not authorized on the receiving channel with message-unknown.
 10. Every binding round-trips the Counters 9007199254740993 and 9223372036854775807 without loss and rejects 9223372036854775808.
-11. A JSON message with a fractional number in any field is rejected with message-invalid.
+11. A JSON message with a fractional number in any field outside an ExperimentObject member and a number field's bounds in an experiment schema is rejected with message-invalid.
 12. A null value in any field is rejected with message-invalid.
 13. Decoding every positional vector reproduces its JSON debug envelope, and encoding that envelope reproduces the bytes.
 14. Every binding applies every state vector to the same state and produces the same digest bit for bit.
@@ -10497,6 +10806,10 @@ Adding or removing an optional domain changes no core definition and neither has
 38. Every binding decodes every JSON frame vector to the records of its positional vector bit-exactly and encodes them back to the same bytes.
 39. TickFrame and DigestReport declare the lockstep class on the simulation channel, and no message of the control, placement, queue, service, session or facts channel declares an encoding other than JSON.
 40. The generator refuses a tick message whose fixed part exceeds the 1152-byte shared frame budget and writes the layout report for every other.
+41. The catalog declares RecordObservation, ReadVariants, DefineExperiment, CloseExperiment, ReadExperiments, ExperimentDefinition and ExperimentObject in the core domain, no experiment message on the session, simulation, queue or facts channel, and a change to any of them changes neither hash.
+42. Every binding's ExperimentObject decoder accepts 32 members and refuses a 33rd member, nesting, an array, null and a duplicate member with message-invalid identically.
+43. Every binding and every Socket instance reproduces the experiment assignment vectors bit for bit, and the experiments report command reproduces the committed report byte for byte.
+44. A RecordObservation whose object holds a member named variant never changes the variant of the reply or of the experiment-observation line.
 
 ## 31. Testing strategy and acceptance gates
 
@@ -10525,6 +10838,7 @@ Tests are organized in levels that differ by what they run against, not by the l
 | Social and Feed conformance | Friends, presence, chat persistence on the journal store, invite acceptance, erasure, feed idempotency and fan-out bounds | Declared Social or Feed with a real repository host, one mirror, a real coordination store and the shuffling adapter on the event sink | Every Conformance statement of "Social service" and "Feed service" and the thirty-nine Social and Feed tests |
 | Progression and session history conformance | Progression carried across sessions, the tenure rule, conflicts, erasure and claims, and the recording entry of the session history | Declared Statistics or Profiles, and Recording where a test names it, with real stores, the shuffling adapter on every topic and the fault-injecting call adapter | The thirty-three progression and session history tests |
 | Games history conformance | Construction, pagination, visibility and erasure of the games history of user profiles and room profiles | A declared history owner, Statistics or Profiles without Statistics, and Social or Recording where a test names it, with real stores, the shuffling adapter on the event sink and every topic and the fault-injecting call adapter | The twenty-five games history tests |
+| Experiments conformance | Definitions and the restricted schema, deterministic assignment, the experiment endpoint, rate limits, the experiment-observation line and its identifier policy, the module path and the experiments report command | Socket, Inspector and Engine with experiments.enabled=true, a real coordination store, the shuffling adapter on every topic and the fault-injecting call adapter, with Profiles or Statistics where a test names them | The twenty-nine experiments tests |
 | Anonymous-mode conformance | The traceless definition of "Anonymous traceless mode" | Minimal profile with mode=traceless | The anonymous-mode suite |
 
 Every system integration test has an in-memory variant where the semantics permit it. Lease, fencing and expiry tests are the exception: they run against a real coordination store, because fencing cannot be proven against a fake. The player lock, its fence and the session move claim are fencing tests in this sense. A pass against the in-memory adapter alone never satisfies a test that names the store.
@@ -10537,13 +10851,13 @@ Every test that involves a call on the placement channel or the service channel 
 
 The coverage target is **95%** statement coverage of library code, measured on the component and system integration suites together. Generated code and adapter glue are excluded from the denominator; business logic, state machines, sagas, procedures and error paths are included. The Engine's hot path is covered by the transport conformance driver and the performance suite, whose runs count toward the same denominator. Coverage per library without this denominator is not a measurement this specification accepts.
 
-The target is the gate: a library release whose measured figure is below 95% fails its release gate, and the coverage report names every uncovered statement. Edge cases have their own floor beside the percentage. Every closed error code of every operation in this specification is produced by at least one test. Every labeled transition of every state machine is exercised by at least one test, and every bounded queue is driven to its cap with its drop counter asserted. The Engine's pending set of 4096 messages and the 64 saga fields per player are bounded queues in this sense. With Social or Feed declared, the journal append queue of 4096 entries per shard, the 64 principal slots per connection and the 256-delivery batch of DeliverToPrincipals are bounded queues in the same sense. The 64 calls in flight per caller process and callee instance and the 256 per callee instance and caller service kind are bounded in every profile. With a progression owner declared, the 64 context worker requests in flight per session and the 16 progression requests queued or in flight per session are bounded in the same sense. So are the 1024 end updates per result and the 64 tenure table entries per Progression. With a history owner declared, the 100 rows of a history page, the 1024 player tenures, 256 viewer tenures and 512 history events of a session history record and the history.maxEntries rows of a subject are bounded in the same sense. Every row of the three tables of the interaction catalog in "Service channel" has its failure behavior injected by at least one scenario where the services the row names are declared. Every row of the join saga compensation table in "Inspector" and of the move failure table in "Engine runtime" is injected by at least one scenario that asserts its observable result. With Social or Feed declared, every row of the failure tables under "Absence and degradation" in "Social service" and "Feed service" is injected the same way.
+The target is the gate: a library release whose measured figure is below 95% fails its release gate, and the coverage report names every uncovered statement. Edge cases have their own floor beside the percentage. Every closed error code of every operation in this specification is produced by at least one test. Every labeled transition of every state machine is exercised by at least one test, and every bounded queue is driven to its cap with its drop counter asserted. The Engine's pending set of 4096 messages and the 64 saga fields per player are bounded queues in this sense. With Social or Feed declared, the journal append queue of 4096 entries per shard, the 64 principal slots per connection and the 256-delivery batch of DeliverToPrincipals are bounded queues in the same sense. The 64 calls in flight per caller process and callee instance and the 256 per callee instance and caller service kind are bounded in every profile. With a progression owner declared, the 64 context worker requests in flight per session and the 16 progression requests queued or in flight per session are bounded in the same sense. So are the 1024 end updates per result and the 64 tenure table entries per Progression. With a history owner declared, the 100 rows of a history page, the 1024 player tenures, 256 viewer tenures and 512 history events of a session history record and the history.maxEntries rows of a subject are bounded in the same sense. With experiments enabled, the 64 Observe submissions queued per session in the context worker, the burst of 10 and the 60 RecordObservation calls per minute per connection, the 1000 service-channel calls per second per Socket instance and caller service kind and the 64 definitions in effect per region are bounded in the same sense. Every row of the three tables of the interaction catalog in "Service channel" has its failure behavior injected by at least one scenario where the services the row names are declared. Every row of the join saga compensation table in "Inspector" and of the move failure table in "Engine runtime" is injected by at least one scenario that asserts its observable result. With Social or Feed declared, every row of the failure tables under "Absence and degradation" in "Social service" and "Feed service" is injected the same way.
 
 Test names are lowercase sentences that state the invariant as a fact: "two engines racing lease_acquire never both succeed", "a stale-epoch snapshot write is rejected and counted". A bug found after the suites passed gets a regression test named by the invariant it broke.
 
 ### 31.3 Harness
 
-The testkit is one library that every suite uses and that game developers receive unchanged. It holds scripted players, a controlled clock, in-memory adapters for every role, a fault injector and a latency and loss simulator. In-memory adapters include the coordination store with identical procedure, expiry and error semantics and every repository with identical revision and cursor semantics. They also include the null and a scripted item ledger, the null and an in-memory event sink, an in-memory object store and an in-memory adapter of the topic role and the queue role. That adapter has identical binding mode fan-out and round-robin, visibility timeout, Nack delay, redelivery, dead-letter, horizon, idle expiry and Lag semantics. The shuffling adapter wraps any adapter of the two roles: the in-memory, coordination-store stream or broker adapter. It reorders every Consume batch and duplicates 10% of messages as separate deliveries, handing a duplicate to another member when a round-robin group has one. It holds back 5% for up to the visibility timeout and repeats 1% of acknowledged messages once, as an adapter that lost an acknowledgement in a failover would. Within the horizon it drops nothing. Its seed is part of the scenario file, so a reordering reproduces from the file. Whenever Social or Feed is declared, the same shuffling adapter sits in front of the event sink adapter, with its own seed in the scenario file. With Social declared the in-memory adapters include a versioned journal store with identical head, position and error semantics. It never stands in for the repository host in a test of the writer fence, the fast-forward refusal or a restore. The in-memory adapters also include an adapter of the service channel with identical dispatch, signature, idempotency record, deadline and error semantics. The fault-injecting call adapter wraps it or the RPC adapter. It delays, drops and duplicates requests and replies, kills callees between commit and reply, answers with a chosen status before dispatch and stretches a callee past the caller's budget. Its seed is part of the scenario file. The in-memory call adapter never stands in for the RPC adapter in a test of status mapping, signatures, body caps or in-flight bounds, because those rules belong to HTTP. The harness never replaces Socket, Inspector or Engine with a stub in a system test. It never replaces a declared progression owner with a stub in a test of "Progression and session history conformance" either, nor a declared history owner in a test of "Games history conformance". The testkit also holds the frame inspector, the dump tool, the replay reader and the schema diff of "Simulation encoding and binary tools" in "Engine runtime", and its scripted players and latency and loss simulator run a session at any tick rate from 1 to 128 Hz and in either simulation encoding.
+The testkit is one library that every suite uses and that game developers receive unchanged. It holds scripted players, a controlled clock, in-memory adapters for every role, a fault injector and a latency and loss simulator. In-memory adapters include the coordination store with identical procedure, expiry and error semantics and every repository with identical revision and cursor semantics. They also include the null and a scripted item ledger, the null and an in-memory event sink, an in-memory object store and an in-memory adapter of the topic role and the queue role. That adapter has identical binding mode fan-out and round-robin, visibility timeout, Nack delay, redelivery, dead-letter, horizon, idle expiry and Lag semantics. The shuffling adapter wraps any adapter of the two roles: the in-memory, coordination-store stream or broker adapter. It reorders every Consume batch and duplicates 10% of messages as separate deliveries, handing a duplicate to another member when a round-robin group has one. It holds back 5% for up to the visibility timeout and repeats 1% of acknowledged messages once, as an adapter that lost an acknowledgement in a failover would. Within the horizon it drops nothing. Its seed is part of the scenario file, so a reordering reproduces from the file. Whenever Social or Feed is declared, the same shuffling adapter sits in front of the event sink adapter, with its own seed in the scenario file. With Social declared the in-memory adapters include a versioned journal store with identical head, position and error semantics. It never stands in for the repository host in a test of the writer fence, the fast-forward refusal or a restore. The in-memory adapters also include an adapter of the service channel with identical dispatch, signature, idempotency record, deadline and error semantics. The fault-injecting call adapter wraps it or the RPC adapter. It delays, drops and duplicates requests and replies, kills callees between commit and reply, answers with a chosen status before dispatch and stretches a callee past the caller's budget. Its seed is part of the scenario file. The in-memory call adapter never stands in for the RPC adapter in a test of status mapping, signatures, body caps or in-flight bounds, because those rules belong to HTTP. The harness never replaces Socket, Inspector or Engine with a stub in a system test. It never replaces a declared progression owner with a stub in a test of "Progression and session history conformance" either, nor a declared history owner in a test of "Games history conformance". The testkit also holds the frame inspector, the dump tool, the replay reader and the schema diff of "Simulation encoding and binary tools" in "Engine runtime", and its scripted players and latency and loss simulator run a session at any tick rate from 1 to 128 Hz and in either simulation encoding. A test of "Experiments conformance" reads the experiment-observation and experiment-definition lines from each Socket instance's standard output, never from a store, because those lines are the only record the tool keeps.
 
 ```mermaid
 flowchart LR
@@ -10668,6 +10982,18 @@ Progression, session history and games history faults are injected the same way,
 | Friend check failure | ReadAudience of a friend's history read | Beyond the 2-second budget |
 | Audit store unavailability | The history owner's AuditRepository | During a moderator's history read |
 
+Experiment faults are injected the same way, in every profile, only when experiments.enabled=true. The fault-injecting call adapter is active in every one of them, and the shuffling adapter on every topic.
+
+| Fault | Injection point | Default parameter |
+| --- | --- | --- |
+| Log queue above headroom | Process log queue of one Socket instance | Held above 75% of its 8192-line bound |
+| Socket unreachable from the Engine | RecordObservation and ReadVariants of every context worker | 60 seconds |
+| Registry loss | {experiments:G} after an ephemeral store restart | Key absent while Socket copies hold running definitions |
+| Region unreachable during a definition | DefineExperiment or CloseExperiment to one region | Until the definer's retry reaches it |
+| Late variants | ReadVariants of the player context bundle | Answered after the 2-second context budget |
+| Observation burst | RecordObservation of one connection | 11 calls within 1 second; 61 within 1 minute |
+| Lost observation reply | Reply of one client RecordObservation | Client retry with the same messageId |
+
 Parameters are starting values, not the bounds the services are designed to. The fault injector records every injected fault with its tick and wall time beside the run's traces.
 
 ### 31.5 Invariant tests
@@ -10707,6 +11033,8 @@ Each required runtime test is named by the invariant it protects. This list is t
 - Statistics and Recording present: the session history record of a recorded session carries one recording entry, and that of an unrecorded session none.
 - With no history owner, every history route answers feature-unavailable without a call, and the roster, event ring and result end with the session in Engine memory.
 - History owner present: the facts of one session delivered shuffled and duplicated yield one session history record, one HistoryEntry per user subject holding a tenure and one for the room.
+- With experiments.enabled=false every experiment operation answers feature-unavailable, no {experiments:G} key exists and no player context bundle calls ReadVariants.
+- With experiments enabled, an accepted RecordObservation emits exactly one experiment-observation line, a refused one emits none, and no tick waits for RecordObservation or ReadVariants.
 
 The prediction and lockstep tests belong to the same floor and run in the Minimal profile:
 
@@ -11001,7 +11329,43 @@ The games history suite asserts "Games history" in "Profile, roles, permissions 
 
 A pass with the in-memory repositories or the in-memory coordination store alone never satisfies tests 2, 5, 10 and 19 to 22, because the unique keys, the units of work and the cursor order belong to the real stores. The 2-second, 60-second and 24-hour values are starting values to measure, not latency guarantees. A test fails on them only where the rule makes the lapse an outcome, as the lost seal and the erasure deadline do. In the Minimal profile and in traceless mode only test 25 and the absence statements of the sections above run.
 
-### 31.17 Performance tests
+### 31.17 Experiments conformance
+
+The experiments suite asserts the A/B testing tool: the experiments feature of the kernel library that Socket hosts, its experiment definitions, AssignVariant, ReadVariants and the experiment endpoint RecordObservation in "Socket", the experiment classes and the experiment-observation line in "Observability and logging", the experiments part of the player context bundle in "Player context and progression" in "Engine runtime" and the gate of "Anonymous traceless mode". It runs those Conformance statements unchanged beside these tests, in every profile with experiments.enabled=true, with Profiles or Statistics only where a test names them. It runs against a real coordination store, the shuffling adapter on every topic and the fault-injecting call adapter on every call, and it asserts records only from the lines on each Socket instance's standard output. Tests 1 to 4 cover definitions and schema validation, 5 to 8 deterministic assignment, 9 to 14 the endpoint, 15 to 17 rate limits and headroom, 18 to 20 the module path, 21 to 23 the registry, 24 the identifier policy, 25 and 26 analysis, and 27 to 29 absence, traceless mode and the Minimal profile.
+
+1. The validate command and DefineExperiment refuse with definition-invalid and reason schema-unsupported a format, pattern or $ref keyword, a composition keyword, a nested object, an array and a null type, with enum-invalid a string field without an enum, with weights-invalid weights summing to 9999 and with window-invalid a window above 90 days, and none of them enters effect.
+2. The validate command and DefineExperiment refuse with definition-invalid and reason field-identifier a property named playerId, userName, deviceToken, emailAddress or ipCountry, because a word of the identifier list appears at one of its camelCase boundaries, and both accept a property named matchesWon.
+3. An integer bound beyond 2^53 − 1 answers range-invalid, an enum value that is not lowercase kebab-case enum-invalid, a property name of 33 characters field-name-invalid and a definition above 16 KiB size-exceeded, each under definition-invalid, and a configuration definition that fails validation fails the Socket start with one error line.
+4. After startsAt a revision that changes the salt, a variant, a weight, the audience, the sources, the gameId, the class or the schema answers definition-immutable, before startsAt it applies, a lower revision answers stale-revision, and a new definition whose startsAt lies less than 10 seconds after the current time answers window-invalid.
+5. AssignVariant reproduces the contracts vectors of the hash and the bucket in every binding and in every Socket instance of two regions, and 100,000 subjects of a 50/30/20 experiment fall within 1 percentage point of the weights.
+6. A subject keeps its variant across 1000 calls, a Socket restart, an ephemeral store restart and revisions that change only endsAt, the title or another subject's override, and no assignment is written to any store.
+7. An override yields its variant with overridden=true, a variant of weight 0 is reached only through an override, and a change of the overrides moves only the overridden subjects.
+8. A guest that becomes a member and a guest whose credential expired are new subjects assigned from their new subjectKey, ReadVariants with 17 ids answers message-invalid, and no ReadVariants reply carries a salt, a weight or another subject's variant.
+9. A valid client observation yields exactly one experiment-observation line at info with the common fields, the definition's class, the variant AssignVariant gives for the connection's principal and the object in schema field order with integers exact, and the reply carries the same observationId and variant.
+10. An unknown experiment answers experiment-unknown, a scheduled one experiment-scheduled and a closed one experiment-closed, an early CloseExperiment closes it at once and never reopens it, a closed experiment answers experiment-closed for 7 days and experiment-unknown once its field expired, and no line is emitted for any of them.
+11. A source the definition does not admit and a module source naming another gameId answer forbidden, a subject outside the audience not-enrolled and an unauthenticated connection unauthenticated, and no line is emitted for any of them.
+12. An undeclared member answers field-unknown, a missing required member field-missing, an out-of-range integer and a value outside an enum field-invalid, a nested value, an array, a null and a duplicate member message-invalid and an object above 2 KiB object-too-large before it is decoded, the error object names the field to the submitter alone, and no line is emitted for any of them.
+13. The checks apply in their order, so an object above 2 KiB for an unknown experiment answers object-too-large and a rate-limited call holding an undeclared member answers rate-limited.
+14. A client naming a subjectId and a submission under the operator credential answer forbidden, an object member named variant never changes the line's variant, and a client retry with one messageId yields at most two lines with one observationId, which the experiments report command counts once.
+15. The 11th observation inside a connection's burst and the 61st inside a minute answer rate-limited with a retry hint, the 7th ReadVariants inside a minute answers rate-limited, and two connections of one principal together pass at most 120 observations in a minute.
+16. A caller service kind above 1000 calls per second on one Socket instance answers rate-limited with a retry hint while another kind's calls pass, and no rate counter is written to any store.
+17. With the log queue held above 75% of its bound the endpoint answers retryable-unavailable with a 1-second retry hint and emits nothing, experiment_records_refused_total counts each refusal, and no accepted line is dropped under a burst of error lines.
+18. A 16-player session at 60 Hz and one at 128 Hz calling Observe on every tick keep tick p99 below 80% of the period while Socket is unreachable, the context worker drops beyond 10 submissions per second and 64 queued with a counter, and with Socket reachable each accepted call yields one line with gameId, sessionId, ownerEpoch and tick.
+19. A session adopted from an older snapshot re-issues the observationIds of the re-simulated ticks, the experiments report command keeps the record with the highest ownerEpoch, and Restore voids every observation not yet submitted.
+20. A player of a game listing two experiments receives their variants in the context host event within the 2-second budget, or pending and then a later context host event, Variant answers the same variant on the server runner and on the client runner, and a game listing none makes no ReadVariants call.
+21. DefineExperiment and CloseExperiment from the operator credential apply in every region from its acknowledgement and reach every Socket instance of the region within 10 seconds, while a member, a guest and every service kind other than operator and Profiles receive forbidden.
+22. With Profiles declared, an admin's DefineExperiment and CloseExperiment append one AuditRecord each and apply in every region through the outbox, and a moderator, a member and a guest receive forbidden.
+23. An ephemeral store restart that loses {experiments:G} is repaired by experiment_restore within one refresh, no running experiment answers experiment-unknown for longer than one refresh, and every registry key carries a positive expiry.
+24. In mode standard every experiment-observation line carries subjectKind and a subjectDigest equal to the contracts vector for its salt, experimentId and subjectKey, one subject's digests differ between two experiments, experiments.subjectPolicy=none drops both fields, and no line in any mode, experiment-definition lines included, carries a playerId, a profileId, a username, an address, a connectionId, a credential, a salt, an override subject or a free-text string.
+25. The experiments report command fed the committed line set prints the committed report byte for byte, including the deduplicated counts, the distinct subjects, the per-field statistics, the intervals and an srm flag for a 52/48 split of a 50/50 experiment over 100,000 subjects.
+26. With Statistics declared and statistics.experimentIngest=true, experiment-summary over the same lines delivered twice answers the figures of the experiments report command.
+27. With experiments.enabled=false every experiment operation answers feature-unavailable, no registry key exists and no player context bundle calls ReadVariants.
+28. In traceless mode start with experiments.enabled=true fails without privacy.experimentsAllowed=true, the traceless preset keeps experiments.enabled=false, and with both set no line carries a subject field or a digest of a subject, a playerId, an address or a token, sessionId appears only as the keyed digest of "Anonymous traceless mode", the experiments report command counts records instead of subjects and the file-system diff of test 1 of "Anonymous-mode conformance" stays empty.
+29. The Minimal profile passes tests 1 to 21, 23 to 25 and 27 with no process beyond Socket, Inspector, Engine and the store.
+
+A pass with the in-memory coordination store alone never satisfies tests 6, 10, 21 and 23, because the registry's field lifetimes, its refresh and experiment_restore run on the real store's clock. A pass with the in-memory call adapter alone never satisfies test 16, because statuses and retry hints belong to the HTTP adapter. The 10-second refresh, the 2-second context budget and the rate limits are starting values to measure, not latency guarantees. A test fails on them only where the rule makes the bound an outcome, as tests 15, 21 and 23 do. In traceless mode tests 27 and 28 run, test 28 replaces test 24, and every other test runs there only under privacy.experimentsAllowed=true.
+
+### 31.18 Performance tests
 
 Performance tests run a real Engine on a reference instance type with scripted players and the latency and loss simulator. Their figures fix capacityUnits, memoryBytes, egress and maxTickRate per instance type and capacity class; no node advertises capacity before its load test. Each performance profile runs at 1, 10 and 64 sessions per node, and its tick budget is the share of the period that "Performance and memory budgets" states, at the profile's tick rate. The 128 Hz performance profile is the first two rows: a capacity class declares maxTickRate 128 only after its run record shows both within their budgets.
 
@@ -11036,10 +11400,11 @@ The table below lists the other required scenarios.
 | Feed fan-out | Source facts for subjects at 500 friends, Feed and Social declared | Per source fact one own-item unit of work, one ReadAudience call and at most 5 friend units of work; time to the last friend item measured |
 | Call cost | Placement and service channel calls at 1000 joins per minute, mutual TLS on and off | Call p99 per operation measured against 80% of its budget; signing and verification cost per call measured |
 | Progression burst | 64 sessions of 16 players ending within 1 second, progression owner declared | End write p99 measured; tick p99 of running sessions unchanged within their budget; at most 64 context worker requests in flight per session |
+| Experiment observations | Clients at 60 RecordObservation calls per minute per connection and services at 1000 calls per second per caller service kind on one Socket instance | Processor cost per observation measured and counted in Socket's capacity class beside control messages; control reply p99 and log queue occupancy measured; no accepted line dropped |
 
-The move measurement replaces the 500 ms freeze target and the 2-second pause target with measured figures; until then a missed target is reported, never failed. The Journal append scenario is the journal measurement of "Journal writer and batching". It replaces the 250 ms p99 append acknowledgement target with a measured figure, and until then a missed target is reported, never failed. The join saga cost fixes the store-call figures, which are starting values for the load test, not capacity guarantees. The call cost and progression burst scenarios are the call measurement, which replaces the budgets of the interaction catalog with measured figures. Until then a call p99 above 80% of its budget is reported, never failed. The leak gauges are those of "Leak-prevention rules" in "Performance and memory budgets". Collector processor time stays under 5% under the benchmark profile where the runtime has a collector. A sandboxed session is measured beside a native one, because the sandbox figures (0.1 ms per boundary crossing, 64 MiB, the fuel ceiling, 5 ms instantiation) stay starting values until this measurement. At 128 Hz the fuel ceiling is 37.5 ms and the boundary crossing 2.7% of the simulate budget. The weights, egress figures and the JSON encode factor of the performance profiles are starting values until these runs measure them. A profile that misses its weight or egress figure is reported with the measured figure, never failed, while its tick budget fails the run. Budgets are starting values, not advertised capacity.
+The move measurement replaces the 500 ms freeze target and the 2-second pause target with measured figures; until then a missed target is reported, never failed. The Journal append scenario is the journal measurement of "Journal writer and batching". It replaces the 250 ms p99 append acknowledgement target with a measured figure, and until then a missed target is reported, never failed. The join saga cost fixes the store-call figures, which are starting values for the load test, not capacity guarantees. The call cost and progression burst scenarios are the call measurement, which replaces the budgets of the interaction catalog with measured figures. Until then a call p99 above 80% of its budget is reported, never failed. The experiment observations scenario fixes the observation throughput of Socket's capacity class, which stays a starting value until it runs. The leak gauges are those of "Leak-prevention rules" in "Performance and memory budgets". Collector processor time stays under 5% under the benchmark profile where the runtime has a collector. A sandboxed session is measured beside a native one, because the sandbox figures (0.1 ms per boundary crossing, 64 MiB, the fuel ceiling, 5 ms instantiation) stay starting values until this measurement. At 128 Hz the fuel ceiling is 37.5 ms and the boundary crossing 2.7% of the simulate budget. The weights, egress figures and the JSON encode factor of the performance profiles are starting values until these runs measure them. A profile that misses its weight or egress figure is reported with the measured figure, never failed, while its tick budget fails the run. Budgets are starting values, not advertised capacity.
 
-### 31.18 Chaos tests
+### 31.19 Chaos tests
 
 Chaos tests run the system integration topology under concurrent joins and 60 Hz traffic, with the shuffling adapter, and once more under 128 Hz traffic on engines of a class declaring maxTickRate 128. They cover restart, offload, coordination-store loss, saga crash points and session moves. Every chaos test also runs in the Minimal profile with the store in its ephemeral profile. With Social or Feed declared, the rows of the fourth table of "Production acceptance matrix" run as chaos actions in the same topology. With a progression owner, a history owner, or Statistics and Recording, declared, the rows of the fifth table run the same way, with the fault-injecting call adapter on every call.
 
@@ -11064,7 +11429,7 @@ Chaos tests run the system integration topology under concurrent joins and 60 Hz
 
 Split-brain is asserted from the store, not from logs. The test records every accepted write with its epoch and fails on any session that accepted writes from two holders at one epoch. The same audit fails on any room member field accepted under a fence lower than its sagaFence, and on any player with two committed entries at one fence.
 
-### 31.19 Anonymous-mode conformance
+### 31.20 Anonymous-mode conformance
 
 The anonymous-mode suite runs against the Minimal profile with mode=traceless. It asserts the definition in "Anonymous traceless mode" with these twelve tests plus every Conformance statement of "Anonymous traceless mode", which covers the start-time gates and the queue and move keys:
 
@@ -11081,9 +11446,9 @@ The anonymous-mode suite runs against the Minimal profile with mode=traceless. I
 11. A game profile with sessions=on and requiresRecording=true fails the validate command and the Engine start with configuration-invalid naming the profile, and one with requiresRecording=false runs with its effective recording off and no RecordingNotice.
 12. A scripted 128 Hz session and a scripted session under simulationEncoding=json run with no optional service, every history route answers feature-unavailable without a call, the dump tool and the replay writer are refused at start, and the file-system diff of test 1 shows no change.
 
-The store log check inspects the log itself instead of trusting a redaction setting, because the setting's availability on the default store image is unverified. The suite runs with durabilityClass snapshot-and-journal as well, because the journal is a store stream under an expiry and never a directory. No replay file is written in traceless mode, so the determinism test runs in the testkit only. The queue and topic contract suite and the join saga and session move suites run in traceless mode as well, where the coordination-store stream adapter is the only legal adapter of the topic role and the queue role. Their last tests carry the traceless assertions. The traceless statements of "Social service" and "Feed service" run here as well: start with mode=traceless and a declared Social or Feed fails. Test 12 of "Call contract suite", tests 23 and 33 of "Progression and session history conformance", test 16 of "Encoding conformance" and test 25 of "Games history conformance" run here too. No session history record and no games history exists in this mode, because no history owner can be declared. Memory scrubbing at session end is best effort and is not asserted by a test.
+The store log check inspects the log itself instead of trusting a redaction setting, because the setting's availability on the default store image is unverified. The suite runs with durabilityClass snapshot-and-journal as well, because the journal is a store stream under an expiry and never a directory. No replay file is written in traceless mode, so the determinism test runs in the testkit only. The queue and topic contract suite and the join saga and session move suites run in traceless mode as well, where the coordination-store stream adapter is the only legal adapter of the topic role and the queue role. Their last tests carry the traceless assertions. The traceless statements of "Social service" and "Feed service" run here as well: start with mode=traceless and a declared Social or Feed fails. Test 12 of "Call contract suite", tests 23 and 33 of "Progression and session history conformance", test 16 of "Encoding conformance", test 25 of "Games history conformance" and tests 27 and 28 of "Experiments conformance" run here too. No session history record and no games history exists in this mode, because no history owner can be declared. Memory scrubbing at session end is best effort and is not asserted by a test.
 
-### 31.20 Production acceptance matrix
+### 31.21 Production acceptance matrix
 
 These are required runtime tests, not tests already performed by this specification. Record build, topology, seed, load profile, traces, state checks and observed recovery time for every run. A deployment profile is accepted for production only when every row that applies to it passes. The first table applies to every profile, the Minimal profile included.
 
@@ -11171,7 +11536,7 @@ The fifth table applies only when a progression owner, a history owner, or Stati
 | Social unreachable during friends' history reads | retryable-unavailable to the friend; never a wider view |
 | ProfileErased under load with a history owner | Within 24 hours no index row of the member; every record names the tombstone id, or under history.erasure=remove holds none of its tenures |
 
-### 31.21 Initial SLOs
+### 31.22 Initial SLOs
 
 Suggested initial SLOs apply per region and per profile. They derive from the constants of this specification and are starting values for the first load test, not guarantees. Measure them under the promised capacity and the agreed dependencies before publishing any of them as a guarantee.
 
@@ -11191,11 +11556,11 @@ Suggested initial SLOs apply per region and per profile. They derive from the co
 
 The class A freeze target of 2k ticks, 2 ticks up to 64 Hz and 4 ticks at 128 Hz, and the handoff budget of 2 seconds per 1000 sessions are reported but are not SLOs until the handoff measurement replaces them. The move freeze-to-first-tick target of 500 ms is reported the same way until the move measurement replaces it. Alert on the reference alerts of "Observability and logging" and on the move alerts of "Engine node, lease, epoch, placement and capacity".
 
-### 31.22 Release gate
+### 31.23 Release gate
 
-Every test level of this section gates a library release, and the real-store matrix of three topologies and two vendors is part of that gate. The queue and topic contract suite runs in that matrix with the shuffling adapter in front of the in-memory and the coordination-store stream adapters, and in front of every broker adapter shipped as a separate job per adapter. A broker adapter ships only after it passes the whole suite. The join saga and session move suites run in that matrix with the shuffling adapter in front of the coordination-store stream adapter, and once more in front of a broker adapter as a separate job. The social and feed library releases run the Social and Feed suite against a real repository host that refuses non-fast-forward updates, with one mirror. The call contract suite runs in that matrix against the RPC adapter with mutual TLS on and off and against the in-memory adapter, each behind the fault-injecting call adapter. Another adapter of the service channel ships only after it passes the whole suite. The statistics, profiles and recording library releases run the progression and session history suite and the games history suite against the relational store and the document store as a replica set. The contracts and engine library releases run the encoding conformance suite in every binding and against a real Engine and Socket, and the engine library release runs every performance profile of "Performance tests", the 128 Hz performance profile included. Every run uploads its record: build, topology, seed, scenario file, load profile, traces, state checks and observed recovery times. Nothing a test produces is published as a release artifact.
+Every test level of this section gates a library release, and the real-store matrix of three topologies and two vendors is part of that gate. The queue and topic contract suite runs in that matrix with the shuffling adapter in front of the in-memory and the coordination-store stream adapters, and in front of every broker adapter shipped as a separate job per adapter. A broker adapter ships only after it passes the whole suite. The join saga and session move suites run in that matrix with the shuffling adapter in front of the coordination-store stream adapter, and once more in front of a broker adapter as a separate job. The social and feed library releases run the Social and Feed suite against a real repository host that refuses non-fast-forward updates, with one mirror. The call contract suite runs in that matrix against the RPC adapter with mutual TLS on and off and against the in-memory adapter, each behind the fault-injecting call adapter. Another adapter of the service channel ships only after it passes the whole suite. The statistics, profiles and recording library releases run the progression and session history suite and the games history suite against the relational store and the document store as a replica set. The contracts and engine library releases run the encoding conformance suite in every binding and against a real Engine and Socket, and the engine library release runs every performance profile of "Performance tests", the 128 Hz performance profile included. The kernel, socket and engine library releases run the experiments suite against a real coordination store in every topology of that matrix. The kernel library release also runs the experiments report command against its committed line set. Every run uploads its record: build, topology, seed, scenario file, load profile, traces, state checks and observed recovery times. Nothing a test produces is published as a release artifact.
 
-### 31.23 Conformance
+### 31.24 Conformance
 
 1. Library coverage measured on the integration suites together, excluding generated code and adapter glue, is at least 95% for every released library.
 2. Every closed error code of every operation in this specification is produced by at least one named test.
@@ -11269,6 +11634,13 @@ Every test level of this section gates a library release, and the real-store mat
 70. No history read returns a row, a record, a tenure or an event outside the visibility of "History reads and visibility", a URL or an object key, and a friend's read while Social is unreachable answers retryable-unavailable.
 71. Within 24 hours of ProfileErased no index row of the member exists, and every session history record names the tombstone id in place of the member or, under history.erasure=remove, holds none of its tenures.
 72. In the Minimal profile and in traceless mode every history route answers feature-unavailable without a call and nothing about a past session is written, while 128 Hz sessions and both simulation encodings run with no optional service.
+73. The twenty-nine experiments tests pass with experiments.enabled=true against a real coordination store, with the shuffling adapter on every topic and the fault-injecting call adapter on every call, and the Minimal profile passes tests 1 to 21, 23 to 25 and 27 with no process beyond Socket, Inspector, Engine and the store.
+74. No definition with an identifier field, an unsupported keyword or type or a string field without an enum enters effect, whether it arrives through configuration or through DefineExperiment.
+75. Every accepted RecordObservation emits exactly one experiment-observation line whose variant is the one AssignVariant computes, every refused one emits none, and an unknown, scheduled or closed experiment answers experiment-unknown, experiment-scheduled or experiment-closed.
+76. A subject keeps its variant for the experiment's life across restarts, store loss and every revision a running experiment admits, and no assignment is stored.
+77. The per-connection, per-principal and per-caller-kind rate limits of RecordObservation and ReadVariants hold with rate-limited and a retry hint, and no rate counter is written to a store.
+78. No experiment line carries a playerId, a profileId, a username, an address, a connectionId, a credential, a salt or a free-text string, and in traceless mode no line carries a subject field or a digest of a subject.
+79. No tick waits for RecordObservation or ReadVariants at any tick rate, and with experiments.enabled=false every experiment operation answers feature-unavailable and no registry key exists.
 
 ## 32. Relationship to the draft catalog 1.0.0
 
@@ -11390,6 +11762,12 @@ These are product decisions. Each row states the default the text assumes until 
 | Whether erasure of a member deletes the recordings it appears in or redacts its tracks | Delete, set per game profile through the erasure value of GameProfile.recording | "Recording" |
 | Whether a room may turn off the recording of a game whose profile records | No; roomNarrowing stays empty unless the game developer lists off | "Recording" |
 | Whether participants receive playback of their own scopes | No; participantPlayback=false unless the game developer sets it | "Recording" |
+| Which service owns the experiment registry and who may define experiments | Socket, as the only writer of {experiments:G} through experiment_define, experiment_close and experiment_restore; the operator credential defines in every profile, Profiles defines for an admin with one AuditRecord per call, and the A/B testing tool adds no eighth optional service | "A/B testing tool" in "Observability and logging" |
+| Default analysis window and retention class of an experiment | A window of 7 days ending at the current time, from 1 to 90, intersected with startsAt to endsAt and never longer than the class retention; lines in the class experiment of 30 days, with experiment-short of 7 days and experiment-long of 90 days as the alternatives | "A/B testing tool" in "Observability and logging" |
+| Whether the A/B testing tool is on by default | No; experiments.enabled=false until the operator sets it | "A/B testing tool" in "Observability and logging" |
+| Whether guests are enrolled in an experiment by default | Yes; a definition's audience is all unless it names guests or members | "A/B testing tool" in "Observability and logging" |
+| Whether a traceless installation may run experiments | No; privacy.experimentsAllowed=false, so the start-time gate refuses experiments.enabled=true in traceless mode | "A/B testing tool" in "Observability and logging" |
+| Whether a guest keeps its variant when it becomes a member | No; GuestClaimed carries no experiment, so the member is a new subject | "A/B testing tool" in "Observability and logging" |
 
 ### 33.4 Progression and cross-service interactions
 
@@ -11480,7 +11858,7 @@ Every term holds in the Minimal profile unless its definition names an optional 
 
 | Term | Definition | Section |
 | --- | --- | --- |
-| Socket | Socket is the mandatory public gateway of one region that terminates TLS, verifies credentials, applies budgets and routes each accepted message to exactly one destination while owning no business state, publishing to no topic and consuming only the queue of its own Socket topic. | "Socket" |
+| Socket | Socket is the mandatory public gateway of one region that terminates TLS, verifies credentials, applies budgets and routes each accepted message to exactly one destination while owning no business state beyond the experiment registry of the A/B testing tool it hosts, publishing to no topic and consuming only the queue of its own Socket topic. | "Socket" |
 | Inspector | Inspector is the mandatory coordination authority of one region that owns rooms, membership, presence, the engine registry, placement, leases, epochs, quotas, tickets, guest identity, the per-player locks and the saga records in the coordination store. | "Inspector" |
 | Engine | The Engine is the mandatory runtime that hosts sessions in RAM, runs their tick loops, verifies sagas before attachment, terminates game transports, routes media, offloads snapshots to the coordination store and moves sessions under pressure. | "Engine runtime" |
 | Profiles | Profiles is the optional service that owns members, roles, personal fields, bans, audit records, guest claims, durable room profiles and the member credential keys, and member progression and the games history summary lists when Statistics is not declared. | "Profiles service" |
@@ -11586,7 +11964,7 @@ Every term holds in the Minimal profile unless its definition names an optional 
 | Room visibility | Room visibility is public, for a room ListRooms lists, unlisted, for a room joinable by any principal that holds its roomId and regionId, or, with Social declared, private, for a room that ListRooms never lists and that admits only its owner, its members and invitees holding a live invite grant. | "Room" |
 | Room revision | The room revision is Inspector's counter that increments on every membership, role, block, settings, state and session change of a room. | "Room" |
 | Room idle lifetime | The room idle lifetime is the time a room without member writes lives before it closes, 24 hours by default and 1 hour in traceless mode. | "Room" |
-| Game profile | The game profile is the GameProfile that a module's Describe returns, declaring the limits, tick rate, send rate, simulation encoding, policies, sync model, media policy, recording setting, history.events, history.customKinds and history.resultStats, durability class, migratable flag and required services of a game. | "Engine runtime" |
+| Game profile | The game profile is the GameProfile that a module's Describe returns, declaring the limits, tick rate, send rate, simulation encoding, policies, sync model, media policy, recording setting, history.events, history.customKinds and history.resultStats, GameProfile.experiments, durability class, migratable flag and required services of a game. | "Engine runtime" |
 | Projection | A projection is a revisioned view, such as RoomState, a session roster or AttachRedirect, delivered as a hint that a receiver discards at or below the revision it holds. | "Room" |
 | Public-room directory | The public-room directory is the {region:G}:directory hash, an eventually consistent view that ListRooms reads. | "Room" |
 
@@ -11658,7 +12036,7 @@ Every term holds in the Minimal profile unless its definition names an optional 
 | Placement | Placement is Inspector's choice of one engine in the room's home region for a session at StartSession or at adoption, normal engines before pressured ones. | "Engine node, lease, epoch, placement and capacity" |
 | Placement channel | The placement channel is the request-and-reply channel of Socket ↔ Inspector, Engine → Inspector and optional services → Inspector that carries placement calls and projection operations in the control envelope. | "Contracts and code generation" |
 | Queue channel | The queue channel is the internal channel of the mandatory core whose messages, the placement messages, PlacementReply, the per-player saga messages, the move messages, the capacity notices, DeliverToPrincipals on the delivery topic and DeliverProjection on the Socket topic, travel in the service envelope on the service queue between Inspector and the Engine, between engines, from Inspector to Socket and from Social and Feed to Inspector, and never as synchronous calls. | "Contracts and code generation" |
-| Service channel | The service channel is the abstract request-and-reply role between services, with the operations Call(peer, request, deadline) → reply and Serve(operations), that carries the calls of Socket's routes to declared optional services, the Engine's context worker, Inventory → Engine, Payment → Inventory, Profiles → Statistics and Social and Feed, one control envelope each way, with the RPC adapter as reference adapter, and that no simulation worker calls or waits for. | "Integration bus" |
+| Service channel | The service channel is the abstract request-and-reply role between services, with the operations Call(peer, request, deadline) → reply and Serve(operations), that carries the calls of Socket's routes to declared optional services, the Engine's context worker, Inventory → Engine, Payment → Inventory, Profiles → Statistics and Social and Feed, and the experiment calls of the Engine, optional services, the operator's tooling and Profiles on Socket, one control envelope each way, with the RPC adapter as reference adapter, and that no simulation worker calls or waits for. | "Integration bus" |
 | Reservation | A reservation is a 30-second claim on an engine's units and memory written by engine_reserve that never makes a session run. | "Engine node, lease, epoch, placement and capacity" |
 | Allocation | An allocation is the charge of a session the Engine holds, counted in usedUnits from the first heartbeat that lists the session. | "Engine node, lease, epoch, placement and capacity" |
 | Capacity unit | A capacity unit is 1% of one reference core. | "Engine node, lease, epoch, placement and capacity" |
@@ -11755,7 +12133,7 @@ Every term holds in the Minimal profile unless its definition names an optional 
 | Call deadline | The call deadline is the caller's remaining budget in milliseconds carried in the Call-Deadline header, 5 seconds by default unless the interaction catalog names another budget, past which the callee starts no work and abandons work it has not committed. | "Integration bus" |
 | Caller list | The caller list is the set of service kinds an operation of the service channel or the placement channel admits, against which the callee authorizes every verified request. | "Integration bus" |
 | Principal context | The principal context is the playerId, role, regionId, connectionId and generation that only a Socket caller may carry in a request and that a callee trusts from no other service kind. | "Integration bus" |
-| Context worker | The context worker is the Engine's only worker for calls whose answers a session object needs, the player context bundle, the item ledger and the progression writes, holding at most 64 requests in flight per session, never running on a simulation worker and serving InventoryChanged at the Engine's registered service address. | "Engine runtime" |
+| Context worker | The context worker is the Engine's only worker for calls whose answers a session object needs, the player context bundle, the item ledger, the progression writes and the experiment operations ReadVariants and RecordObservation on Socket, holding at most 64 requests in flight per session, never running on a simulation worker and serving InventoryChanged at the Engine's registered service address. | "Engine runtime" |
 
 ### A.18 Player lock and saga record
 
@@ -11856,7 +12234,7 @@ Every term holds in the Minimal profile unless its definition names an optional 
 | --- | --- | --- |
 | Game module | The game module is the developer's GameModule, whose Describe returns the game profile and whose New returns a session object. | "Engine runtime" |
 | Session object | The session object is the GameSession a game module returns, a standalone, host-independent simulation whose state lives in the generated state container of its state schema. | "Portable session object, client prediction and state synchronization" |
-| Session context | The session context is the whole capability set of a session object: the queries Roster, Groups, Inventory, Entitlements and Progression(player) and the fixed list of commands. | "Portable session object, client prediction and state synchronization" |
+| Session context | The session context is the whole capability set of a session object: the queries Roster, Groups, Inventory, Entitlements, Progression(player) and Variant(player, experimentId) and the fixed list of commands. | "Portable session object, client prediction and state synchronization" |
 | State schema | The state schema is the authored per-game source of entity types, ordered fields, ownerSeat, tags, correction metric, thresholds and delta layout. | "Portable session object, client prediction and state synchronization" |
 | State container | The state container is the generated structure that holds a session object's whole state, outside of which every datum is a cache that Restore rebuilds. | "Portable session object, client prediction and state synchronization" |
 | Runner | A runner is the host of exactly one session object, native or sandboxed, in the Engine or on a client, and the only code that calls the host/session boundary. | "Portable session object, client prediction and state synchronization" |
@@ -12107,7 +12485,7 @@ Every term holds in the Minimal profile unless its definition names an optional 
 | Progression owner | The progression owner is the one service that stores Progressions, Statistics when declared, Profiles when declared without Statistics and none otherwise, derived by the validate command from the declared services and never probed. | "Statistics service" |
 | Progression schema | The progression schema is the game's declaration beside its state schema of at most 32 stat keys, each with an initial value and a merge rule sum, max or min, at most 128 unlock keys and a save struct of at most 2 KiB. | "Statistics service" |
 | Session-only | Session-only is the progression part of a deployment or subject without a durable progression owner, delivered with the declared initial values, under which SaveProgress answers session-only and the end updates are discarded with the session, so nothing leaves the Engine. | "Engine runtime" |
-| Player context bundle | The player context bundle is the progression view, the inventory view and the ticket's entitlements that the context worker fetches at the admission of a seat holder under one 2-second budget, each part ready, absent, session-only, pending, incompatible or unavailable. | "Engine runtime" |
+| Player context bundle | The player context bundle is the progression view, the inventory view, the ticket's entitlements and, for a game whose GameProfile.experiments lists an experiment, the experiments part that the context worker fetches at the admission of a seat holder under one 2-second budget, each part ready, absent, session-only, pending, incompatible or unavailable. | "Engine runtime" |
 | Context host event | A context host event, OnPlayerContext, is the host event that delivers a player context bundle immediately before OnJoin at the admitting tick boundary, or a part answered later at a later boundary, and that never reaches the sink topic. | "Engine runtime" |
 | Tenure | A tenure is one seat holding or viewer slot, sessionId + playerId + joinedAtTick, the unit of a SessionHistory's players and, for a seat holding, the unit whose cumulative progression update every write carries, ordered by (ownerEpoch, incarnation, counter) across retries, handoffs, moves and adoptions. | "Statistics service" |
 | Tenure rule | The tenure rule is the owner's application, per Progression and from a tenure table of at most 64 entries, of only the difference between a write's cumulative update and the contribution its tenure already applied, so no retry, resend or adopter's write applies a contribution twice. | "Statistics service" |
@@ -12260,7 +12638,7 @@ Every term holds in the Minimal profile unless its definition names an optional 
 | --- | --- | --- |
 | Telemetry interface | The telemetry interface is the one kernel interface for log lines, metrics and spans that accepts typed fields only. | "Observability and logging" |
 | Log event catalog | The log event catalog is the appendix that assigns every log event its constant text, its fields and exactly one level. | "Observability and logging" |
-| Log retention class | A log retention class is security, operational or debug, carried by every line so the operator's capture routes it. | "Observability and logging" |
+| Log retention class | A log retention class is security, operational, debug or one of the experiment classes, carried by every line so the operator's capture routes it. | "Observability and logging" |
 | Per-session debug flag | The per-session debug flag raises one session's lines to debug through the operator endpoint and ends with the session. | "Observability and logging" |
 | Closed label set | The closed label set is the fixed set of metric labels per metric in the telemetry catalog, in which no identifier or address appears. | "Observability and logging" |
 | Library | A library is the unit of source, tests, version, tag and license, one of fifteen in one repository. | "Distribution and developer experience" |
@@ -12273,11 +12651,64 @@ Every term holds in the Minimal profile unless its definition names an optional 
 | Core unit | The core unit is the generated part of a target that the mandatory domain produces and that compiles without any optional unit. | "Contracts and code generation" |
 | Testkit | The testkit is the one harness library with scripted players, a controlled clock, in-memory adapters, the shuffling adapter and fault injection that every suite and every game developer uses. | "Testing strategy and acceptance gates" |
 
+### A.44 Experiments and assignment
+
+| Term | Definition | Section |
+| --- | --- | --- |
+| A/B testing tool | The A/B testing tool is the experiments feature of the kernel library that Socket hosts in every profile, off by default with experiments.enabled=false, made of experiment definitions, AssignVariant and the experiment endpoint, and adding no service, image, store, extension role or topic. | "Observability and logging" |
+| Experiment | An experiment is one A/B test named by its experimentId and defined by one ExperimentDefinition, which compares the variants of its subjects through their experiment observations and decides no admission, placement, settlement, entitlement, progression or history operation. | "Observability and logging" |
+| ExperimentDefinition | An ExperimentDefinition is the closed object of at most 16 KiB that holds an experiment's experimentId, revision, title, salt, variants, audience, sources, gameId or none, startsAt, endsAt, retentionClass, schema, overrides and closedAt or none, read from the experiments configuration group or the experiment registry. | "Observability and logging" |
+| Experiment state | An experiment state is scheduled before startsAt, running from startsAt until endsAt or closed from then on, derived from the definition's times on the Socket instance's clock, and a closed experiment never reopens. | "Observability and logging" |
+| Experiment schema | The experiment schema is the restricted JSON Schema document of a definition: a root object with additionalProperties false, a required list and at most 32 camelCase properties, each a boolean, a bounded integer, a bounded number or a string with an enum, so no field carries free text. | "Observability and logging" |
+| Definition validator | The definition validator is the kernel check that the validate command runs on configuration definitions and DefineExperiment on registry definitions, answering definition-invalid with exactly one reason of a closed set. | "Observability and logging" |
+| Identifier list | The identifier list is the contracts constant of the words id, ids, uuid, guid, email, mail, phone, name, username, user, player, profile, account, address, ip, device, token, secret, password, location, latitude and longitude, under which the definition validator refuses with field-identifier a property whose name, split at its camelCase boundaries, holds one of them. | "Observability and logging" |
+| Experiment registry | The experiment registry is the key {experiments:G} of each region's coordination store, one field per experimentId and a rev field, written only by Socket through experiment_define, experiment_close and experiment_restore, each field living until endsAt + 7 days, or closedAt + 7 days after an early close. | "Observability and logging" |
+| Operator credential | The operator credential is the service credential of kind operator in the trusted-services configuration that authorizes DefineExperiment, CloseExperiment and ReadExperiments and nothing else. | "Observability and logging" |
+| Definer | A definer is the operator's tooling under the operator credential, in every profile, or Profiles for an admin with one AuditRecord per call, which calls the internal Socket address of every region with the same definition and revision. | "Observability and logging" |
+| Variant | A variant is one of the 2 to 8 arms of an experiment, a unique lowercase kebab-case name with a weight, of which the first is the control variant. | "Observability and logging" |
+| Control variant | The control variant is the first variant of a definition, against which an analysis compares every other variant. | "Observability and logging" |
+| Weight | A weight is a variant's integer share of the 10,000 buckets, from 0 to 10,000, the weights of one experiment summing to exactly 10,000 and a variant of weight 0 being reached only through overrides. | "Observability and logging" |
+| Audience | An audience is all, the default, guests or members, the subjects a definition enrolls, every other subject being not-enrolled. | "Observability and logging" |
+| Sources | The sources of a definition are a non-empty subset of client, module and service, client by default, naming the callers that may read its variants and submit its observations, with module requiring a gameId. | "Observability and logging" |
+| Salt | The salt is a definition's 128 random bits in hexadecimal, the key of AssignVariant and subjectDigest, fixed from startsAt and never revealed by a reply or carried by a line. | "Observability and logging" |
+| Subject | A subject is the guest or member principal that an assignment and an experiment observation concern, named by its subjectKey. | "Observability and logging" |
+| subjectKey | subjectKey is a subject's identity for AssignVariant, a member's profileId or a guest's playerId, never a connectionId, an address or a device identifier. | "Observability and logging" |
+| Assignment | An assignment is the variant one subject holds in one experiment, derived by AssignVariant from the definition alone, never stored and unchanged for the experiment's life unless an override names the subject. | "Observability and logging" |
+| AssignVariant | AssignVariant(definition, subjectKey) is the pure function that answers not-enrolled outside the audience, an override's variant with overridden=true, and otherwise the first variant in declared order whose cumulative weight exceeds the bucket. | "Observability and logging" |
+| Bucket | The bucket is b mod 10,000, where b is the first 64 bits, read as an unsigned big-endian integer, of a keyed cryptographic hash under the salt over the bytes of "assign", 0x00, experimentId, 0x00 and subjectKey. | "Observability and logging" |
+| Override | An override is one of at most 64 definition entries of a subjectKey and a variant name, for testing, that gives its subject that variant with overridden=true and whose records every analysis excludes. | "Observability and logging" |
+| ReadVariants | ReadVariants is Socket's query that answers per experiment its state and, for a running one, the variant, overridden and endsAt, to a client for its connection's principal and to the Engine for a subjectId and a gameId, never revealing a salt, a weight or another subject's variant. | "Observability and logging" |
+| GameProfile.experiments | GameProfile.experiments is the game profile's list of at most 8 experimentIds that its module reads and logs. | "Engine runtime" |
+| Experiments part | The experiments part is the part of the player context bundle, ready, pending or unavailable, that carries per listed experiment its state and variant from ReadVariants and stays fixed for the tenure. | "Engine runtime" |
+| Variant(player, experimentId) | Variant(player, experimentId) is the session context query that answers the player's variant from the experiments part, or none, and never calls a service. | "Engine runtime" |
+
+### A.45 Experiment observations and analysis
+
+| Term | Definition | Section |
+| --- | --- | --- |
+| Experiment endpoint | The experiment endpoint is RecordObservation on Socket, reached by a client on its authenticated control connection and by a service on the service channel at the region's internal Socket address, which verifies a submitted ExperimentObject against its definition and emits exactly one experiment-observation line per accepted observation. | "Observability and logging" |
+| RecordObservation | RecordObservation(experimentId, object, subjectId or none, gameId or none, sessionId or none, ownerEpoch and tick or none) is the command of the experiment endpoint that answers observationId and variant, or exactly one code of its closed error set. | "Observability and logging" |
+| ExperimentObject | An ExperimentObject is the submitted map of at most 32 members and 2 KiB encoded whose values are JSON booleans, numbers or strings of at most 64 characters, decoded in one pass without nesting, arrays, null or duplicate members. | "Observability and logging" |
+| Experiment observation | An experiment observation is one RecordObservation that passed the access, size, experiment, source, enrollment, rate, fields and headroom checks in that order, identified by its observationId and recorded as exactly one experiment-observation line. | "Observability and logging" |
+| Observation source | An observation source is client, for a client's own principal, module, for the Engine's context worker on behalf of a player of a session it holds, or service, for an optional service on behalf of a principal it serves. | "Observability and logging" |
+| observationId | observationId is the duplicate basis of an experiment observation, the request's messageId for a client or service source and, for a module source, the first 128 bits of a cryptographic hash over sessionId + experimentId + playerId + tick + the index of the Observe call, by which every analysis counts an observation once. | "Observability and logging" |
+| Observe | Observe(player, experimentId, object) is the session context command that the host records and the context worker submits after the tick boundary as RecordObservation with source module, and of which no outcome reaches the module. | "Engine runtime" |
+| experiment-observation line | An experiment-observation line is the one info line of at most 4 KiB per experiment observation, in its definition's experiment class, carrying the common fields, the experiment fields, the subject fields its mode permits and the verified object in schema field order. | "Observability and logging" |
+| subjectDigest | subjectDigest is the first 64 bits in hexadecimal of a keyed cryptographic hash under the salt over the bytes of "subject", 0x00, experimentId, 0x00 and subjectKey, a per-experiment pseudonym that an experiment-observation line carries in mode standard unless experiments.subjectPolicy=none, and never in traceless mode. | "Observability and logging" |
+| experiment-definition line | An experiment-definition line is the info line every Socket instance emits at start, on every loaded revision and every 24 hours per definition in effect, carrying the definition without its salt or override subjects, so an analysis needs no access to the registry. | "Observability and logging" |
+| Experiment class | An experiment class is experiment-short, experiment or experiment-long, the log retention class of a definition's lines, 7, 30 and 90 days by default and each configurable from 1 to 90 days. | "Observability and logging" |
+| Headroom check | The headroom check is the last check of RecordObservation, which answers retryable-unavailable with a 1-second retry hint while the process log queue is above 75% of its bound, so an accepted experiment-observation line is never dropped. | "Observability and logging" |
+| Analysis window | The analysis window is the 1 to 90 days, 7 by default, that end at the current time, intersected with the experiment's startsAt to endsAt and never longer than its class retention, over which an analysis reads experiment lines. | "Observability and logging" |
+| Experiments report command | The experiments report command is the operator tooling's command, shipped in every reference image, that reads experiment lines as JSON lines, keeps one record per observationId, excludes overridden records and reports per-variant figures, intervals against the control variant and the sample-ratio check, with an output the conformance vectors fix. | "Observability and logging" |
+| Sample-ratio check | The sample-ratio check is the chi-square test of subjects, or of records without digests, against the weights that flags srm below p = 0.001. | "Observability and logging" |
+| Experiment observations table | The experiment observations table is the analytics-store table that exists only with Statistics declared and statistics.experimentIngest=true, written only by the operator's log pipeline, partitioned by day and deduplicated by observationId at merge. | "Statistics service" |
+| experiment-summary | experiment-summary is the named report of RunReport over the experiment observations table that computes what the experiments report command computes and answers aggregates only. | "Statistics service" |
+
 ## Appendix B. Invariants
 
 This appendix restates, as numbered formal invariants, the properties that the sections of this specification require at every instant. Each invariant is one sentence that names its entities and conditions and ends with the section that states it. The section is authority; an invariant here adds no rule and removes none. Each required runtime test of "Testing strategy and acceptance gates" is named by the invariant it protects.
 
-Every invariant holds in the Minimal profile, including the minimal anonymous deployment, unless it names an optional service, a mode or a sync model. An invariant that names an optional service holds whenever that service is declared and states nothing about deployments without it. Every invariant that involves a message on a topic or a queue, service queue messages and sink facts included, holds under any delivery order, duplication and redelivery, which the shuffling adapter exercises. Numbers are stable identifiers from this baseline on: an invariant keeps its number when others are added after it.
+Every invariant holds in the Minimal profile, including the minimal anonymous deployment, unless it names an optional service, a mode or a sync model. An invariant that names an optional service holds whenever that service is declared and states nothing about deployments without it. An invariant of "A/B testing tool" holds whenever experiments.enabled=true, unless it states the disabled case itself. Every invariant that involves a message on a topic or a queue, service queue messages and sink facts included, holds under any delivery order, duplication and redelivery, which the shuffling adapter exercises. Numbers are stable identifiers from this baseline on: an invariant keeps its number when others are added after it.
 
 ### B.1 Identifiers, counters and envelopes
 
@@ -12506,7 +12937,7 @@ Every invariant holds in the Minimal profile, including the minimal anonymous de
 
 ### B.12 Socket
 
-193. Socket never reads a coordination-store key, and its only store writes are its own {conn:C} entries with a positive expiry (see "Socket").
+193. Socket never reads a coordination-store key other than the experiment registry {experiments:G}, and its only store writes are its own {conn:C} entries and the registry fields that experiment_define, experiment_close and experiment_restore write, each with a positive expiry (see "Socket").
 194. Socket never decides membership, placement, admission, a quota, a ban, a move or a game outcome (see "Socket").
 195. Socket never retries a client-originated message on its own (see "Socket").
 196. Socket relays attachment-stream bytes unchanged and in order and never merges, splits, filters or re-encodes a game frame (see "Socket").
@@ -12617,7 +13048,7 @@ Every invariant holds in the Minimal profile, including the minimal anonymous de
 280. In traceless mode no optional service and no message broker is declared, every extension role runs its null adapter and the service queue runs on coordination-store streams only (see "Anonymous traceless mode").
 281. In traceless mode no core process writes a file under any writable path at run time, a session move included, and the coordination store keeps no snapshot or append log (see "Anonymous traceless mode").
 282. Every key and hash field the core writes carries a positive expiry set in the same atomic step that creates it, and no operation of the core removes an expiry (see "Anonymous traceless mode").
-283. In traceless mode no log line at any level carries a playerId, username, address, token, ticket, attachment secret or payload, and sessionId, roomId, a saga messageId, a fence and a connectionId appear only as keyed digests (see "Anonymous traceless mode").
+283. In traceless mode no log line at any level carries a playerId, username, address, token, ticket, attachment secret or payload, the verified ExperimentObject of an experiment-observation line under privacy.experimentsAllowed=true excepted, and sessionId, roomId, a saga messageId, a fence and a connectionId appear only as keyed digests (see "Anonymous traceless mode").
 284. A saga messageId derived from a playerId lives only in process memory and in a saga record, a member field or a service queue message under a positive expiry (see "Anonymous traceless mode").
 285. No snapshot envelope, journal batch, service queue message, store key or sink fact contains a client address, in either mode (see "Anonymous traceless mode").
 286. Address-derived state exists only in process memory, as keyed digests under a per-process key rotated every 24 hours, and a move carries no address from source to target (see "Anonymous traceless mode").
@@ -12672,7 +13103,7 @@ Every invariant holds in the Minimal profile, including the minimal anonymous de
 320. No metric series carries a sessionId, roomId, playerId, connectionId, correlationId or address label (see "Observability and logging").
 321. No span exists per tick, per input or per packet (see "Observability and logging").
 322. A blocked log destination never delays a tick (see "Observability and logging").
-323. No consumer derives statistics, results, points, entitlements or billing from a log line, a metric or a span (see "Observability and logging").
+323. No consumer derives statistics, results, points, entitlements or billing from a log line, a metric or a span, except the experiment statistics an analysis derives from the lines of the experiment classes, which feed no result, point, entitlement, settlement or bill (see "Observability and logging").
 324. The Engine hot path performs zero heap allocations per tick in steady state (see "Performance and memory budgets").
 325. Every queue has a bound, a drop counter and a warn threshold, and a full queue drops or replaces under its rule and never grows (see "Performance and memory budgets").
 326. Every pooled buffer reads as zero bytes when it returns to its pool, and a payload above its cap is refused before a buffer is taken (see "Performance and memory budgets").
@@ -12784,7 +13215,7 @@ Every invariant holds in the Minimal profile, including the minimal anonymous de
 414. No simulation worker issues a call or waits for one, so an answer a session object needs reaches it only as a host event at a tick boundary and a lapsed budget only as a pending or unavailable outcome, never as a late tick (see "Integration bus").
 415. The call listener accepts POST only and serves no resource path, query string, cookie, cache, conditional or range request, content negotiation or redirect, and a caller never follows a redirect status (see "Integration bus").
 416. A callee holds at most 256 calls in flight per caller service kind and a caller process at most 64 per callee instance, and a callee at its bound answers 429 and never queues without limit (see "Integration bus").
-417. In the Minimal profile the adapter of the service channel carries only placement-channel calls between Socket, Inspector and Engine, and in traceless mode no call writes an access log and no call log line carries a body, a principal context, a playerId or an address (see "Integration bus").
+417. In the Minimal profile the adapter of the service channel carries only placement-channel calls between Socket, Inspector and Engine and, with experiments enabled, the Engine's ReadVariants and RecordObservation calls and the operator credential's DefineExperiment, CloseExperiment and ReadExperiments calls on Socket, and in traceless mode no call writes an access log and no call log line carries a body, a principal context, a playerId or an address (see "Integration bus").
 418. Every Engine call runs on its lifecycle worker or on its context worker, the ownership loop never waits for a call, and the context worker holds at most 64 requests in flight per session (see "Engine runtime").
 
 ### B.31 Progression and player context
@@ -12867,7 +13298,35 @@ Every invariant holds in the Minimal profile, including the minimal anonymous de
 482. Every generated JSON decoder refuses an unknown member, a duplicate member, a missing required member, a wrong type and a counter written as a number identically in every binding, and every generated JSON encoder gives equal records equal bytes (see "Transports and wire codec").
 483. No binary tool runs on a production hot path, and in traceless mode the dump tool and the replay writer are refused at start (see "Engine runtime").
 
-### B.36 Conformance
+### B.36 A/B testing tool
+
+484. The A/B testing tool adds no service, image, store, extension role or topic, so the optional services stay seven, and with experiments.enabled=false every experiment operation answers feature-unavailable, no {experiments:G} key exists and no player context bundle calls ReadVariants (see "Observability and logging").
+485. No admission, placement, settlement, entitlement, progression or history operation reads an ExperimentDefinition, a variant or an experiment line, and inside a session only the module reads a variant (see "Observability and logging").
+486. No definition enters effect, from configuration or the experiment registry, whose schema holds a keyword or type outside the experiment schema, a string field without an enum or a property name holding a word of the identifier list, or whose weights do not sum to exactly 10,000 over 2 to 8 variants (see "Observability and logging").
+487. Only Socket writes {experiments:G}, only through experiment_define, experiment_close and experiment_restore, every field expires at most 7 days after its endsAt or closedAt, and at most 64 definitions are in effect per region (see "Observability and logging").
+488. Only the operator credential and Profiles for an admin, with one AuditRecord per call, define or close an experiment, every other caller receives forbidden, and a definition is in effect in a region only from that region's acknowledgement (see "Observability and logging").
+489. From startsAt an experiment's salt, variants, weights, audience, sources, gameId, retentionClass and schema never change, no experiment runs longer than 90 days from startsAt, and a closed experiment never reopens (see "Observability and logging").
+490. AssignVariant is a pure function of the definition and the subjectKey, so every process of every region gives one subject the same variant, no assignment is ever stored and a subject keeps its variant for the experiment's life unless an override names it (see "Observability and logging").
+491. A subjectKey is a member's profileId or a guest's playerId, never a connectionId, an address or a device identifier, and a client observation's subject is the principal of its authenticated connection, a client naming a subjectId receiving forbidden (see "Observability and logging").
+492. Socket computes the variant of every experiment line and every reply through AssignVariant and never reads one from a submission (see "Observability and logging").
+493. An observation is accepted only after the access, size, experiment, source, enrollment, rate, fields and headroom checks passed in that order, an accepted observation yields exactly one experiment-observation line and a refused one yields none (see "Observability and logging").
+494. An ExperimentObject above 2 KiB encoded is refused before it is decoded, and no accepted object holds nesting, an array, null, a duplicate member, an undeclared member, a string above 64 characters or a value outside its field's type, range or enum (see "Observability and logging").
+495. An experiment-observation line that entered the process log queue is never dropped or displaced, and while the queue is above 75% of its bound RecordObservation answers retryable-unavailable and emits nothing (see "Observability and logging").
+496. No experiment line carries a playerId, a profileId, a username, an address, a connectionId, a credential, a salt or a free-text string in any mode, and in traceless mode none carries subjectKind, subjectDigest or any other digest of a subject (see "Observability and logging").
+497. RecordObservation writes no idempotency record and nothing per observation to a store, and every analysis counts distinct observationIds, keeping for a module record the one with the highest ownerEpoch (see "Observability and logging").
+498. A module observation's observationId is deterministic over sessionId + experimentId + playerId + tick + the index of its Observe call, so an adopter that re-simulates a tick re-issues the same identity (see "Engine runtime").
+499. Socket counts the experiment rate limits in process memory, never in a store, admitting per connection 60 RecordObservation calls per minute with a burst of 10 and 6 ReadVariants calls per minute, so a principal submits at most 120 client observations per minute in a region (see "Observability and logging").
+500. No simulation worker calls or waits for ReadVariants or RecordObservation, no outcome of an Observe reaches the module, and the context worker submits at most 10 observations per second per session with at most 64 queued, dropping and counting the rest (see "Engine runtime").
+501. Variant answers only from the experiments part of the player's last OnPlayerContext, fixed for the tenure, and answers the same variant on the server runner and on the client runner (see "Engine runtime").
+502. No component of the core stores, ships, indexes or aggregates an experiment line, writes it to a file, a repository or the analytics store, or publishes it to a topic or the event sink, so the operator's log pipeline is its only collector (see "Observability and logging").
+503. An analysis covers 1 to 90 days and never more than its experiment class retains, excludes overridden records, and no figure of an analysis reaches a client, a session object, a result, a point, an entitlement, a settlement or a bill (see "Observability and logging").
+504. With Statistics present and statistics.experimentIngest=true, the operator's pipeline is the only writer of the experiment observations table, experiment-summary over the same lines delivered any number of times answers the figures of the experiments report command, and no answer holds a subjectDigest, an observationId, a sessionId or the object of a single record (see "Statistics service").
+505. No reply of ReadVariants or ReadExperiments reveals a salt, and no ReadVariants reply reveals a weight or another subject's variant (see "Observability and logging").
+506. No experiment metric label names a subject, an observationId or a client-supplied string, and the experiment and variant labels take values only from the definitions in effect, at most 64 and 8 (see "Observability and logging").
+507. In traceless mode experiments.enabled=true starts only with privacy.experimentsAllowed=true, and an experiment line then carries sessionId only as a keyed digest (see "Anonymous traceless mode").
+508. The Minimal profile with experiments enabled runs the whole A/B testing tool with no process beyond Socket, Inspector, Engine and the coordination store, and no store, file or event sink receives an observation (see "Observability and logging").
+
+### B.37 Conformance
 
 1. Every invariant of this appendix names the section that states it, and that section contains a rule or conformance statement with the same entities and conditions.
 2. Every invariant of this appendix is protected by at least one required runtime test named by that invariant in "Testing strategy and acceptance gates".
@@ -12878,6 +13337,7 @@ Every invariant holds in the Minimal profile, including the minimal anonymous de
 7. A bug found after the suites passed adds a regression test named by the invariant it broke, or adds a new invariant to this appendix when none covers it.
 8. Every glossary row and invariant that states a window counted in ticks or a ring counted in sent updates passes its test at 60 Hz and at 128 Hz, with the unscaled value at 64 Hz or below and the rate-factor value above.
 9. Every invariant that names a simulation encoding passes its test under binary and under json, and every invariant about simulation-plane frames that names neither passes under both.
+10. Every invariant of "A/B testing tool" passes its test in the Minimal profile with experiments.enabled=true, and in mode=traceless with privacy.experimentsAllowed=true also set, while with experiments.enabled=false every other invariant passes its test unchanged.
 
 ## Appendix C. Message inventory
 
@@ -12887,7 +13347,7 @@ This appendix lists every message the specification defines or implies. It is de
 
 Each row names the message, its kind, its producer, its consumers, its channel, its delivery, its owning service and the section whose text fixes its fields or semantics. The owner follows the domain rule of "Contracts and code generation": the emitter for an event, the executing service for a command, a query or a reply. A message that a client produces, such as InputFrame or DigestReport, belongs to the service that receives it, because a client is not a domain. An owner marked optional belongs to an optional domain; every other owner belongs to the core domain. "client" means the generated client binding, and "through Socket" names a relay hop that Socket performs without interpreting the payload.
 
-Channel names are those of "Contracts and code generation": control, placement, queue, service, session, simulation and facts. placement carries request-and-reply calls between Socket and Inspector, from the Engine to Inspector and from optional services to Inspector. queue carries every service-topic message: between Inspector and the Engine, between engines, from Social and Feed to Inspector on the delivery topic and from Inspector to each Socket instance on its Socket topic. service is the internal service channel for Socket's routes to optional services, the Engine context worker's calls to Inventory and to the progression owner and Inventory's InventoryChanged push to an Engine. It also carries Payment's calls to Inventory and Profiles' calls to Statistics, Payment, Inventory and the progression owner for an audited ReadProfile. Social's and Feed's calls to Profiles, Feed's calls to Social and Statistics, the history owner's ReadAudience calls to Social and an append that one Social instance forwards to its shard's writer travel on it as well. Every call of the placement and service channels is one request and one reply on the reference adapter of "Service channel", command-style RPC over HTTP. A call is one POST to /rpc/<type>/<version> carrying the generated request envelope of the row's message and answered by one reply envelope, so a row of either channel names a contract message, never an HTTP resource. A further name, local, marks a process-local socket without a catalog envelope; a row with channel local stays outside the message registry by rule, not by omission. A relayed client request lists both hops, as in "control, then placement".
+Channel names are those of "Contracts and code generation": control, placement, queue, service, session, simulation and facts. placement carries request-and-reply calls between Socket and Inspector, from the Engine to Inspector and from optional services to Inspector. queue carries every service-topic message: between Inspector and the Engine, between engines, from Social and Feed to Inspector on the delivery topic and from Inspector to each Socket instance on its Socket topic. service is the internal service channel for Socket's routes to optional services, the Engine context worker's calls to Inventory and to the progression owner and Inventory's InventoryChanged push to an Engine. It also carries Payment's calls to Inventory and Profiles' calls to Statistics, Payment, Inventory and the progression owner for an audited ReadProfile. Social's and Feed's calls to Profiles, Feed's calls to Social and Statistics, the history owner's ReadAudience calls to Social and an append that one Social instance forwards to its shard's writer travel on it as well. So do the experiment calls to Socket: RecordObservation and ReadVariants from the Engine context worker and from optional services at the region's internal Socket address. DefineExperiment, CloseExperiment and ReadExperiments from the operator's tooling and from Profiles travel on it too, on Socket's call listener at the internal Socket address of every region. Every call of the placement and service channels is one request and one reply on the reference adapter of "Service channel", command-style RPC over HTTP. A call is one POST to /rpc/<type>/<version> carrying the generated request envelope of the row's message and answered by one reply envelope, so a row of either channel names a contract message, never an HTTP resource. A further name, local, marks a process-local socket without a catalog envelope; a row with channel local stays outside the message registry by rule, not by omission. A relayed client request lists both hops, as in "control, then placement".
 
 Delivery names one of the six delivery contracts that the delivery-classes file declares: control (reliable-ordered, JSON), tick (unreliable; simulation encoding for contract records, binary frame envelope for AudioFrame under both encodings), bulk (reliable-unordered; simulation encoding for contract records, binary frame envelope for VideoChunk under both encodings), lockstep (reliable-ordered, simulation encoding), queue (at-least-once, order optional, on a service topic, JSON) and sink (at-least-once, order optional, on the sink topic of "Integration bus", JSON). local names a process-local exchange with no redelivery and is not a catalog delivery contract.
 
@@ -12895,11 +13355,11 @@ Four envelopes carry these messages, as "Identifiers, time, counters and envelop
 
 Every command and query receives exactly one reply, whose data carries requestId equal to the request's messageId (see "Identifiers, time, counters and envelopes"). A reply has no row of its own, except HelloAck, AttachAck and PlacementReply, which the sections name. Error replies carry a code from "Error codes", never a message type of their own.
 
-The Minimal profile uses the core rows only: Socket, Inspector and Engine messages on the control, placement, queue, session and simulation channels, the queue channel on coordination-store streams, the handoff socket and the operator endpoints. No facts-channel message is built there, because the event sink is the null adapter, and Socket answers every client-facing optional-domain message with feature-unavailable without a network call. Declaring an optional service adds the rows of its subsection and gives a caller to the core rows that name it; it changes no core message. In traceless mode a declared optional service and a declared broker fail start, so a traceless installation exchanges core messages only. Both simulation encodings and every tick rate up to 128 Hz run in the Minimal profile and in traceless mode with the core rows alone.
+The Minimal profile uses the core rows only: Socket, Inspector and Engine messages on the control, placement, queue, session and simulation channels, the queue channel on coordination-store streams, the handoff socket and the operator endpoints. Once an operator enables experiments, the rows of "Experiment messages" join them on the control and service channels, with Socket as their only executor and no process beyond Socket, Inspector, Engine and the coordination store. No facts-channel message is built there, because the event sink is the null adapter, and Socket answers every client-facing optional-domain message with feature-unavailable without a network call. Declaring an optional service adds the rows of its subsection and gives a caller to the core rows that name it; it changes no core message. In traceless mode a declared optional service and a declared broker fail start, so a traceless installation exchanges core messages only. Both simulation encodings and every tick rate up to 128 Hz run in the Minimal profile and in traceless mode with the core rows alone.
 
 ### C.2 Socket messages
 
-Socket executes negotiation, authentication and the region directory on the control channel, CloseConnections, which Inspector calls on it, and DeliverProjection, which it consumes from its Socket queue. Its own outbound messages are HelloAck, SocketDraining, CredentialExpiring, ProjectionsDropped and error replies. Hello carries simulationEncodings, which Socket keeps on the Client connection and relays in the connection context of JoinRoom and Admit, as "Encoding negotiation" lists.
+Socket executes negotiation, authentication and the region directory on the control channel, CloseConnections, which Inspector calls on it, and DeliverProjection, which it consumes from its Socket queue. Its own outbound messages are HelloAck, SocketDraining, CredentialExpiring, ProjectionsDropped and error replies. It also executes every experiment message, which "Experiment messages" lists. Hello carries simulationEncodings, which Socket keeps on the Client connection and relays in the connection context of JoinRoom and Admit, as "Encoding negotiation" lists.
 
 | Message | Kind | Producer | Consumers | Channel | Delivery | Owner | Defined in |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -12917,7 +13377,25 @@ Socket executes negotiation, authentication and the region directory on the cont
 
 Socket accepts CloseConnections only under Inspector's service credential and DeliverProjection only with producer kind Inspector. An open connection may send only Hello, ListRegions, ListRooms, ReadBoard, IssueGuest, Authenticate, RegisterMember, SignIn and RenewCredential, the last three answering feature-unavailable when Profiles is absent. Every other control-channel message answers unauthenticated. Keepalive is a catalog message, not a transport-level ping, because a browser cannot send WebSocket ping frames; Socket consumes it without a reply and forwards it nowhere. ProjectionsDropped carries the count of dropped slots and has a cause only when Social or Feed is declared, because only their deliveries fill principal slots. In the Minimal profile and in traceless mode it is never sent. Socket consumes only DeliverProjection, from the queue of its own Socket topic, publishes no queue-channel row of this appendix, and declaring a broker changes no Socket message.
 
-### C.3 Inspector client operations
+### C.3 Experiment messages
+
+Socket executes the messages of the A/B testing tool itself, through the experiments feature of the kernel library, and relays none of them to Inspector, to an Engine or to an optional service. They belong to the core domain and exist as types whether or not an operator enables the feature. RecordObservation is the experiment endpoint of "A/B testing tool": it verifies a submitted JSON object against its experiment's definition and, on success, emits exactly one experiment-observation line through the logging interface of "Observability and logging".
+
+| Message | Kind | Producer | Consumers | Channel | Delivery | Owner | Defined in |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| RecordObservation | command | authenticated client, for the principal of its connection, with source client; Engine context worker, after the tick boundary, for each recorded Observe, with source module and the player's playerId, gameId, sessionId, ownerEpoch and tick; optional service, for a principal it serves, with source service | Socket, which answers itself without a relay; for a service caller the instance at the region's internal Socket address | control for a client; service for the Engine and optional services | control | Socket | "Experiment endpoint route"; "A/B testing tool" for the service callers |
+| ReadVariants | query | authenticated client, for the principal of its connection; Engine context worker, for the experiments part of the player context bundle at the admission of a seat holder of a game whose GameProfile.experiments lists an experiment, under the 2-second context budget | Socket, which answers itself without a relay; for the Engine the instance at the region's internal Socket address | control for a client; service for the Engine | control | Socket | "Experiment endpoint route"; "A/B testing tool" for the Engine |
+| DefineExperiment | command | the operator's tooling under the operator credential; Profiles outbox for an admin client, whose request reaches Profiles through Socket | Socket of every region of the installation directory, on its call listener at the region's internal Socket address; Profiles for an admin client | service; control, then service for an admin client to Profiles | control | Socket | "A/B testing tool" |
+| CloseExperiment | command | the operator's tooling under the operator credential; Profiles outbox for an admin client, whose request reaches Profiles through Socket | Socket of every region of the installation directory, on its call listener at the region's internal Socket address; Profiles for an admin client | service; control, then service for an admin client to Profiles | control | Socket | "A/B testing tool" |
+| ReadExperiments | query | the operator's tooling under the operator credential; Profiles, for ListExperiments | Socket, on its call listener at the region's internal Socket address | service | control | Socket | "A/B testing tool" |
+
+A client reaches RecordObservation and ReadVariants only on an authenticated control connection, takes its subject from the connection's principal and receives forbidden when it names a subjectId. A service names the subject and calls with its service credential. The operator credential authorizes DefineExperiment, CloseExperiment and ReadExperiments and nothing else, so it cannot submit an observation. Socket accepts the three definition messages only under the operator credential or Profiles' service credential, and every other caller receives forbidden. Profiles' admin routes for DefineExperiment and CloseExperiment answer only the admin role and reference these core messages instead of duplicating them, and its ListExperiments, under "Profiles messages, optional service", answers from ReadExperiments. A definer calls every region of the installation directory with the same definition and revision, and the Profiles outbox retries a region until it acknowledges, because a keyspace has no cross-region access. A definition is in effect in a region from that region's acknowledgement.
+
+No experiment message travels on the placement, queue, session, simulation or facts channel, and no row of this subsection has a topic. An accepted observation is one experiment-observation line on standard output, never a message, a fact, a sink append or a store write; Socket emits no line for a refused one. The registry procedures experiment_define, experiment_close and experiment_restore run inside Socket's coordination store, and the experiment-definition and experiment-defined lines are log lines, not messages. RecordObservation names its own duplicate basis, the observationId, instead of the 10-minute idempotency record of "Service channel". Socket keeps no idempotency record, a retry may emit a second line with the same observationId and every analysis counts distinct observationIds. The reply carries observationId and the variant that AssignVariant computes. No request carries a variant, and no reply reveals a salt, a weight or another subject's variant.
+
+The Engine issues RecordObservation and ReadVariants only from its context worker, never from a simulation worker, and nothing on the tick path waits for either call. A refusal is counted and logged, a submission beyond the Engine's per-session bound is dropped with a counter and no outcome reaches the module. A game whose GameProfile.experiments lists no experiment makes no call. With experiments.enabled=false every row of this subsection answers feature-unavailable without any network call and no context bundle calls ReadVariants. Without Profiles only the operator's tooling defines experiments, and an admin client's DefineExperiment, CloseExperiment and ListExperiments answer feature-unavailable at Socket. In traceless mode the rows answer only with privacy.experimentsAllowed=true also set, and the lines then carry no subject field and no digest of one (see "Anonymous traceless mode").
+
+### C.4 Inspector client operations
 
 Socket forwards each of these from an authenticated connection, or from an open one where "Client connection and presence" permits it, with the call context of the connection. The first hop is the control channel and the second the placement channel, on the request-and-reply path that "Integration bus" keeps outside the topic role and the queue role.
 
@@ -12949,7 +13427,7 @@ JoinRoom, LeaveRoom, UpdateMember, Admit and BlockInRoom run the per-player saga
 
 ReadBoard answers feature-unavailable without Statistics, and IssueControlTicket answers forbidden without Profiles, because no moderator exists. SetPresenceStatus answers feature-unavailable while presence tracking is off, which is exactly when Social is not declared. With Profiles present, IssueGuest answers issuer-delegated when guestIssuer=profiles. In the Minimal profile every other operation of these two tables behaves exactly as its defining section states.
 
-### C.4 Inspector service operations
+### C.5 Inspector service operations
 
 These are the request-and-reply calls that services make to Inspector on the placement channel under a service credential. A caller without the declared credential receives forbidden on every projection operation.
 
@@ -12980,7 +13458,7 @@ Presence tracking and invite grants add three service operations, which serve on
 
 ReadPresence, ProjectInvite and RevokeInvite have a caller only when Social is declared, and Inspector accepts them only under Social's service credential. Their delivery differs from the projection operations above. ReadPresence reads the region's own keyspace only, and a region that does not answer within Social's budget reads unknown. ProjectInvite is never an outbox entry, because its answer decides whether the invite exists, and RevokeInvite is retried by Social's outbox until the invite's region acknowledges or until passes.
 
-### C.5 Inspector service queue messages
+### C.6 Inspector service queue messages
 
 Inspector publishes these on service topics: per-player messages to an engine inbox, the fallback claim to an engine inbox and capacity hints to the fleet topic. Each is a trigger, not authority; the coordination store holds every outcome, and the order of two messages carries no meaning.
 
@@ -13002,7 +13480,7 @@ Inspector consumes one service-topic message that only Social and Feed publish.
 
 DeliverToPrincipals has a producer only when Social or Feed is declared, and Inspector admits it only with producer kind Social or Feed, Feed's for FeedUpdated only. It is a hint: it answers nothing, no producer republishes it and no decision waits for it. In the Minimal profile and in traceless mode no delivery topic exists.
 
-### C.6 Inspector projections and facts
+### C.7 Inspector projections and facts
 
 Projections reach clients as the body of DeliverProjection and are hints, not authority. Facts reach the event sink only when a consumer is declared.
 
@@ -13020,7 +13498,7 @@ Projections reach clients as the body of DeliverProjection and are hints, not au
 
 AttachRedirect is the one Inspector projection addressed to a principal rather than to a room, and its revision is the session's new ownerEpoch. The principal projections of Social and Feed appear under their services. The sink copy of PresenceChanged carries playerId, regionId, state, gameId, roomId, roomVisibility, revision and lastActiveAt, and Inspector appends it only when Social is declared. RoomState carries the session placement in its sessionId, holderEngineId and ownerEpoch fields, from which Socket's routing cache routes resumes; no separate placement projection exists. Inspector publishes SessionSettled only when Profiles is declared, and Profiles applies it only when Statistics is not declared. ProducerGap names the first and last missing producerSequence of a gap. In the Minimal profile Inspector publishes no fact.
 
-### C.7 Engine service queue messages
+### C.8 Engine service queue messages
 
 The Engine executes the placement commands from its inbox, answers them with PlacementReply on the Inspector work topic and exchanges the move messages with other engines and Inspector. Each is idempotent by messageId and epoch, and Inspector republishes an unanswered placement command after 5 seconds with the same messageId.
 
@@ -13036,7 +13514,7 @@ The Engine executes the placement commands from its inbox, answers them with Pla
 
 PlaceSession carries in its session settings the effective recording and the scheduled live events that Inspector resolved at StartSession. An adoption or a move carries the settings resolved then, so the recording setting and the live events reach the Engine in no message of their own. EntitlementUpdated has a caller only when Payment projects an entitlement. In the Minimal profile it never arrives, and the session object never receives OnEntitlementChanged. SessionPressure, MigrationClaimed and ClaimAssigned are hints beside the session index, which alone decides a claim.
 
-### C.8 Engine session channel
+### C.9 Engine session channel
 
 These travel on the reliable-ordered lane of an attachment in the control envelope, JSON under both simulation encodings. Socket relays them opaquely on gateway streams; a direct transport carries them without Socket.
 
@@ -13059,7 +13537,7 @@ HostEvents belongs to the required core: without it a client runner cannot repro
 
 SignalDescription and SignalCandidate are the only signaling messages of a peer connection, for its first negotiation, every renegotiation and every ICE restart. They travel on a gateway attachment stream of the control connection that opens with the first SignalDescription, which carries the admission ticket. The Engine holds an Attach and the first SignalDescription unanswered until the verification of the ticket's bound id passes, as "Transports and wire codec" states.
 
-### C.9 Engine session controls
+### C.10 Engine session controls
 
 The fixed control set reaches the Engine as commands from a host attachment or from a control attachment that a control ticket admitted. The Engine checks each grant before OnControl and executes each control at most once per messageId within one attachment generation.
 
@@ -13076,7 +13554,7 @@ The fixed control set reaches the Engine as commands from a host attachment or f
 
 A host issues a control only when hostControls lists it. In the Minimal profile no moderator exists, so only host attachments send these commands. The module issues the same controls through its session context, which is an in-process call and not a message.
 
-### C.10 Engine media messages
+### C.11 Engine media messages
 
 Track control travels on the session channel, and media frames travel on the simulation channel below. Peer-connection signaling uses SignalDescription and SignalCandidate only, so no media message negotiates a session description. Every row here exists in the Minimal profile.
 
@@ -13092,7 +13570,7 @@ Track control travels on the session channel, and media frames travel on the sim
 | KeyframeRequest | event | client or Engine | the other end of the attachment | session | control | Engine | "Audio and video" |
 | MediaCapabilities | event | frame-envelope client | Engine | session | control | Engine | "Audio and video" |
 
-### C.11 Engine simulation channel
+### C.12 Engine simulation channel
 
 These travel in the realtime envelope with an authored kind number, in the session's one simulation encoding, which GameProfile.simulationEncoding fixes and AttachAck confirms: binary frames by default, or one JSON frame per message under simulationEncoding=json. Under binary the JSON debug envelope of a frame serves conformance vectors and the testkit only and never travels on a transport. Under json the same closed object is the wire form. AudioFrame and VideoChunk are binary frame-envelope frames under both encodings.
 
@@ -13110,7 +13588,7 @@ These travel in the realtime envelope with an authored kind number, in the sessi
 
 Extension tick messages take kind numbers from the extension range and enter schemaHash. No optional service adds or changes a simulation-channel message, and a full-class StateUpdate is the answer to an InputFrame carrying the resync bit; no separate resync message exists. StateUpdate is the only message with two deliveries on one channel, and the validator accepts exactly the pair tick and bulk for it. Under json a StateUpdate above 16 KiB splits into interest-ranked partial frames, never truncated, and Fragment carries JSON bytes only on secure UDP. SessionSnapshot carries a complete Snapshot, and Fragment carries it above the frame budget. TickFrame and DigestReport are the only rows with delivery lockstep, on the reliable-ordered lane, and exist only for a profile with syncModel lockstep, whose sendRate equals its tickRate. The Engine sends StateUpdates only on ticks t with t mod sendInterval equal to 0 and encodes each interest class once per send tick. A rate step therefore never raises the effective send rate above the profile's sendRate.
 
-### C.12 Encoding negotiation
+### C.13 Encoding negotiation
 
 The simulation encoding and the rates reach the endpoints only inside these rows, which the tables above already list, so this table adds no message to the registry and no message of its own negotiates an encoding.
 
@@ -13125,7 +13603,7 @@ The simulation encoding and the rates reach the endpoints only inside these rows
 
 The control connection, the session channel, the placement and service channels, the topics and the queues negotiate nothing, because they are JSON in every deployment. The one content type of a placement-channel or service-channel call is application/json, and a request with another content type answers 400 with message-invalid and executes nothing.
 
-### C.13 Engine facts
+### C.14 Engine facts
 
 The Engine builds facts only when a consumer is declared; with the null sink nothing is built or appended.
 
@@ -13136,7 +13614,7 @@ The Engine builds facts only when a consumer is declared; with the null sink not
 
 SessionEvent is one fact type with the kind discriminator of its defining section; the gap kind is the Gap event of "Integration bus". The Engine's membership facts are the admitted, joined and left kinds of SessionEvent. The recording kind exists only in a session whose effective recording is on; with Statistics declared, its state started opens the recording entry of the session's SessionHistory. No progression travels in a fact: the end updates of End leave the Engine only as CommitProgress calls. SessionResult leaves the Engine only after Inspector accepted ReportSessionEnded for that ownerEpoch, and a session move produces no superseded fact.
 
-### C.14 Engine messages sent only with Recording
+### C.15 Engine messages sent only with Recording
 
 The Engine's recording extension sends these on the session channel when Recording is declared and the effective recording in the session settings of PlaceSession is on. Whether a game's sessions record is its game profile's recording setting, GameProfile.recording, which Describe returns in process; no room setting, participant, role or entitlement turns it on. In the Minimal profile and in traceless mode neither exists.
 
@@ -13145,7 +13623,7 @@ The Engine's recording extension sends these on the session channel when Recordi
 | RecordingNotice | event | Engine | every attachment of a recorded session, directly after AttachAck for a new one | session | control | Engine | "Recording" |
 | RecordingToken | event | Engine, at session end | the room owner's attachment | session | control | Engine | "Recording" |
 
-### C.15 Engine handoff socket
+### C.16 Engine handoff socket
 
 A class A handoff exchanges these on the local handoff socket between a predecessor and a successor incarnation of one engineId. They never leave the host and use no catalog envelope; the names are the lowercase forms of "Engine runtime".
 
@@ -13162,7 +13640,7 @@ A class A handoff exchanges these on the local handoff socket between a predeces
 
 Class A exists only on bare hosts and in the single-host compose deployment, so these rows have no caller on the container orchestrator.
 
-### C.16 Engine operator endpoint
+### C.17 Engine operator endpoint
 
 An operator reaches these on the Engine's local operator endpoint, beside the local form of Drain. They use no catalog envelope and never leave the host.
 
@@ -13173,9 +13651,9 @@ An operator reaches these on the Engine's local operator endpoint, beside the lo
 
 OperatorEndSession ends a session with reason operator. SetDebugFlag sets and clears the per-session debug flag.
 
-### C.17 Profiles messages, optional service
+### C.18 Profiles messages, optional service
 
-Socket routes the client operations only when Profiles is declared. Profiles relays its facts and its calls to Inspector through its outbox; the calls appear under "Inspector service operations" and "Inspector client operations". An audited ReadProfile composes its view through direct service-channel calls to ReadHistory, ReadAchievements, ReadBilling, ReadInventory and ReadProgression, each under a 2-second budget and listed under its executing service. A call that does not answer becomes an unavailable flag in the view. With Statistics not declared Profiles is the progression owner and executes the rows of "Progression messages, optional domain". It is then also the history owner. It executes ReadHistory of "Statistics messages, optional service" from the summary list of "Games history without Statistics" and calls ReadAudience on Social for the friend row when Social is declared. Its round-robin group binds the PlacementChanged of StartSession, the joined and left SessionEvents, SessionResult and SessionSettled for that list.
+Socket routes the client operations only when Profiles is declared. Profiles relays its facts and its calls to Inspector through its outbox; the calls appear under "Inspector service operations" and "Inspector client operations". An audited ReadProfile composes its view through direct service-channel calls to ReadHistory, ReadAchievements, ReadBilling, ReadInventory and ReadProgression, each under a 2-second budget and listed under its executing service. A call that does not answer becomes an unavailable flag in the view. With Statistics not declared Profiles is the progression owner and executes the rows of "Progression messages, optional domain". It is then also the history owner. It executes ReadHistory of "Statistics messages, optional service" from the summary list of "Games history without Statistics" and calls ReadAudience on Social for the friend row when Social is declared. Its round-robin group binds the PlacementChanged of StartSession, the joined and left SessionEvents, SessionResult and SessionSettled for that list. Its admin routes for DefineExperiment and CloseExperiment reference the core rows of "Experiment messages", and Profiles relays them to Socket through its outbox; ListExperiments below is its own route, answered from ReadExperiments.
 
 | Message | Kind | Producer | Consumers | Channel | Delivery | Owner | Defined in |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -13192,6 +13670,7 @@ Socket routes the client operations only when Profiles is declared. Profiles rel
 | Unban | command | moderator or admin client | Profiles, through Socket | control, then service | control | Profiles (optional) | "Profiles service" |
 | ListAudit | query | admin client | Profiles, through Socket | control, then service | control | Profiles (optional) | "Profiles service" |
 | EraseProfile | command | member client on itself | Profiles, through Socket | control, then service | control | Profiles (optional) | "Profiles service" |
+| ListExperiments | query | admin client | Profiles, through Socket | control, then service | control | Profiles (optional) | "A/B testing tool" |
 
 Profiles publishes three facts through its outbox relay.
 
@@ -13203,7 +13682,7 @@ Profiles publishes three facts through its outbox relay.
 
 Without Profiles every row of these two tables answers feature-unavailable at Socket or is never built.
 
-### C.18 Statistics messages, optional service
+### C.19 Statistics messages, optional service
 
 | Message | Kind | Producer | Consumers | Channel | Delivery | Owner | Defined in |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -13223,7 +13702,7 @@ ReadBoard is an Inspector operation and appears under "Inspector client operatio
 
 ReadHistory answers pages of at most 100 HistoryEntry rows of one user or room subject, newest first, ReadSessionHistory one record with at most 100 visible tenures per page and ReadSessionEvents at most 100 visible history events per page in (ownerEpoch, seq) order. A reply relayed to a client stays within the 64 KiB control cap, so a page is bounded by bytes as well as by rows. A HistoryEntry is the index row of one subject and session. A SessionHistory is the record carried inside these replies: the session's startedAt and endedAt, its players as tenures, its history events and its recording entry or none. The recording entry names the recording by recordingId with the caller's access class, never by a URL or an object key. Statistics builds both from facts it already consumes: the session's SessionEvents, the recording SessionEvent, SessionResult, Inspector's placement facts, SealedRecording and RecordingRemoved of "Recording messages, optional service", and GuestClaimed and ProfileErased for re-keying and erasure. No message therefore carries a history record into Statistics. A read outside the visibility of "History reads and visibility" receives forbidden, and a moderator's or admin's read appends an AuditRecord in its unit of work or answers audit-unavailable. The friend row calls ReadAudience on Social with a 2-second budget and a 60-second cache per subject and fails closed with retryable-unavailable. With Profiles as history owner ReadHistory reaches Profiles, and ReadSessionHistory and ReadSessionEvents answer feature-unavailable at Socket. With no history owner, the Minimal profile and traceless mode included, all three answer feature-unavailable at Socket without any network call. No history read reaches two owners, and none runs on a simulation worker or delays a tick.
 
-### C.19 Progression messages, optional domain
+### C.20 Progression messages, optional domain
 
 The progression domain is owned by the progression owner, which the validate command derives from the declared services: Statistics when declared, Profiles when declared without Statistics, and none otherwise. Its rows exist only with an owner, and the one owner executes all three; a call never reaches both services. The Engine's context worker issues ReadProgression and CommitProgress on the service channel and never from a simulation worker, and the answers reach the module only as the OnPlayerContext and OnProgressionResult host events of "Engine session channel".
 
@@ -13235,7 +13714,7 @@ The progression domain is owned by the progression owner, which the validate com
 
 The player context bundle is no message of its own. Its progression part is one ReadProgression on the owner, its inventory part one View on Inventory, both started in parallel under one budget, and its entitlements come from the admission ticket's feature list without a call. CommitProgress keeps the tenure rule of "Progression writes and conflicts" as its duplicate basis instead of the 10-minute idempotency record of "Service channel", and its outcome names the claim outcomes of "In-session achievement unlocks". A claimed unlock reaches Feed and Inventory as AchievementUnlocked of "Statistics messages, optional service", never as a progression message. The owner accepts ReadProgression and CommitProgress only under the Engine's service credential, ReadProgression also under Profiles' when Statistics owns progression, and refuses every other caller with forbidden. No client route exists for either. ReadOwnProgression names only a gameId, and the owner takes the subject from the principal context that Socket writes. With no owner declared, which includes the Minimal profile and traceless mode, no row of this table is sent: the context delivers the progression part as session-only, SaveProgress answers session-only, the end updates stay inside the Engine and Socket answers ReadOwnProgression with feature-unavailable without any network call.
 
-### C.20 Payment messages, optional service
+### C.21 Payment messages, optional service
 
 Provider webhooks are adapter input on Payment's own listener, never catalog messages, and never pass through Socket.
 
@@ -13252,7 +13731,7 @@ Provider webhooks are adapter input on Payment's own listener, never catalog mes
 
 Payment's calls to Inspector are ProjectEntitlement, and its calls to Inventory are ApplyPurchase and ApplyRefund, listed under their executing services. A guest receives forbidden on every operation of this table.
 
-### C.21 Inventory messages, optional service
+### C.22 Inventory messages, optional service
 
 | Message | Kind | Producer | Consumers | Channel | Delivery | Owner | Defined in |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -13268,7 +13747,7 @@ Payment's calls to Inspector are ProjectEntitlement, and its calls to Inventory 
 
 Without Inventory the item ledger is the null adapter: View answers absent, Consume and Grant answer inventory-absent at the next tick boundary and no message leaves the Engine. View, Consume and Grant run on the Engine's context worker beside ReadProgression and CommitProgress, never on a simulation worker, and InventoryChanged is the only operation that worker serves.
 
-### C.22 Social messages, optional service
+### C.23 Social messages, optional service
 
 Socket routes the client operations only when Social is declared, to Social's instances in its home region from every region's Socket. Each requires a member principal, and a guest receives member-required. Every state-changing operation carries an idempotencyKey.
 
@@ -13327,7 +13806,7 @@ Social publishes three facts through its outbox, with the sink-fact envelope and
 
 FriendshipEnded carries pairKey, profileIds and reason, BlockAdded blockerId and blockedId, and SocialSettingsChanged profileId, feedVisibility and revision. Erasure publishes none of them, because every consumer acts on ProfileErased itself. Social never publishes a message body, an invite content or a presence state to the sink. Its calls to Inspector are ReadPresence, ProjectInvite and RevokeInvite and its call to Profiles is ResolveNames, listed under their executing services, and it publishes DeliverToPrincipals to the delivery topic of every region. It serves ReadAudience to Feed and to the history owner. It consumes PresenceChanged from every region and ProfileErased as the social round-robin group. Without Social every row of these tables answers feature-unavailable at Socket or is never built, and in traceless mode a declared Social fails start.
 
-### C.23 Feed messages, optional service
+### C.24 Feed messages, optional service
 
 Socket routes the client operations only when Feed is declared, to Feed's instances in its home region, which feed.homeRegion names. Each reads only the caller's own feed, and a guest receives member-required.
 
@@ -13339,7 +13818,7 @@ Socket routes the client operations only when Feed is declared, to Feed's instan
 
 FeedUpdated carries revision, unseenCount and the newest item, with slotKey the recipient's profileId and the feed revision as its revision. Feed produces no sink fact and has no outbox. Its calls are ReadStandings to Statistics, ReadAudience to Social and ResolveNames to Profiles, listed under their executing services, and it publishes DeliverToPrincipals to the delivery topic of every region. The feed round-robin group subscribes to AchievementUnlocked, StandingChanged and SeasonClosed, to ProfileErased and, when Social is declared, to FriendshipEnded, BlockAdded and SocialSettingsChanged. A FeedItem is an entity carried inside ReadFeed's reply and FeedUpdated, with profileIds, identifiers and integers only. Without Feed ReadFeed and MarkFeedSeen answer feature-unavailable at Socket and no StandingChanged is built, and in traceless mode a declared Feed fails start.
 
-### C.24 Recording messages, optional service
+### C.25 Recording messages, optional service
 
 The playback authorizer of the recording-normalizer image executes the client operations through Socket's optional route.
 
@@ -13354,9 +13833,9 @@ The playback authorizer of the recording-normalizer image executes the client op
 
 SealedRecording and RecordingRemoved, beside the recording SessionEvent, are the recording facts of the session history. RecordingRemoved carries recordingId, sessionId, reason retention, deleted, erased or redacted, and manifestRevision. Every recording fact carries its manifest revision, so Statistics keeps the highest and converges whatever order the facts arrive in. The facts exist only when Recording is declared, and with Statistics not declared no group subscribes to RecordingRemoved, so it never leaves its producer. The recording setting is no message: GameProfile.recording comes from Describe. CreateRoom and UpdateRoom carry a room's recordingNarrowing, which may only narrow the profile's setting where its roomNarrowing allows. The effective recording travels inside the ListRooms rows, the GetRoom view, the JoinRoom reply, RoomState and the session settings of PlaceSession. History reads never return a URL, and AuthorizePlayback stays the only grant.
 
-### C.25 Topics and binding modes
+### C.26 Topics and binding modes
 
-Every queue-channel message, DeliverToPrincipals and DeliverProjection included, and every facts-channel message travels through the topic role and the queue role of "Integration bus". Its producer publishes it to exactly one topic, and it reaches every queue bound to that topic with binding mode fan-out and one member of every round-robin group bound with binding mode round-robin. G names the region and the keys are those of the coordination-store stream adapter; with a declared broker the topics and queues keep the same names, horizons and binding modes. The request-and-reply calls of the placement and service channels, CloseConnections, ReadProgression, CommitProgress and the InventoryChanged push to an Engine context worker included, are calls outside both roles and have no topic.
+Every queue-channel message, DeliverToPrincipals and DeliverProjection included, and every facts-channel message travels through the topic role and the queue role of "Integration bus". Its producer publishes it to exactly one topic, and it reaches every queue bound to that topic with binding mode fan-out and one member of every round-robin group bound with binding mode round-robin. G names the region and the keys are those of the coordination-store stream adapter; with a declared broker the topics and queues keep the same names, horizons and binding modes. The request-and-reply calls of the placement and service channels, CloseConnections, ReadProgression, CommitProgress, the InventoryChanged push to an Engine context worker and the experiment calls to Socket included, are calls outside both roles and have no topic. RecordObservation and ReadVariants on the control channel are answered by Socket itself and touch neither role.
 
 | Message | Topic | Producers | Bound queues and binding mode |
 | --- | --- | --- | --- |
@@ -13410,18 +13889,18 @@ Every fact travels on the sink topic {events:G:n}, 16 shard streams per region i
 
 A group whose subscription excludes a fact's type acknowledges it at once, or its adapter filters it out, so the type list of a binding changes cost and never an outcome. A fact type no declared group subscribes to never leaves its producer's ring. In the Minimal profile and in traceless mode no sink topic and no delivery topic exist, because the event sink is the null adapter and no optional service is declared. The engine inbox, Inspector work, fleet and Socket topics run on coordination-store streams, in traceless mode as keys with expiries.
 
-### C.26 Operations that are not messages
+### C.27 Operations that are not messages
 
-The sections define further abstract operations that never travel as catalog messages. Store-side procedures of "Inspector", such as lock_acquire, saga_read, room_join, lease_acquire, migration_claim and lease_handover, and the leaderboard procedures board_apply and board_swap run inside the coordination store. So do profile_disconnect and presence_sweep of "Presence tracking in Inspector" and room_grant of "Invites and room grants". The versioned journal store operations Append, Read, StreamHead, ShardHead, Tombstone, History, Verify, Seal and Retire of "Versioned journal store" are adapter calls inside Social. The fetch and push of "Git reference adapter" are adapter transport to the repository host, never catalog messages. RegisterEngine and Heartbeat of "Engine node, lease, epoch, placement and capacity" are Inspector procedures that the Engine runs directly on the coordination store, every 5 seconds for Heartbeat, not placement-channel messages. The Sink operations Emit and Flush, the topic role operations DeclareTopic, BindQueue and Publish and the queue role operations DeclareQueue, Consume, Ack, Nack, DeadLetter and Lag of "Integration bus" are adapter calls that carry messages, not messages themselves. Repository, unit-of-work, outbox, inbox and idempotency operations of "Persistence abstraction" run inside one service and its store, ProgressionRepository and SessionHistoryRepository with its ByUser and ByRoom queries included, and so does Profiles' summary list of "Games history without Statistics". The Call and Serve operations of "Service channel", the POST to /rpc/<type>/<version>, the Call-Signature and Call-Deadline headers and the HTTP statuses of its status table are adapter transport that carries the placement and service rows of this appendix, never messages themselves. The fault-injecting call adapter is a testkit wrapper.
+The sections define further abstract operations that never travel as catalog messages. Store-side procedures of "Inspector", such as lock_acquire, saga_read, room_join, lease_acquire, migration_claim and lease_handover, and the leaderboard procedures board_apply and board_swap run inside the coordination store. So do profile_disconnect and presence_sweep of "Presence tracking in Inspector" and room_grant of "Invites and room grants". The versioned journal store operations Append, Read, StreamHead, ShardHead, Tombstone, History, Verify, Seal and Retire of "Versioned journal store" are adapter calls inside Social. The fetch and push of "Git reference adapter" are adapter transport to the repository host, never catalog messages. RegisterEngine and Heartbeat of "Engine node, lease, epoch, placement and capacity" are Inspector procedures that the Engine runs directly on the coordination store, every 5 seconds for Heartbeat, not placement-channel messages. The Sink operations Emit and Flush, the topic role operations DeclareTopic, BindQueue and Publish and the queue role operations DeclareQueue, Consume, Ack, Nack, DeadLetter and Lag of "Integration bus" are adapter calls that carry messages, not messages themselves. Repository, unit-of-work, outbox, inbox and idempotency operations of "Persistence abstraction" run inside one service and its store, ProgressionRepository and SessionHistoryRepository with its ByUser and ByRoom queries included, and so does Profiles' summary list of "Games history without Statistics". The Call and Serve operations of "Service channel", the POST to /rpc/<type>/<version>, the Call-Signature and Call-Deadline headers and the HTTP statuses of its status table are adapter transport that carries the placement and service rows of this appendix, never messages themselves. The fault-injecting call adapter is a testkit wrapper. The registry procedures experiment_define, experiment_close and experiment_restore of "A/B testing tool" run inside Socket's coordination store, and the definition validator, AssignVariant and the experiments report command are kernel library calls and an operator command.
 
-The host/session boundary, the session context and the runner contract are in-process calls of "Portable session object, client prediction and state synchronization" and "Engine runtime". Progression(player), SaveProgress, UpgradeProgression and End among them never become messages: only the context worker's ReadProgression and CommitProgress leave the Engine, and Describe returns GameProfile.recording, the progression schema and saveConflict in process. The client runner operations SubmitInput, Advance, Receive and Counters are binding calls inside the game client. Listener and Transport connection operations, the attach, data and close records of secure UDP and relay Allocate requests of "Transports and wire codec" are transport framing. The object store driver and the playback object endpoint of "Recording" are adapter and HTTP surfaces. Socket's public status endpoint of "Clustering, regions and deployment", which returns the directory, its revision and the serving region's availability before any Hello, is an HTTP surface outside the catalog channels. Payment provider adapter operations and webhooks of "Payment service" are adapter input.
+The host/session boundary, the session context and the runner contract are in-process calls of "Portable session object, client prediction and state synchronization" and "Engine runtime". Progression(player), SaveProgress, UpgradeProgression, End, Variant(player, experimentId) and Observe(player, experimentId, object) among them never become messages: only the context worker's ReadProgression, CommitProgress, ReadVariants and RecordObservation leave the Engine, an Observe only as RecordObservation, and Describe returns GameProfile.recording, the progression schema and saveConflict in process. The client runner operations SubmitInput, Advance, Receive and Counters are binding calls inside the game client. Listener and Transport connection operations, the attach, data and close records of secure UDP and relay Allocate requests of "Transports and wire codec" are transport framing. The object store driver and the playback object endpoint of "Recording" are adapter and HTTP surfaces. Socket's public status endpoint of "Clustering, regions and deployment", which returns the directory, its revision and the serving region's availability before any Hello, is an HTTP surface outside the catalog channels. Payment provider adapter operations and webhooks of "Payment service" are adapter input.
 
-Run, Validate and PrintEffective of "Distribution and developer experience", the validate and migrate commands and the first-admin operator command of the profiles library are library and command-line entries. Reconcile, Adopt and the join, leave, regroup and move sagas of "Inspector" are internal sequences of procedure calls and queue messages already listed. The issuance challenge before IssueGuest is an extension library call. The generated JSON codecs, the frame inspector, the dump tool, the replay reader, the layout report and the schema diff of "Simulation encoding and binary tools" in "Engine runtime" are binding, testkit and generator tools, never messages. HostEvent records, OnPlayerContext, OnProgressionResult and RateChanged among them, AuditRecord, JournalEntry, FeedItem, Progression, PlayerContext, SessionHistory, HistoryEntry and the admission and control tickets are entities carried inside messages.
+Run, Validate and PrintEffective of "Distribution and developer experience", the validate and migrate commands and the first-admin operator command of the profiles library are library and command-line entries. Reconcile, Adopt and the join, leave, regroup and move sagas of "Inspector" are internal sequences of procedure calls and queue messages already listed. The issuance challenge before IssueGuest is an extension library call. The generated JSON codecs, the frame inspector, the dump tool, the replay reader, the layout report and the schema diff of "Simulation encoding and binary tools" in "Engine runtime" are binding, testkit and generator tools, never messages. The experiment-observation, experiment-definition and experiment-defined lines of "A/B testing tool" are log lines of "Observability and logging", never messages or facts. HostEvent records, OnPlayerContext, OnProgressionResult and RateChanged among them, ExperimentDefinition, ExperimentObject, AuditRecord, JournalEntry, FeedItem, Progression, PlayerContext, SessionHistory, HistoryEntry and the admission and control tickets are entities carried inside messages.
 
-### C.27 Conformance
+### C.28 Conformance
 
 1. The message registry holds every row of the core and optional tables of this appendix whose channel is not local, and no registry entry lacks a row here.
-2. Every message in the registry declares exactly one kind among command, event, query and reply, exactly one channel and exactly one delivery, except StateUpdate, which declares exactly tick and bulk, and InventoryChanged and PresenceChanged, which declare facts and sink for their sink copy beside their own channel and delivery.
+2. Every message in the registry declares exactly one kind among command, event, query and reply, exactly one channel and exactly one delivery, except StateUpdate, which declares exactly tick and bulk, InventoryChanged and PresenceChanged, which declare facts and sink for their sink copy beside their own channel and delivery, and RecordObservation and ReadVariants, which declare exactly control and service with delivery control.
 3. Every message in the registry carries version 1.0.0, and every binding's dispatcher refuses any other version with message-unknown.
 4. Every command and query receives exactly one reply whose requestId equals the request's messageId.
 5. A PlaceSession delivered 100 times in shuffled order beside its republications creates one session and yields PlacementReply messages that all name its messageId.
@@ -13457,6 +13936,11 @@ Run, Validate and PrintEffective of "Distribution and developer experience", the
 35. No control, placement, service, session-channel, queue or facts message of this appendix is ever binary, and a placement-channel or service-channel request with a content type other than application/json answers 400 with message-invalid and executes nothing.
 36. A Hello or Attach without simulationEncodings is treated as binary only, JoinRoom and Admit for a game whose simulationEncoding is absent from the connection's list are refused with encoding-unsupported before any lock is taken, an Attach whose list lacks the session's encoding closes with encoding-unsupported, and every AttachAck states simulationEncoding, tickRate and sendRate.
 37. StateUpdate is sent only on send ticks at the effective send rate, which never exceeds the profile's sendRate after a RateChanged, and a session of any tick rate up to 128 Hz under either encoding exchanges only the core rows of this appendix in the Minimal profile and in traceless mode.
+38. Socket alone answers RecordObservation and ReadVariants, on the control channel for an authenticated client and at the region's internal Socket address for a service, and never relays either to Inspector, an Engine or an optional service; a client naming a subjectId and a submission under the operator credential receive forbidden.
+39. Socket accepts DefineExperiment, CloseExperiment and ReadExperiments only on its call listener under the operator credential or Profiles' service credential, every other caller receives forbidden, and a definition is in effect in a region only from that region's acknowledgement.
+40. An accepted RecordObservation yields exactly one experiment-observation line and no message, fact, topic publish, sink append, idempotency record or store write, a refused one yields no line, and no experiment message appears on the placement, queue, session, simulation or facts channel.
+41. The Engine issues RecordObservation and ReadVariants only from its context worker, never from a simulation worker, no tick waits for either, and a game whose GameProfile.experiments lists no experiment issues neither.
+42. With experiments.enabled=false every row of "Experiment messages" answers feature-unavailable without any network call; with experiments enabled in the Minimal profile every row runs with no process beyond Socket, Inspector, Engine and the coordination store; in traceless mode the rows answer only with privacy.experimentsAllowed=true, and no experiment-observation line then carries a subject field or a digest of one.
 
 ## Appendix D. Configuration reference
 
@@ -13504,7 +13988,7 @@ Socket, Inspector and Engine read every key of this subsection. Optional service
 | mode | enum: traceless, standard | none | required | equal on Socket, Inspector and Engine; unset fails start naming both values |
 | region.id | string, ID | none | required | names an entry of region.directory |
 | region.clusterId | string, ID | none | required on the Engine; read elsewhere | names a cluster of the region's directory entry |
-| region.directory | structured | none | required | every region of the installation: regionId, displayName, socketAddresses, protocol range, capacity classes with the maxTickRate each declares, residency statement; a maxTickRate is 1 to 128 Hz, and a class that declares none is listed with 60 |
+| region.directory | structured | none | required | every region of the installation: regionId, displayName, socketAddresses, internalSocketAddress, protocol range, capacity classes with the maxTickRate each declares, residency statement; a maxTickRate is 1 to 128 Hz, and a class that declares none is listed with 60; internalSocketAddress is the region's internal Socket address, a private address that resolves to the call listener of every ready Socket instance of the region, required in every entry when experiments.enabled=true, and the only target of every experiment call of the Engine's context worker, an optional service, the operator's tooling and Profiles' outbox |
 | region.directoryRevision | integer, counter | none | required | 1 to 2147483647; increased by the operator on every directory change; carried in HelloAck |
 | store.addresses | list of address | none | required | every node of the region's coordination store |
 | store.topology | enum: standalone, replicated, sharded | standalone | read | sharded requires a routing tag on every key and full slot coverage |
@@ -13522,7 +14006,7 @@ Every service reads these keys. The drain budget differs per service, and the te
 | Key | Type | Default | Minimal anonymous deployment | Rule |
 | --- | --- | --- | --- | --- |
 | auth.serviceCredential | secret | none | required | this process's service identity, never derived from a client credential |
-| auth.trustedServices | structured, secret | none | required | per peer service its current and its previous credential; the previous value is accepted only during rotation; verifies the request and reply signatures of every call on the placement and service channels |
+| auth.trustedServices | structured, secret | none | required | per peer service its current and its previous credential; the previous value is accepted only during rotation; verifies the request and reply signatures of every call on the placement and service channels; on Socket an entry of kind operator holds the operator credential of the operator's tooling, which authorizes DefineExperiment, CloseExperiment and ReadExperiments and nothing else |
 | auth.mutualTls | boolean | false | read | mutual TLS on inter-service traffic, the gateway link included |
 | auth.tlsCertificate | file | none | absent until auth.mutualTls=true | this process's certificate for mutual TLS |
 | auth.tlsKey | file, secret | none | absent until auth.mutualTls=true | the matching private key |
@@ -13536,10 +14020,10 @@ Every service reads these keys, and traceless mode restricts four of them. "Obse
 
 | Key | Type | Default | Minimal anonymous deployment | Rule |
 | --- | --- | --- | --- | --- |
-| logging.level | enum: debug, info, warn, error | info | restricted | debug refused in traceless mode unless privacy.debugAllowed=true |
+| logging.level | enum: debug, info, warn, error | info | restricted | debug refused in traceless mode unless privacy.debugAllowed=true; while experiments.enabled=true, experiment-observation and experiment-definition lines are emitted at every value of this key, warn and error included, and the key filters only the other lines |
 | logging.identifiers | enum: digest, raw | digest in traceless mode; raw in standard mode | restricted | raw refused in traceless mode |
 | logging.coalesceSeconds | integer, seconds | 10 | read | 1 to 60 |
-| logging.queueLines | integer | 8192 | read | 1024 to 65536 per process |
+| logging.queueLines | integer | 8192 | read | 1024 to 65536 per process; on Socket with experiments enabled, RecordObservation answers retryable-unavailable while the queue holds more than 75% of this value |
 | logging.metricsAddress | address | health.address | read | private pull endpoint; metrics are always on |
 | logging.maxSeries | integer | 10000 | read | 1000 to 100000; series ceiling per process |
 | logging.moduleMetrics | integer | 64 | read | 1 to 256; distinct module metric names per game build |
@@ -13548,6 +14032,7 @@ Every service reads these keys, and traceless mode restricts four of them. "Obse
 | logging.spanQueue | integer | 2048 | read | 256 to 65536 spans per process; the newest span drops when full |
 | logging.debugPath | path | none | unset | Engine; replay files and dump tool captures of the per-session debug flag |
 | privacy.debugAllowed | boolean | false | read | true permits debug in traceless mode and prints a warning at start |
+| privacy.experimentsAllowed | boolean | false | read | Socket and Engine; true permits experiments.enabled=true in traceless mode and prints the warning experiments-allowed at start; experiment-observation lines then carry no subject field whatever experiments.subjectPolicy says |
 | privacy.digestRotationSeconds | integer, seconds | 86400 | read | 3600 to 86400; rotates the log digest key and the limiter digest key |
 | privacy.retentionDays | integer, days | 30 | absent | Statistics; 1 to 3650; analytics retention |
 | history.retentionDays | integer, days | 365 | absent | Statistics, and every Engine when Recording is also declared; 1 to 3650; session history records, the ledger and the settlements table; never shorter than the last season holding an entry; bounds every recording's retentionUntil, and the validate command refuses a game profile whose recording retention exceeds it |
@@ -13593,12 +14078,12 @@ The sink topic and the service topics never share a topic, so integration.sinkAd
 
 ### D.7 Socket keys
 
-Socket reads the keys below beside the identity, region, store, logging, drain and queue keys. Budgets are per instance and per connection, as "Socket" defines.
+Socket reads the keys below beside the identity, region, store, logging, drain and queue keys and the experiments group of "Experiment keys". Budgets are per instance and per connection, as "Socket" defines.
 
 | Key | Type | Default | Minimal anonymous deployment | Rule |
 | --- | --- | --- | --- | --- |
 | socket.listenAddress | address | none | required | public TLS listener for control connections, WebSocket game traffic and the status endpoint |
-| socket.deliveryAddress | address | none | required | private call listener of the placement channel for CloseConnections from Inspector only; registered through SocketHeartbeat; DeliverProjection arrives on the instance's Socket topic, never at this listener |
+| socket.deliveryAddress | address | none | required | the instance's private call listener: the address it registers through SocketHeartbeat, where CloseConnections from Inspector arrives, and with experiments.enabled=true one of the listeners that the internalSocketAddress of its region.directory entry resolves to, serving the service channel for RecordObservation and ReadVariants from the Engine and optional services and for DefineExperiment, CloseExperiment and ReadExperiments from the operator credential and Profiles; no caller sends an experiment call to this per-instance address; DeliverProjection arrives on the instance's Socket topic, never at this listener |
 | socket.tlsCertificate | file | none | required | certificate of the public listener |
 | socket.tlsKey | file, secret | none | required | private key of the public listener |
 | socket.balancerAddresses | list of address | empty | read | a forwarded-address header is trusted only from these addresses |
@@ -13638,7 +14123,22 @@ The per-connection budgets complete the Socket keys.
 | socket.writeBufferBytes | integer, bytes | 262144 | read | 65536 to 16777216; write buffer per connection |
 | socket.slowConsumerSeconds | integer, seconds | 5 | read | 1 to 60; time above the write buffer cap before slow-consumer |
 
-### D.8 Inspector keys
+### D.8 Experiment keys
+
+The experiments group configures the A/B testing tool of "A/B testing tool" in "Observability and logging", which Socket hosts and which adds no service. Socket reads every key of the group, and the Engine reads experiments.enabled. The group applies in every profile, the Minimal profile included, and the tool stays off until an operator sets experiments.enabled=true. privacy.experimentsAllowed is listed in "Logging and privacy keys" and statistics.experimentIngest in "Keys of optional services".
+
+| Key | Type | Default | Minimal anonymous deployment | Rule |
+| --- | --- | --- | --- | --- |
+| experiments.enabled | boolean | false | restricted | Socket and Engine; true refused in traceless mode unless privacy.experimentsAllowed=true; false in the traceless preset; false makes every experiment operation answer feature-unavailable, writes no {experiments:G} key and keeps every context bundle from calling ReadVariants |
+| experiments.definitions | structured | empty | restricted | Socket and the validate command; the configuration definitions as one JSON document of closed ExperimentDefinition objects, inline or in the _FILE form; each passes the definition validator, or the start fails with configuration-invalid naming its experimentId; at most 64 in effect per region together with the registry; a definition holding an override entry refused in traceless mode; the validate command warns about a definition whose endsAt lies more than 7 days in the past |
+| experiments.subjectPolicy | enum: pseudonym, none | pseudonym | read | Socket; pseudonym gives every experiment-observation line subjectKind and the per-experiment subjectDigest, and none drops both; in traceless mode a line carries neither whatever the value |
+| experiments.retentionShortDays | integer, days | 7 | read | 1 to 90; retention of the class experiment-short |
+| experiments.retentionDays | integer, days | 30 | read | 1 to 90; retention of the class experiment, the default class of a definition |
+| experiments.retentionLongDays | integer, days | 90 | read | 1 to 90; retention of the class experiment-long |
+
+The three retention keys hold the experiment classes of "Log retention classes" in "Observability and logging". The validate command, the experiments report command and, with statistics.experimentIngest=true, Statistics read them, so no analysis window exceeds its class retention and the experiment observations table expires each row with it. The core enforces no retention: the reference manifests apply these values to their log capture, and the operator's log store applies them to the lines it keeps. The analysis window, 7 days by default and 1 to 90, is a parameter of the experiments report command and of experiment-summary, never a key. Registry definitions are store data that DefineExperiment validates, not configuration, and GameProfile.experiments is a game profile field (see "Values that are not configuration").
+
+### D.9 Inspector keys
 
 Inspector reads the auth, quotas, placement and liveEvents groups and its own group. The placement group is installation-wide and is read by every Engine as well (see "Placement, pressure and move keys").
 
@@ -13674,7 +14174,7 @@ The quotas configuration group holds one pair per kind. It applies in every depl
 
 Only guest values take effect in the minimal anonymous deployment, because no other kind exists without Profiles. The other pairs are still validated, so adding Profiles later never meets an invalid quota.
 
-### D.9 Placement, pressure and move keys
+### D.10 Placement, pressure and move keys
 
 Inspector and every Engine of the installation read this group. RegisterEngine carries a digest of the Engine's group, and Inspector refuses a registration whose digest differs from its own with configuration-invalid, so the Engine logs at error and stays not ready. Validate, given every service's environment at once, refuses offline a configuration in which two services carry different values. Renewal, self-fence and the adoption guard derive from placement.leaseSeconds and have no key of their own.
 
@@ -13704,7 +14204,7 @@ The pressure and move keys follow. They set the hysteresis and the anti-oscillat
 
 Validate refuses placement.pressureExitRatio at or above placement.pressureRatio, and placement.pressureRatio at or above placement.refuseRatio, as "Clustering, regions and deployment" requires. The claimant's post-reservation ceiling equals placement.pressureExitRatio by construction, so no claim makes its own target pressured. The cooldown and the previous-owner exclusion together make a move back to the previous owner impossible within placement.previousOwnerExclusionSeconds.
 
-### D.10 Engine keys
+### D.11 Engine keys
 
 The Engine reads its identity, capacity and drain keys below beside the common keys. The capacity figures come from a load test of the instance type and have no default; the reference single-host compose file supplies the small capacity class figures as starting values.
 
@@ -13737,12 +14237,12 @@ The session budgets and the inbox bounds follow.
 | engine.reconnectsPerMinute | integer | 3 | read | 1 to 3 per principal; at most 3 keeps one stale generation per 256-step window |
 | engine.pendingMessages | integer | 4096 | read | 1024 to 65536; held presentations and per-player messages awaiting verification; the oldest refused with saga-incomplete when full |
 | engine.appliedIds | integer | 65536 | read | 4096 to 1048576; applied-id fast path; eviction changes no outcome |
-| engine.contextBudgetSeconds | integer, seconds | 2 | absent | 1 to 10; Inventory or a progression owner; player context budget, one for the progression read and the inventory view, counted from the first receipt of PlayerJoining or the ticket |
-| engine.contextRequestSeconds | integer, seconds | 5 | absent | 1 to 30 and at least engine.contextBudgetSeconds; Inventory or a progression owner; timeout of every context worker request: the context parts, the item ledger and each progression write attempt |
-| engine.contextInFlight | integer | 64 | absent | 1 to 1024; Inventory or a progression owner; context worker requests in flight per session |
+| engine.contextBudgetSeconds | integer, seconds | 2 | read | 1 to 10; Inventory, a progression owner or experiments.enabled=true; player context budget, one for the progression read, the inventory view and the experiments part, counted from the first receipt of PlayerJoining or the ticket |
+| engine.contextRequestSeconds | integer, seconds | 5 | read | 1 to 30 and at least engine.contextBudgetSeconds; Inventory, a progression owner or experiments.enabled=true; timeout of every context worker request: the context parts, the item ledger and each progression write attempt; a RecordObservation keeps its fixed 2-second budget |
+| engine.contextInFlight | integer | 64 | read | 1 to 1024; Inventory, a progression owner or experiments.enabled=true; context worker requests in flight per session, experiment calls included |
 | engine.progressionRequests | integer | 16 | absent | 1 to 64 and at most engine.contextInFlight; a progression owner; progression requests queued or in flight per session, one write in flight per tenure |
 
-The context keys bound the Engine's context worker of "Player context and progression" in "Engine runtime", which runs on no simulation worker. Without Inventory and without a progression owner the worker issues no call: the progression part of every player context bundle is session-only, the inventory part absent and SaveProgress answers session-only, so these keys change nothing in the Minimal profile and in traceless mode.
+The context keys bound the Engine's context worker of "Player context and progression" in "Engine runtime", which runs on no simulation worker. Without Inventory and without a progression owner the worker issues no progression or ledger call: the progression part of every player context bundle is session-only, the inventory part absent and SaveProgress answers session-only. Its only calls there are ReadVariants and RecordObservation to Socket for a game whose GameProfile.experiments lists an experiment, and only with experiments.enabled=true. With experiments.enabled=false these keys therefore change nothing in the Minimal profile and in traceless mode, the traceless preset included.
 
 The offload keys follow.
 
@@ -13768,7 +14268,7 @@ The keys of the five required adapters follow. A key written transports.<adapter
 
 An adapter disabled by its key stays implemented: Engine conformance requires all five adapters whatever the deployment enables. A disabled listener is absent from Capabilities, from the engine's registration and from every ticket.
 
-### D.11 Optional QUIC-based adapter keys
+### D.12 Optional QUIC-based adapter keys
 
 The QUIC-based adapter is optional, and no conformance level requires it or its keys. It is an operator choice per game profile and never a default transport of any platform.
 
@@ -13779,7 +14279,7 @@ The QUIC-based adapter is optional, and no conformance level requires it or its 
 | transports.quic.advertisedAddress | address | the listen address | absent until transports.quic.enabled=true | the address tickets name |
 | transports.quic.tlsCertificate, transports.quic.tlsKey | file; the key also secret | none | absent until transports.quic.enabled=true | certificate and key of the adapter's integral TLS |
 
-### D.12 Relay and media keys
+### D.13 Relay and media keys
 
 The relay group's keys carry the prefix turn, which the specification uses throughout. The media keys bound the in-engine router for every game profile of the installation.
 
@@ -13799,7 +14299,7 @@ The relay group's keys carry the prefix turn, which the specification uses throu
 | media.jitterBufferMs | integer, ms | 200 | read | 50 to 1000; media jitter buffer per subscriber |
 | media.keyframeIntervalMs | integer, ms | 2000 | read | 500 to 10000; at most one router keyframe request per track per interval |
 
-### D.13 Keys of optional services
+### D.14 Keys of optional services
 
 Every key of this subsection is absent in the minimal anonymous deployment: only the declared service reads it, and traceless mode refuses every declaration. A key written <service> stands for each of profiles, statistics, payment, inventory, social, feed and recording. Feed has no outbox, so it reads neither <service>.outboxPollMs nor <service>.relayLeaseSeconds.
 
@@ -13842,6 +14342,7 @@ Statistics keys follow. privacy.retentionDays, history.retentionDays, history.ma
 | statistics.boardCheckSeconds | integer, seconds | 60 | 10 to 3600; period of the missing-board check and rebuild |
 | statistics.settlementDeadlineSeconds | integer, seconds | 30 | 5 to 600; a settlement unit running longer is aborted and retried |
 | statistics.seasonCloseDelaySeconds | integer, seconds | 60 | 10 to 3600 and above statistics.settlementDeadlineSeconds; wait after a season's end |
+| statistics.experimentIngest | boolean | false | true makes the events library's migrations create the experiment observations table and declares the named report experiment-summary; the operator's log pipeline is the table's only writer, and each row expires with the retention key of its experiment class (see "Experiment keys") |
 
 Payment keys follow.
 
@@ -13932,7 +14433,7 @@ The normalizer, authorizer and sweeper keys complete the Recording keys.
 | recording.profiles | structured | standard, passthrough and speech | target profiles; fit box at most 1920 × 1080 and frame rate at most 60 fps |
 | recording.normalizerBinary | file | none | required; the media normalizer executable of the job container |
 
-### D.14 Values that are not configuration
+### D.15 Values that are not configuration
 
 Some values look tunable and are fixed on purpose. A fixed value appears under the prefix only as an unknown variable, which Validate refuses.
 
@@ -13949,11 +14450,12 @@ Some values look tunable and are fixed on purpose. A fixed value appears under t
 | Progression constants | 32 stat keys, 128 unlock keys, a 2 KiB save and 8 achievement claims per write; context host event 4 KiB; 1024 end updates per result; one write in flight per tenure; 3 attempts per checkpoint; end write backoff from 1 second doubling to 30 seconds within the final-state retention; tenure table of 64 entries per Progression, a final entry kept 10 minutes and any other 26 hours after its last write | the schema bounds keep the maximal context host event under the host event payload cap, and the tenure lifetimes exceed the final-state retention and the longest session, so no live tenure loses the entry that makes its writes exact |
 | Social constants | terminal friend requests deleted 30 days after the transition; 100 outgoing and 500 incoming pending requests per member; 1000 blocks per blocker; 50 pending invites per invitee; 256 live grants per room; message body 4 KiB of UTF-8; journal entry 8 KiB and batch 1 MiB; batch window 100 ms or 256 entries; append queue 4096 entries per shard; entryId window 10 minutes and 65,536 entries per shard; lease keys re-read every 5 seconds; 2 append redirects; generation sealed above 2 GiB packed or at a new UTC year; mirror lag alert 60 seconds; key-encryption key rotation 90 days; key backups at most 30 days; erasure within 24 hours; member check cached 60 seconds; presence fan-out coalesced to 10 seconds per subject; ReadPresence budget 1 second per region and 500 ids per call; delivery batch 256 deliveries or 50 ms per region; 64 principal slots per connection; unread recount over the newest 1000 entries | each bounds a cost, a privacy horizon or a fence that a conformance test of "Social service" measures at this value |
 | Feed constants | 10 friend items per subject and recipient per UTC day; 100 recipients per friend unit of work, bounded to 30 seconds; job lease 30 seconds; job and exclusion horizon 24 hours; repeated deletion 60 seconds after FriendshipEnded or BlockAdded; job retry backoff from 1 second doubling to 5 minutes; season-final standings read retried for 24 hours; member check cached 10 minutes; FeedUpdated coalesced to 5 seconds per recipient; ReadFeed page 50 items; unseenCount shown up to 99 | the exclusion horizon equals the job horizon and the repeated deletion exceeds the 30-second batch bound, so no in-flight batch outlives a block |
-| Derived values | renewal = placement.leaseSeconds ÷ 3; self-fence = 0.8 × placement.leaseSeconds; Social writer renewal = social.writerLeaseSeconds ÷ 3 and writer self-fence = 0.8 × social.writerLeaseSeconds; adoption guard = one lease lifetime; saga route deadline = lock wait + holder self-fence + 1 second, 11 seconds by default; pending gateway stream close = verification wait + 2 seconds; claimant ceiling = placement.pressureExitRatio; {auth} lifetime = longest credential lifetime + auth.rotationSeconds + 1 hour; TURN credential lifetime = ticket lifetime + maxSessionSeconds, at most 24 hours; guest progression lifetime = auth.guestCredentialSeconds after the guest's last write, only where Statistics owns progression; guest history row lifetime = auth.guestCredentialSeconds after the guest subject's newest entry, only where Statistics owns the history; sendInterval = ceil(currentTickRate ÷ sendRate); simulation charge = (6 × tickRate + 0.12 × e × seats × sendRate) ÷ 60 units, with e the encode factor of the game's simulationEncoding; recording retentionUntil per class = the earlier of the effective retention and startedAt + history.retentionDays when Statistics is declared | computed from the keys they derive from |
+| Experiment constants | 64 definitions in effect per region, configuration and registry together; a definition at most 16 KiB with 2 to 8 variants, integer weights summing to exactly 10,000, at most 32 fields, string fields as enums of 1 to 64 values and at most 64 overrides; at most 90 days from startsAt to endsAt; a registry field lives until endsAt + 7 days, or closedAt + 7 days after an early close; a new registry definition starts at least 10 seconds after it is written; registry refresh every 10 seconds by the rev field; experiment-definition line at start, per loaded revision and every 24 hours; object 2 KiB encoded and experiment-observation line 4 KiB, refused above the cap and never truncated; log queue headroom 75%; 60 RecordObservation per minute with a burst of 10 and 6 ReadVariants per minute per connection; 1000 service channel calls per second per Socket instance and caller service kind; 16 experimentIds per ReadVariants; 8 experiments per game profile; 10 Observe submissions per second per session with 64 queued; call budgets of 2 seconds for RecordObservation and 5 seconds for DefineExperiment and CloseExperiment, ReadVariants inside the context budget | the conformance vectors of AssignVariant and of the experiments report command, the bound of 120 client observations per minute per principal over its 2 connections and the one-line rule of an accepted observation hold only at these values, on every Socket instance of every region |
+| Derived values | renewal = placement.leaseSeconds ÷ 3; self-fence = 0.8 × placement.leaseSeconds; Social writer renewal = social.writerLeaseSeconds ÷ 3 and writer self-fence = 0.8 × social.writerLeaseSeconds; adoption guard = one lease lifetime; saga route deadline = lock wait + holder self-fence + 1 second, 11 seconds by default; pending gateway stream close = verification wait + 2 seconds; claimant ceiling = placement.pressureExitRatio; {auth} lifetime = longest credential lifetime + auth.rotationSeconds + 1 hour; TURN credential lifetime = ticket lifetime + maxSessionSeconds, at most 24 hours; guest progression lifetime = auth.guestCredentialSeconds after the guest's last write, only where Statistics owns progression; guest history row lifetime = auth.guestCredentialSeconds after the guest subject's newest entry, only where Statistics owns the history; sendInterval = ceil(currentTickRate ÷ sendRate); simulation charge = (6 × tickRate + 0.12 × e × seats × sendRate) ÷ 60 units, with e the encode factor of the game's simulationEncoding; recording retentionUntil per class = the earlier of the effective retention and startedAt + history.retentionDays when Statistics is declared; experiment headroom bound = 0.75 × logging.queueLines, 6144 lines by default; analysis window bound = the retention key of the experiment's class | computed from the keys they derive from |
 
-Game profile fields are not configuration. tickRate, sendRate, simulationEncoding, maxPlayers, maxSpectators, lateJoin, spectatorDelay, resumeWindowSeconds, maxSessionSeconds, durabilityClass, the snapshot interval, syncModel, prediction, rollback, lockstepInputDelay, maxInterestClasses, sandboxMemory, the media policy, hostControls, hostMigration, migratable, the abandon policy, requiresProfiles, requiresInventory, the recording setting GameProfile.recording, history.events, history.customKinds, history.resultStats, the progression schema and saveConflict come from Describe (see "Engine runtime"). The validate command refuses a tickRate outside 1 to 128 Hz, a sendRate above the tickRate or not dividing it, a lockstep profile whose sendRate differs from its tickRate and a json profile beyond the encoding constants above, each with configuration-invalid naming the profile. Placement then admits a profile only on a capacity class whose maxTickRate is at or above its tickRate. history.events, history.customKinds and history.resultStats take effect only where Statistics owns the history, and the dotted names under history inside a game profile are profile fields, never variables under the prefix. The recording setting holds sessions, requiresRecording, scopes, media, dataTap, timelineCustom, mediaRetentionDays, timelineRetentionDays, renditionProfile, participantPlayback, erasure, keepSegments and roomNarrowing, so the game developer, not the operator, decides whether a game's sessions record. Room settings such as recordingNarrowing are room data that Inspector validates at CreateRoom and UpdateRoom, not process configuration; no room setting turns recording on. Entitlement feature keys such as rooms.owned, rooms.joined and media.video are projected values of "Payment service", never variables under the prefix, and no entitlement key changes capture.
+Game profile fields are not configuration. tickRate, sendRate, simulationEncoding, maxPlayers, maxSpectators, lateJoin, spectatorDelay, resumeWindowSeconds, maxSessionSeconds, durabilityClass, the snapshot interval, syncModel, prediction, rollback, lockstepInputDelay, maxInterestClasses, sandboxMemory, the media policy, hostControls, hostMigration, migratable, the abandon policy, requiresProfiles, requiresInventory, the recording setting GameProfile.recording, history.events, history.customKinds, history.resultStats, the progression schema, saveConflict and GameProfile.experiments come from Describe (see "Engine runtime"). The validate command refuses a tickRate outside 1 to 128 Hz, a sendRate above the tickRate or not dividing it, a lockstep profile whose sendRate differs from its tickRate, a json profile beyond the encoding constants above and a GameProfile.experiments list above 8 experimentIds, each with configuration-invalid naming the profile. Placement then admits a profile only on a capacity class whose maxTickRate is at or above its tickRate. history.events, history.customKinds and history.resultStats take effect only where Statistics owns the history, and the dotted names under history inside a game profile are profile fields, never variables under the prefix. The recording setting holds sessions, requiresRecording, scopes, media, dataTap, timelineCustom, mediaRetentionDays, timelineRetentionDays, renditionProfile, participantPlayback, erasure, keepSegments and roomNarrowing, so the game developer, not the operator, decides whether a game's sessions record. Room settings such as recordingNarrowing are room data that Inspector validates at CreateRoom and UpdateRoom, not process configuration; no room setting turns recording on. Entitlement feature keys such as rooms.owned, rooms.joined and media.video are projected values of "Payment service", never variables under the prefix, and no entitlement key changes capture.
 
-### D.15 Conformance
+### D.16 Conformance
 
 1. Every key of this appendix maps to exactly one environment name under MILLSMESS_, and the generator refuses two keys that map to one name.
 2. Validate refuses an unset key marked required and names that key.
@@ -14000,10 +14502,18 @@ Game profile fields are not configuration. tickRate, sendRate, simulationEncodin
 43. Validate refuses a region.directory capacity class whose maxTickRate lies outside 1 to 128, an entry without one is listed with 60, and the Engine's RegisterEngine carries the maxTickRate of its placement.capacityClass.
 44. A variable under the prefix naming tickRate, sendRate, simulationEncoding, maxTickRate, history.events, history.customKinds or history.resultStats fails Validate as an unknown variable.
 45. A call on the placement channel or the service channel with a content type other than application/json answers 400 with message-invalid and executes nothing, in the Minimal profile included.
+46. In traceless mode Validate and the start of Socket and Engine refuse experiments.enabled=true without privacy.experimentsAllowed=true with configuration-invalid naming the key; with both set each process starts and logs experiments-allowed at warn, and the traceless preset sets experiments.enabled=false.
+47. Validate and the start of Socket refuse, with configuration-invalid naming the experimentId, an experiments.definitions entry that fails the definition validator, a 65th definition, and in traceless mode an entry holding an override, and the validate command warns about an entry whose endsAt lies more than 7 days in the past.
+48. Validate accepts experiments.retentionShortDays, experiments.retentionDays and experiments.retentionLongDays at 1 and 90, refuses 0 and 91 with configuration-invalid naming the key, and refuses an experiments.subjectPolicy value other than pseudonym and none.
+49. With experiments.enabled=false no {experiments:G} key exists, every experiment operation answers feature-unavailable and no context worker calls ReadVariants, so engine.contextBudgetSeconds, engine.contextRequestSeconds and engine.contextInFlight change no observable behavior in the Minimal profile.
+50. Without integration.statisticsAddress statistics.experimentIngest changes no observable behavior, and with Statistics declared and the key false no experiment observations table exists.
+51. A variable under the prefix naming an experiment constant of "Values that are not configuration" or GameProfile.experiments fails Validate as an unknown variable, and Validate refuses a game profile whose GameProfile.experiments lists 9 experimentIds with configuration-invalid naming the profile.
+52. With experiments.enabled=true Validate and the start of Socket, Engine and every optional service refuse, with configuration-invalid naming the key, a region.directory entry without internalSocketAddress, and every experiment call of the Engine's context worker, an optional service, the operator's tooling and Profiles' outbox goes to the internalSocketAddress of the target region's entry, never to a socket.deliveryAddress.
+53. With experiments.enabled=true and logging.level=warn or error, each accepted observation still produces exactly one experiment-observation line and each definition in effect its experiment-definition lines, and no other info line is emitted.
 
 ## Appendix E. Error codes
 
-Every refusal and every failed outcome in this specification carries exactly one code from the closed enum this appendix fixes. A code is a stable lowercase kebab-case name, generated with the contracts into every binding. Its meaning holds for protocol 1, and a code is never renamed or reused for another meaning. A reply's error object carries code, an optional retryAfterMs and, for message-invalid, an optional field holding an RFC 6901 JSON Pointer; it has no free-text field (see "Identifiers, time, counters and envelopes").
+Every refusal and every failed outcome in this specification carries exactly one code from the closed enum this appendix fixes. A code is a stable lowercase kebab-case name, generated with the contracts into every binding. Its meaning holds for protocol 1, and a code is never renamed or reused for another meaning. A reply's error object carries code, an optional retryAfterMs, for message-invalid, field-unknown, field-missing and field-invalid an optional field holding an RFC 6901 JSON Pointer and, for definition-invalid, exactly one reason of "Reason values"; it has no free-text field (see "Identifiers, time, counters and envelopes").
 
 Every code below is produced by at least one named test, as "Testing strategy and acceptance gates" requires.
 
@@ -14053,20 +14563,20 @@ The Retry column uses four values. backoff means retry the same request after re
 
 | Code | Meaning | Mapping | Retry |
 | --- | --- | --- | --- |
-| message-invalid | a field violates its scalar form, a required field is missing, an unknown, duplicate or null field is present or a counter is written as a JSON number; a JSON object on a lane matches both or neither of a JSON frame and a control envelope; a call carries a content type other than application/json, or its body is not one closed envelope or disagrees with its path; a history read with a limit above 100, from after to or a roomId on a room subject; nothing executed | reply with a JSON Pointer field; HTTP 400 on a call listener | no |
+| message-invalid | a field violates its scalar form, a required field is missing, an unknown, duplicate or null field is present or a counter is written as a JSON number; a JSON object on a lane matches both or neither of a JSON frame and a control envelope; a call carries a content type other than application/json, or its body is not one closed envelope or disagrees with its path; a history read with a limit above 100, from after to or a roomId on a room subject; an ExperimentObject with a nested value, an array, null or a duplicate member, or a ReadVariants naming more than 16 experimentIds; nothing executed | reply with a JSON Pointer field; HTTP 400 on a call listener | no |
 | message-unknown | the type + version pair is not accepted on the receiving channel, or a dispatcher lacks the optional unit | reply; close 1002 for a first message other than Hello; HTTP 404 on a call listener | no |
 | payload-too-large | a control message above 64 KiB, a frame above the 256 KiB parser ceiling or a frame above MTU(lane) | reply below the ceiling; close 1009 above it; HTTP 413; outcome of Send | no |
 | version-mismatch | Hello or Attach without a common protocol integer | close 1002 before any other field is parsed, without a retry hint | no |
 | counter-overflow | an increment past 2^63 − 1; the stored value stays unchanged | internal | no |
 | idempotency-conflict | the same principal, type and idempotencyKey with another payload hash, or a call with the same caller service kind, type and messageId as a recorded call and another body digest | reply; logged as call-idempotency-conflict for a call | no |
-| retryable-unavailable | a dependency of the operation is unreachable, a Publish to a service topic answered unavailable, or a pending idempotency record is younger than 30 seconds, or Admit met an orphaned or unowned session and started Adopt, or a friend's history read met an unreachable Social, which never widens the view; nothing committed | reply with retryAfterMs; close 1013; HTTP 503 | backoff |
-| rate-limited | a rate limit of "Security and privacy" or of "Rate limits" in "Social service" refused the request | reply with retryAfterMs; HTTP 429; close 1008 after 100 refusals in 1 minute | backoff |
+| retryable-unavailable | a dependency of the operation is unreachable, a Publish to a service topic answered unavailable, or a pending idempotency record is younger than 30 seconds, or Admit met an orphaned or unowned session and started Adopt, or a friend's history read met an unreachable Social, which never widens the view, or RecordObservation met the process log queue above 75% of its bound, with retryAfterMs 1000 and no line emitted; nothing committed | reply with retryAfterMs; close 1013; HTTP 503 | backoff |
+| rate-limited | a rate limit of "Security and privacy", of "Rate limits" in "Social service" or of "A/B testing tool" in "Observability and logging" refused the request | reply with retryAfterMs; HTTP 429; close 1008 after 100 refusals in 1 minute | backoff |
 | limit-exceeded | a declared bound would be exceeded: 16 attachment streams per connection, 256 block entries per room, or limits a runner cannot grant at Load | reply; outcome of Load | after change |
 | unauthenticated | an operation outside the open-connection set without a principal | reply | after change: Authenticate first |
-| forbidden | the caller lacks the right: another principal's data, a missing service credential, a guest calling Payment, an observer publishing without a forward rule, a call whose signature fails or whose caller service kind is outside the operation's caller list, a principal context from a kind other than Socket, a history read outside the reader table of "History reads and visibility" in "Statistics service", by a member the subject blocked included, or a history read by a service credential other than Profiles' | reply; HTTP 403; HTTP 401 and 403 on a call listener, never retried | no |
+| forbidden | the caller lacks the right: another principal's data, a missing service credential, a guest calling Payment, an observer publishing without a forward rule, a call whose signature fails or whose caller service kind is outside the operation's caller list, a principal context from a kind other than Socket, a history read outside the reader table of "History reads and visibility" in "Statistics service", by a member the subject blocked included, or a history read by a service credential other than Profiles'; a client naming a subjectId in RecordObservation or ReadVariants, a RecordObservation under the operator credential or from a source the experiment's definition does not admit, and DefineExperiment, CloseExperiment or ReadExperiments from any caller other than the operator credential and Profiles for an admin | reply; HTTP 403; HTTP 401 and 403 on a call listener, never retried | no |
 | not-found | the named entity does not exist for the caller; a roomId absent from the region's keyspace answers room-closed instead, and room-unknown to ProjectInvite and SendInvite; a member blocked by the target receives it from SendFriendRequest, SendMessage and SendInvite toward the blocker, exactly as for an unknown profileId; ReadSessionHistory and ReadSessionEvents answer it for a session whose record is not yet sealed | reply; HTTP 404 | no |
-| feature-unavailable | the operation needs an optional service, board or feature that is not declared or not allowed; also CreateRoom for a game whose profile sets requiresRecording=true while Recording is not declared, and a session-sourced achievement claim while Profiles owns progression, whose write applies every other part; every history route without a history owner, the Minimal profile and traceless mode included, and ReadSessionHistory and ReadSessionEvents while Profiles owns the history | reply, from Socket without a network call when the domain or the history owner is undeclared; claim outcome inside a CommitProgress reply | no |
-| configuration-invalid | Validate or the start-time gate refused a key or a combination, or a game profile: a recording setting with sessions=on and requiresRecording=true in traceless mode, a recording retention above history.retentionDays, a renditionProfile outside recording.profiles, a tickRate above 128 Hz, a sendRate above the tickRate or not dividing it, a lockstep sendRate that differs from the tickRate, or a json profile beyond the JSON simulation limits | internal: error log and non-zero exit, naming the key or the profile | after change |
+| feature-unavailable | the operation needs an optional service, board or feature that is not declared or not allowed; also CreateRoom for a game whose profile sets requiresRecording=true while Recording is not declared, and a session-sourced achievement claim while Profiles owns progression, whose write applies every other part; every history route without a history owner, the Minimal profile and traceless mode included, and ReadSessionHistory and ReadSessionEvents while Profiles owns the history; every experiment operation while experiments.enabled=false | reply, from Socket without a network call when the domain or the history owner is undeclared or experiments are disabled; claim outcome inside a CommitProgress reply | no |
+| configuration-invalid | Validate or the start-time gate refused a key or a combination, or a game profile: a recording setting with sessions=on and requiresRecording=true in traceless mode, a recording retention above history.retentionDays, a renditionProfile outside recording.profiles, a tickRate above 128 Hz, a sendRate above the tickRate or not dividing it, a lockstep sendRate that differs from the tickRate, a json profile beyond the JSON simulation limits or a GameProfile.experiments list above 8; experiments.enabled=true in traceless mode without privacy.experimentsAllowed=true; an experiments.definitions entry that fails the definition validator, exceeds the 64 definitions or holds an override entry in traceless mode | internal: error log and non-zero exit, naming the key or the profile | after change |
 
 retryable-unavailable is the caller's view of a service operation; unavailable is the outcome of a role or adapter inside a service. Neither substitutes for the other: a client never receives unavailable.
 
@@ -14261,7 +14771,7 @@ Every code of this table and the next is internal. A client sees recovering, no-
 
 | Code | Meaning | Mapping | Retry |
 | --- | --- | --- | --- |
-| stale-revision | expectedRevision differs from the stored revision, or a revision is not above the stored one | reply; repository and procedure outcome | after change: re-read |
+| stale-revision | expectedRevision differs from the stored revision, or a revision is not above the stored one; DefineExperiment with a revision below the stored one or an equal revision with another body, and CloseExperiment naming a revision other than the stored one | reply; repository and procedure outcome | after change: re-read |
 | append-only | Put of an existing id, or any Delete, on an append-only repository | internal | no |
 | invalid-filter | a filter outside the repository's declared structure | internal | no |
 | cursor-invalid | a cursor used with another repository or filter, a ReadFeed cursor that Feed did not issue for the caller's feed, or a ReadHistory cursor or ReadSessionHistory playerCursor that the history owner did not issue for that subject, filter or session | internal; reply to ReadFeed, ReadHistory and ReadSessionHistory | no |
@@ -14283,13 +14793,33 @@ Every code of this table is a reply of the progression owner to CommitProgress o
 
 An end write undelivered past the 10-minute final-state retention is logged as progression-lost, an event of the "Log event catalog", not a code: no caller receives it.
 
-### E.17 Profiles and Statistics codes
+### E.17 Experiment codes
+
+Every code of this table is a reply of Socket to an experiment operation of "A/B testing tool" in "Observability and logging": RecordObservation and ReadVariants on the control connection and on the service channel, and DefineExperiment, CloseExperiment and ReadExperiments on Socket's call listener. A refused RecordObservation emits no experiment-observation line. The closed error set of RecordObservation is unauthenticated, forbidden, feature-unavailable, object-too-large, experiment-unknown, experiment-scheduled, experiment-closed, not-enrolled, rate-limited, field-unknown, field-missing, field-invalid, message-invalid and retryable-unavailable. The closed error set of ReadVariants is unauthenticated, forbidden, feature-unavailable, message-invalid, rate-limited and retryable-unavailable. That of DefineExperiment is definition-invalid, stale-revision, definition-immutable, experiments-full, experiment-exists, forbidden, feature-unavailable and retryable-unavailable. That of CloseExperiment is experiment-unknown, stale-revision, forbidden, feature-unavailable and retryable-unavailable, and that of ReadExperiments is forbidden, feature-unavailable and retryable-unavailable. field-invalid is the row of "Profiles and Statistics codes", and the other common codes keep the meanings above. A module never receives a code: the Engine's context worker counts a refusal per game and code. Every code reaches an experiment operation in every profile, the Minimal profile included.
+
+| Code | Meaning | Mapping | Retry |
+| --- | --- | --- | --- |
+| object-too-large | the encoded ExperimentObject is above 2 KiB, measured before it is decoded; the control message around it stays under the 64 KiB control cap, which answers payload-too-large | reply to RecordObservation | no |
+| experiment-unknown | no definition of the experimentId is in effect in the region: never defined, not yet acknowledged by the region, or its field expired or its configuration entry was removed; also CloseExperiment of such an experimentId | reply | after change: a definition in effect in the region |
+| experiment-scheduled | RecordObservation before the experiment's startsAt | reply | after change: startsAt |
+| experiment-closed | RecordObservation at or after the experiment's endsAt or closedAt, until its field expires 7 days later | reply | no |
+| not-enrolled | the subject lies outside the definition's audience | reply to RecordObservation | no |
+| field-unknown | an ExperimentObject member that the definition's schema does not declare, an object member named variant included unless the schema declares it | reply with the member's JSON Pointer field, to the submitter only | no |
+| field-missing | a required field of the definition's schema is absent from the ExperimentObject | reply with the field's JSON Pointer field | no |
+| definition-invalid | DefineExperiment with a definition the definition validator refuses; nothing enters effect | reply with exactly one Definition refusal reason | after change: a corrected definition |
+| definition-immutable | DefineExperiment from the experiment's startsAt changing the salt, variants, weights, audience, sources, gameId, retentionClass or schema, or moving endsAt beyond 90 days from startsAt or before the current time; nothing changes | reply | no: define a new experiment |
+| experiments-full | DefineExperiment of a new experimentId while 64 definitions are in effect in the region, configuration and registry together | reply | after change: a definition's field expires |
+| experiment-exists | DefineExperiment of an experimentId that experiments.definitions defines | reply | no |
+
+experiment-unknown, experiment-scheduled and experiment-closed answer an observation. ReadVariants reports the same conditions as the per-experiment states unknown, scheduled and closed of "Reason values" and answers no code for them. The variant is never read from a submission, so no code depends on a client-supplied variant.
+
+### E.18 Profiles and Statistics codes
 
 | Code | Meaning | Mapping | Retry |
 | --- | --- | --- | --- |
 | invalid-credentials | sign-in failed; one code covers an unknown email and a wrong password | reply | after change |
 | email-taken | another live member holds the email | reply | no |
-| field-invalid | a personal field violates its configured rule | reply | after change |
+| field-invalid | a personal field violates its configured rule, or a member of an ExperimentObject has another type than its declared field, lies outside its range or enum or is not finite | reply; for an experiment member with its JSON Pointer field | after change |
 | ids-too-many | ResolveNames with more than 100 playerIds | reply | after change |
 | role-invalid | SetRole to guest or subscriber | reply | no |
 | last-admin | SetRole would demote the last admin | reply | no |
@@ -14299,7 +14829,7 @@ An end write undelivered past the 10-minute final-state retention is logged as p
 | report-unknown | RunReport with an undeclared reportId | reply | no |
 | parameters-invalid | report parameters outside the report's declaration | reply | no |
 
-### E.18 Payment and Inventory codes
+### E.19 Payment and Inventory codes
 
 | Code | Meaning | Mapping | Retry |
 | --- | --- | --- | --- |
@@ -14316,7 +14846,7 @@ An end write undelivered past the 10-minute final-state retention is logged as p
 | sku-unknown | a sku absent from the game's item catalog | outcome; reply | no |
 | inventory-absent | Inventory is undeclared, or the playerId is a guest | outcome at the next tick boundary | no |
 
-### E.19 Social and Feed codes
+### E.20 Social and Feed codes
 
 Every code of this table is a reply to an operation of "Public operations" in "Social service" or of "Read operations and real-time push" in "Feed service". A block is never revealed: a member blocked by the target receives not-found or offline, never blocked (see "Privacy and blocking").
 
@@ -14343,7 +14873,7 @@ Every code of this table is a reply to an operation of "Public operations" in "S
 
 Social and Feed also answer the common codes forbidden, not-found, rate-limited, retryable-unavailable, message-invalid, cursor-invalid, stale-revision, audit-unavailable and feature-unavailable under the meanings above, and UpdateSocialSettings answers settings-invalid of "Room and admission codes". SendInvite answers region-unknown, room-unknown and room-closed, and the invite operations answer expired. With Social or Feed undeclared, Socket answers its operations with feature-unavailable without a network call.
 
-### E.20 Versioned journal store codes
+### E.21 Versioned journal store codes
 
 Every code of this table is the outcome of an operation of the versioned journal store role inside Social and is never sent on a client connection. A client sees journal-busy, stale-replica or retryable-unavailable instead, as "Journal writer and batching" states. The role also answers batch-too-large and unavailable of "Persistence and integration bus codes", and Verify answers the outcome diverged, a reason value rather than a code.
 
@@ -14356,7 +14886,7 @@ Every code of this table is the outcome of an operation of the versioned journal
 | stream-unknown | Read of a stream the shard holds no entry of | outcome of Read | no |
 | retention-active | Retire of a generation that holds a content key month still alive or inside the 30-day key backup span | outcome of Retire | after change |
 
-### E.21 Recording and object store codes
+### E.22 Recording and object store codes
 
 | Code | Meaning | Mapping | Retry |
 | --- | --- | --- | --- |
@@ -14368,7 +14898,7 @@ Every code of this table is the outcome of an operation of the versioned journal
 | too-large | an object above the driver's limit | internal | no |
 | unsupported | an adapter lacks the operation or the setting asked of it: Presign on a driver without it, or DeclareTopic or DeclareQueue with a horizon, message cap, visibility timeout, delivery limit or idle expiry the selected adapter of the topic role or the queue role cannot realize | internal; a refused declaration logs queue-declaration-refused and keeps the process not ready | no |
 
-### E.22 Reason values
+### E.23 Reason values
 
 Reason values qualify a counter, an event payload, a gap entry or a procedure outcome; they are closed enums of the contracts, not error codes. A value is never sent as a reply's code.
 
@@ -14400,7 +14930,12 @@ Reason values qualify a counter, an event payload, a gap entry or a procedure ou
 | History end reason | module, empty, max-duration, control, operator, faulted, failed, lost | endReason of a SessionHistory and a HistoryEntry; history-fact-applied and history-seal-lost lines |
 | History leave reason | left, kicked, banned, resume-expired, regrouped, session-ended | the leave reason of a tenure in a SessionHistory |
 | Playback access class | owner, participant, moderator, none | the access class a history record and entry state as a hint; never a grant |
-### E.23 Primary references
+| Definition refusal reason | schema-unsupported, field-identifier, field-name-invalid, enum-invalid, range-invalid, weights-invalid, variants-invalid, window-invalid, salt-invalid, source-invalid, class-unknown, size-exceeded | the reason of a definition-invalid error object and of experiment-definition-invalid lines |
+| Experiment state | scheduled, running, closed | experiment-definition lines and the experiment_definitions series |
+| Variant read state | running, scheduled, closed, not-enrolled, unknown | each entry of a ReadVariants answer; the experiments part of OnPlayerContext |
+| Observation source | client, module, service | experiment-observation and experiment-submission lines and the experiment series |
+| Module observation outcome | submitted, dropped, refused | experiment_module_observations_total |
+### E.24 Primary references
 
 - [The WebSocket Protocol, RFC 6455, section 7.4](https://www.rfc-editor.org/rfc/rfc6455#section-7.4) — close status codes 1000 to 1011.
 - [IANA WebSocket Close Code Number Registry](https://www.iana.org/assignments/websocket/websocket.xhtml) — registration of 1012 and 1013.
@@ -14408,7 +14943,7 @@ Reason values qualify a counter, an event payload, a gap entry or a procedure ou
 - [Additional HTTP Status Codes, RFC 6585](https://www.rfc-editor.org/rfc/rfc6585) — status 429.
 - [JSON Pointer, RFC 6901](https://www.rfc-editor.org/rfc/rfc6901) — the field of a message-invalid error object.
 
-### E.24 Conformance
+### E.25 Conformance
 
 1. Every reply's error object carries a code of this appendix and no free-text field.
 2. retryAfterMs is present on every reply whose code is marked backoff and absent on every other reply.
@@ -14445,6 +14980,11 @@ Reason values qualify a counter, an event payload, a gap entry or a procedure ou
 33. Every history route answers feature-unavailable from Socket without a network call where no history owner exists, the Minimal profile and traceless mode included, and ReadSessionHistory and ReadSessionEvents answer it where Profiles owns the history.
 34. A history read outside the reader table of "History reads and visibility" answers forbidden, a member the subject blocked included, a friend's read while Social is unreachable answers retryable-unavailable, and a moderator's read without its AuditRecord answers audit-unavailable and returns nothing.
 35. ReadHistory with a limit of 101 answers message-invalid, a cursor issued for another subject or filter answers cursor-invalid, and ReadSessionHistory for a session whose record is not yet sealed answers not-found.
+36. RecordObservation answers, in the check order of "A/B testing tool", unauthenticated on an open connection, feature-unavailable with experiments.enabled=false without a network call, object-too-large for an object above 2 KiB, experiment-unknown, experiment-scheduled and experiment-closed for an experiment in each state, not-enrolled outside the audience, field-unknown, field-missing and field-invalid with the JSON Pointer of the member, and message-invalid for a nested value, an array, null or a duplicate member, and no refusal emits an experiment-observation line.
+37. A client naming a subjectId, a submission under the operator credential and a source the definition does not admit answer forbidden, and so do DefineExperiment, CloseExperiment and ReadExperiments from a moderator through Profiles, a member, a guest or a service kind other than operator and Profiles.
+38. The 11th RecordObservation inside a connection's burst and the 61st inside a minute answer rate-limited with retryAfterMs, and with the log queue above 75% of its bound RecordObservation answers retryable-unavailable with retryAfterMs 1000.
+39. DefineExperiment answers definition-invalid with exactly one Definition refusal reason for each refused definition of "A/B testing tool", definition-immutable for a change of the salt, a variant, a weight, the audience, the sources, the gameId, the class or the schema after startsAt, experiments-full for a 65th definition in effect, experiment-exists for an experimentId of experiments.definitions and stale-revision for a lower revision or an equal revision with another body.
+40. No experiment reply reveals a salt, a weight or another subject's variant, ReadVariants reports unknown, scheduled, closed and not-enrolled as entry states and never as a code, and a module receives no experiment code.
 
 ## Appendix F. Log event catalog
 
@@ -14454,9 +14994,9 @@ This appendix lists every log event of the mandatory core and the optional servi
 
 Event names are stable lowercase kebab-case and unique across services. An event emitted by several services keeps one name and one row, and the common component field tells the emitters apart. Every line also carries the common fields of "Observability and logging": time, level, event, class, service, regionId, instance and component, plus correlationId when the work has one, sessionId and roomId when the line is session- or room-scoped, and count and windowSeconds on a coalesced summary. An event emits only its common fields and the fields its row lists.
 
-Class follows the table. Every debug event has class debug, every event of the security tables has class security, and every other event has class operational. playerId is a field of security events only, typed principal; every other row identifies a participant by seat or viewerIndex. No row lists a field typed credential, token, username, email or payload.
+Class follows the table. Every debug event has class debug, every event of the security tables has class security, experiment-observation and experiment-definition carry the experiment class that their definition's retentionClass names, experiment-short, experiment or experiment-long, and every other event has class operational. playerId is a field of security events only, typed principal; every other row identifies a participant by seat or viewerIndex. No row lists a field typed credential, token, username, email or payload. Only experiment-observation lists a field typed experiment object, object, and a field typed experiment pseudonym, subjectDigest (see "Typed fields and redaction" in "Observability and logging").
 
-Coalescing follows the kind of the event. Warn events and the dependency-kind errors store-unavailable, store-procedure-missing, self-fenced, configuration-invalid, listener-bind-failed, key-set-unavailable, consumer-gap, webhook-fetch-failed, acknowledge-failed, feed-gap, feed-fanout-expired and call-signature-refused coalesce to one line per key per logging.coalesceSeconds. Every other error is of invariant kind and is logged every time. Debug and info events are never coalesced.
+Coalescing follows the kind of the event. Warn events and the dependency-kind errors store-unavailable, store-procedure-missing, self-fenced, configuration-invalid, listener-bind-failed, key-set-unavailable, consumer-gap, webhook-fetch-failed, acknowledge-failed, feed-gap, feed-fanout-expired, call-signature-refused and experiment-restore-failed coalesce to one line per key per logging.coalesceSeconds. Every other error is of invariant kind and is logged every time. Debug and info events are never coalesced.
 
 The Traceless mode column uses five terms. digests means sessionId, roomId and every identifier that embeds them appear as keyed digests at every level, debug included, as "Anonymous traceless mode" requires. saga digests means digests, and in addition sagaMessageId, fence and connectionId appear as keyed digests, because they belong to one player's saga. principal digest means playerId appears as the rotating keyed digest. unchanged means the row carries no identifier that traceless mode replaces. not emitted means the source cannot exist in traceless mode, because the start-time gate refuses the service or setting or the role runs its null adapter.
 
@@ -14474,6 +15014,7 @@ Socket, Inspector, Engine and every optional service emit these events.
 | info | region-directory-loaded | directoryRevision, regionCount | region directory loaded at start | unchanged |
 | info | optional-service-connected | dependency | first successful call to a declared optional service after start or after an outage | not emitted |
 | warn | debug-allowed | none | start with privacy.debugAllowed=true | unchanged |
+| warn | experiments-allowed | none | start of Socket or Engine with privacy.experimentsAllowed=true | unchanged |
 | warn | secure-udp-unreviewed | none | start with transports.secureUdp.enabled=true before the security review passed | unchanged |
 | warn | dependency-degraded | dependency, code, measured | a declared dependency, the adapter of the service topics or of the sink topic included, answered unavailable or retryable-unavailable | unchanged |
 | warn | queue-pressure | queue, measured, threshold | a bounded queue, the engine's pending set included, dropped above 1% of enqueues per minute or stayed above 80% for 10 seconds | unchanged |
@@ -14562,7 +15103,23 @@ The info, warn and error events of Socket follow.
 | error | key-set-unavailable | code | no verification key set at start, so readiness stays false | unchanged |
 | error | link-authentication-failed | engineId, code | an Engine refused the gateway link's service credential | unchanged |
 
-### F.7 Inspector events
+### F.7 Experiment events
+
+Socket emits these events with component experiments, and the Engine's context worker emits experiment-module-dropped and, for refusals of its Observe submissions, experiment-refused, both with component experiments. "A/B testing tool" in "Observability and logging" defines every field. experiment-defined, the security-class line of every registry write, is listed in "Security events of the mandatory core". experiment-definition-invalid is emitted whatever experiments.enabled says, because Validate and the start of Socket check experiments.definitions in every mode. Every other event of this subsection is emitted only with experiments.enabled=true, and in traceless mode only with privacy.experimentsAllowed=true as well.
+
+| Level | Event | Fields | When emitted | Traceless mode |
+| --- | --- | --- | --- | --- |
+| debug | experiment-submission | experimentId, source, outcome, code | a RecordObservation was accepted or refused; never with its object | unchanged |
+| info | experiment-observation | experimentId, experimentRevision, variant, overridden, source, callerKind, observationId, subjectKind, subjectDigest, gameId, ownerEpoch, tick, object | an observation was accepted, exactly one line per accepted observation, at most 4 KiB | no subjectKind or subjectDigest; sessionId only as a keyed digest |
+| info | experiment-definition | experimentId, experimentRevision, state, definition, overrideCount | at start, on every loaded revision and every 24 hours for each definition in effect; the definition without its salt or override subjects | unchanged |
+| warn | experiment-refused | experimentId, code | RecordObservation refusals of one experiment and code | unchanged |
+| warn | experiment-module-dropped | game, dropped | Observe submissions were dropped beyond 10 per second or 64 queued per session | digests |
+| error | experiment-definition-invalid | experimentId, reason | a configuration definition failed the definition validator and the start fails | unchanged |
+| error | experiment-restore-failed | experimentId | experiment_restore failed after the registry key was found absent | unchanged |
+
+An experiment-observation line carries callerKind only for source service, gameId, ownerEpoch and tick only for source module and, for source module, the common field sessionId. subjectKind and subjectDigest appear only in mode standard with experiments.subjectPolicy=pseudonym. The object holds the verified members in the schema's field order and is the one client-supplied content a line of this appendix carries. No experiment line carries a playerId, a profileId, a username, an address, a connectionId, a credential, a salt or a free-text string in any mode. experiment-submission never carries the object. An accepted experiment-observation line is never discarded from the process log queue, because the headroom check refuses an observation instead of accepting it. A refusal caused by a submitter's own object or rate emits experiment-submission at debug and a coalesced experiment-refused at warn, never an error.
+
+### F.8 Inspector events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14582,7 +15139,7 @@ The info, warn and error events of Socket follow.
 | debug | grant-changed | outcome | a grants field was written by room_grant, deleted by room_ungrant or an admission by grant, or restored by a compensating room_leave | not emitted |
 | debug | principals-delivered | deliveries, connections, sockets | one DeliverToPrincipals message from the delivery topic was applied and its DeliverProjection messages were published to the Socket topics | not emitted |
 
-### F.8 Engine ownership events
+### F.9 Engine ownership events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14596,7 +15153,7 @@ The info, warn and error events of Socket follow.
 | error | copy-superseded | ownerEpoch | a session copy was discarded with superseded | digests |
 | error | engine-retired | sessionsMigrated, sessionsDropped | stale-incarnation retired the Engine while it held sessions | unchanged |
 
-### F.9 Engine drain and handoff events
+### F.10 Engine drain and handoff events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14607,7 +15164,7 @@ The info, warn and error events of Socket follow.
 | error | handoff-aborted | step, code, sessionsReturned | a class A handoff aborted and the predecessor resumed its copies | unchanged |
 | info | debug-flag-changed | enabled | the operator endpoint set or cleared the per-session debug flag | digests; refused without privacy.debugAllowed=true |
 
-### F.10 Engine session lifecycle events
+### F.11 Engine session lifecycle events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14619,7 +15176,7 @@ The info, warn and error events of Socket follow.
 | error | result-lost | ownerEpoch | on the Engine the final-state retention expired before Inspector accepted ReportSessionEnded; on Inspector an ended session stayed unsettled past it | digests |
 | debug | session-state-changed | fromState, toState, tick, revision | an Engine session state transition, moving and moved included | digests |
 
-### F.11 Engine participant and input events
+### F.12 Engine participant and input events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14643,7 +15200,7 @@ The session object reports through Log(level, fields) of its session context. Ea
 
 A module field passes the same type check as every field, so a refused type emits no line. On a client runner Log reaches the binding's local diagnostics and never the Engine.
 
-### F.12 Engine pressure and move events
+### F.13 Engine pressure and move events
 
 The Engine emits these events, and Inspector emits move-step for its fallback assignment and re-ticketing and offer-expired-unclaimed for an offer it could not assign. The levels follow "Engine node, lease, epoch, placement and capacity".
 
@@ -14658,7 +15215,7 @@ The Engine emits these events, and Inspector emits move-step for its fallback as
 | warn | capacity-exhausted | gameId, refusals | an attachment or admission of a new member of a bound session was refused | digests |
 | error | move-ping-pong | claimId, targetEngineId, sinceOwnedSeconds | a session moved back to an engine that owned it in the last 10 minutes | digests |
 
-### F.13 Engine tick, offload, transport and media events
+### F.14 Engine tick, offload, transport and media events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14677,7 +15234,7 @@ The Engine emits these events, and Inspector emits move-step for its fallback as
 | debug | relay-allocation-changed | transport, state, ceilingMbps | a relay allocation was created, held for verification or released | unchanged |
 | warn | relay-share-high | shareRatio, thresholdRatio | relay bytes above 80% of the relay share of egress | unchanged |
 
-### F.14 Integration bus, item ledger and persistence events
+### F.15 Integration bus, item ledger and persistence events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14695,7 +15252,7 @@ The Engine emits these events, and Inspector emits move-step for its fallback as
 | info | retention-job-completed | repository, deleted | a retention job finished | not emitted |
 | warn | retention-job-failed | repository, code | a retention job failed | not emitted |
 
-### F.15 Profiles and Statistics events
+### F.16 Profiles and Statistics events
 
 Every row of this subsection and the next is not emitted in traceless mode, because the start-time gate refuses each of these services.
 
@@ -14718,7 +15275,7 @@ Every row of this subsection and the next is not emitted in traceless mode, beca
 
 The history owner emits the history events: Statistics every row, and Profiles without Statistics history-summary-applied and history-read-answered. No history row carries a subjectId, viaSubjectId, cursor, playerId, profileId or history event payload. A refused history read is a client's own refusal, so it emits only history-read-answered at debug. history-seal-lost and history-record-truncated coalesce as every warn event does, and history-erasure-overdue is of invariant kind and is logged every time.
 
-### F.16 Payment and Inventory events
+### F.17 Payment and Inventory events
 
 | Level | Event | Fields | When emitted | Traceless mode |
 | --- | --- | --- | --- | --- |
@@ -14731,7 +15288,7 @@ The history owner emits the history events: Statistics every row, and Profiles w
 | error | acknowledge-failed | provider | a purchase acknowledgement still fails within 24 hours of the store's deadline | not emitted |
 | debug | ledger-operation-recorded | operation, sku, outcome | Inventory recorded a consumption, grant or revocation | not emitted |
 
-### F.17 Social and Feed events
+### F.18 Social and Feed events
 
 Every row of this subsection is not emitted in traceless mode, because the start-time gate refuses Social and Feed. No row lists a profileId, conversationId, inviteId, itemId, message body, invite content or key. "Security" in "Social service" and "Security" in "Feed service" carry those identifiers only as keyed digests above debug. Feed emits the events whose name starts with feed-, and Social every other row.
 
@@ -14761,7 +15318,7 @@ Every row of this subsection is not emitted in traceless mode, because the start
 | error | feed-gap | factType, lostFacts | source facts fell behind the sink horizon before Feed applied them; no item is invented or backfilled | not emitted |
 | info | feed-erasure-completed | items, jobs, exclusions | Feed deleted every record naming one erased member after ProfileErased; counts only | not emitted |
 
-### F.18 Recording events
+### F.19 Recording events
 
 Every row of this subsection is not emitted in traceless mode, because the start-time gate refuses the recording extension and the recording-normalizer image.
 
@@ -14781,7 +15338,7 @@ Every row of this subsection is not emitted in traceless mode, because the start
 | error | unwrap-failed | recordingId, keyId | the normalizer could not unwrap a per-recording key | not emitted |
 | debug | playback-decided | outcome, renditions | the playback authorizer granted or refused a request | not emitted |
 
-### F.19 Security events of the mandatory core
+### F.20 Security events of the mandatory core
 
 Every event of this table and the next has class security and follows the security retention class of "Observability and logging". playerId and actorPlayerId are typed principal.
 
@@ -14793,8 +15350,9 @@ Every event of this table and the next has class security and follows the securi
 | info | session-kicked | seat, controller | Kick moved a player to left with reason kicked | digests; no playerId field |
 | info | room-blocked | playerId, revision | BlockInRoom or a room-scope ban wrote a block entry | digests; principal digest |
 | info | signing-key-rotated | kid, issuer | Inspector added or retired a generated or seeded key at rotation | unchanged |
+| info | experiment-defined | callerKind, experimentId, experimentRevision | Socket wrote {experiments:G} through DefineExperiment, CloseExperiment or experiment_restore | unchanged; emitted only with privacy.experimentsAllowed=true |
 
-### F.20 Security events with Profiles present
+### F.21 Security events with Profiles present
 
 Every row of this table is not emitted in traceless mode, because each event needs Profiles.
 
@@ -14813,11 +15371,11 @@ Every row of this table is not emitted in traceless mode, because each event nee
 | info | operator-grant | playerId, sku, quantity | GrantItems or RevokeGrant by an admin was recorded | not emitted |
 | info | conversation-moderated | actorPlayerId, entries | ModerateConversation returned entries to a moderator or admin after its AuditRecord committed | not emitted |
 
-### F.21 Conformance
+### F.22 Conformance
 
 1. Every emitted line names an event of this appendix and carries the level its row fixes.
 2. A line carries only the common fields of "Observability and logging" and the fields its row lists.
-3. Every debug line has class debug, every security event class security and every other line class operational.
+3. Every debug line has class debug, every security event class security, every experiment-observation and experiment-definition line the experiment class of its definition's retentionClass and every other line class operational.
 4. No line outside the security events carries playerId or actorPlayerId at any level.
 5. In traceless mode every sessionId and roomId in a line of any level is a keyed digest.
 6. In traceless mode no line carries a sagaMessageId, fence or connectionId in clear, and claimId, offerId and engineId stay in clear.
@@ -14849,3 +15407,9 @@ Every row of this table is not emitted in traceless mode, because each event nee
 32. Every fact Statistics applies to a session history record produces one history-fact-applied line at debug, and every history read one history-read-answered line at debug on the history owner, a refused read included.
 33. A record sealed with endReason lost produces history-seal-lost at warn, a record past its tenure or event bound history-record-truncated at warn, and an erasure past its 24-hour deadline one history-erasure-overdue line at error each time.
 34. No history line at any level carries a subjectId, viaSubjectId, cursor, playerId, profileId or history event payload, and in the Minimal profile and traceless mode no line of an event whose name starts with history- is emitted.
+35. Each accepted observation produces exactly one experiment-observation line at info with the common fields, the variant AssignVariant gives and the object in schema field order, and each refused one no such line and one experiment-submission line at debug that carries its code and no object.
+36. No line other than experiment-observation carries an object or a subjectDigest field, and no experiment line at any level carries a playerId, a profileId, a username, an address, a connectionId, a credential, a salt or a free-text string.
+37. experiment-definition is emitted at start, on every loaded revision and every 24 hours for each definition in effect, without the salt or override subjects, and every registry write produces one experiment-defined line in the security class.
+38. With the log queue held above 75% of its bound no experiment-observation line is emitted for a refused observation, and no accepted experiment-observation line is dropped under a burst of error lines.
+39. With experiments.enabled=false no line of "Experiment events" other than experiment-definition-invalid and no experiment-defined line is emitted, and in every mode a configuration definition that fails the validator produces one experiment-definition-invalid line at error with its reason and fails the start.
+40. In traceless mode without privacy.experimentsAllowed=true no experiment line is emitted, and with it every process logs experiments-allowed at warn at start, no experiment-observation line carries subjectKind or subjectDigest and sessionId appears only as a keyed digest; with experiments.subjectPolicy=none no line carries either subject field in mode standard.
