@@ -62,4 +62,4 @@ Some upstream optional authentication/markdown dependencies currently have peer-
 
 ## Branding
 
-The source mark is `public/logo.svg`: three juggling balls enclosed within one larger ball, using Dispat's #171717 and #0D0D0D shades with #242424 and white keylines. `pnpm --dir eventcatalog brand` regenerates the PNG fallback, SVG/ICO/PNG favicons, Apple/Android touch icons and Open Graph social image. The catalog and both READMEs use this same mark.
+The source mark is `public/logo.svg`: one black ball with a white keyline, holding two smaller balls offset toward its lower right, a larger one in #121212 and a smaller one in #0B0B0B. `pnpm --dir eventcatalog brand` regenerates the PNG fallback, SVG/ICO/PNG favicons, Apple/Android touch icons and Open Graph social image. The catalog and both READMEs use this same mark.
