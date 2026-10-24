@@ -1,11 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="384" height="384" role="img" aria-labelledby="title desc">
-  <title id="title">Mills Mess</title>
-  <desc id="desc">Three dark juggling balls enclosed within one larger charcoal ball. White keylines define each circle on light and dark backgrounds.</desc>
-  <!-- Dispat's black shades, expressed as three balls inside one ball. -->
-  <circle cx="12" cy="12" r="11.5" fill="#171717" stroke="#FFFFFF" stroke-width="0.6"/>
-  <g stroke="#FFFFFF" stroke-width="0.65">
-    <circle cx="8.2" cy="9.3" r="3.1" fill="#0D0D0D"/>
-    <circle cx="15.8" cy="9.3" r="3.1" fill="#242424"/>
-    <circle cx="12" cy="15.9" r="3.1" fill="#0D0D0D"/>
-  </g>
+<svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="36" cy="36" r="36" fill="white"/>
+  <circle cx="36" cy="36" r="33" fill="black"/>
+  <circle cx="41.5" cy="45.5" r="16.5" fill="#121212"/>
+  <circle cx="39.5" cy="39.5" r="5.5" fill="#0B0B0B"/>
 </svg>
