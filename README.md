@@ -2,7 +2,7 @@
 
 # Mills Mess architecture catalog
 
-The new catalog for an open, session-based multiplayer backend. This repository currently contains **EventCatalog and its contract tooling only**. It does not implement or deploy the three backend services.
+The new catalog for an open, session-based multiplayer backend. This repository currently contains **EventCatalog and its contract tooling** and, under [specs/mme](specs/mme/README.md), the draft **Mills Mess Engine specification** that the catalog will be rewritten to match once it is approved. It does not implement or deploy any backend service.
 
 - Core, Socket and Media Engine retain the old project's service boundaries.
 - Regional clusters, horizontal session placement, durable authority and fencing.

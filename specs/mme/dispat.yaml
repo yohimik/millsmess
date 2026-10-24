@@ -1,0 +1,27 @@
+# The Mills Mess Engine specification is its own package. Nothing is released yet:
+# 0.0.0 is the unreleased baseline and the first release will be 1.0.0.
+tagFormat: specs/mme/v{version}
+
+scripts:
+  verify-spec: sh verify.sh
+  tests: sh test.sh
+
+# The specification has no dependency manifests. Its normative version markers
+# are literal text, so native auto-versioning updates exactly those markers.
+autoVersion:
+  manifests: none
+  replace:
+    - files: [VERSION]
+      find: '{previous}'
+      write: '{version}'
+    - files: [SPEC.md]
+      find: '**Version:** {previous} **Status:**'
+      write: '**Version:** {version} **Status:**'
+    - files: [SPEC.md]
+      find: 'This document is Mills Mess Engine specification **{previous}**'
+      write: 'This document is Mills Mess Engine specification **{version}**'
+
+flow:
+  beforeVersion: [verify-spec]
+  build: verify-spec
+  publish: [changelog, commit]
