@@ -6,12 +6,13 @@ The specification is general purpose. It names no programming language and no li
 
 ## What it specifies
 
-- Three mandatory services, Socket, Inspector and Engine, and five optional services, Profiles, Statistics, Payment, Inventory and Recording. The Minimal profile runs guest-only games with audio, video, teams, observers, restart survival and horizontal scaling, and writes nothing to disk.
+- Three mandatory services, Socket, Inspector and Engine, and seven optional services, Profiles, Statistics, Payment, Inventory, Recording, Social and Feed. The Minimal profile runs guest-only games with audio, video, teams, observers, restart survival and horizontal scaling, and writes nothing to disk.
 - One Profile entity for users and rooms, roles from guest to admin, a permission matrix and configurable quotas.
 - Sessions with players, spectators, observers, dynamic groups and a server-enforced mute matrix.
 - A RAM-authoritative Engine at up to 60 ticks per second with offload to the coordination store, planned restart with connection preservation per transport, and crash re-adoption.
 - Transport adapters for WebSocket, TCP, secure UDP, WebRTC data channels and WebRTC media, an embedded optional TURN relay, and a compact binary codec for the simulation plane.
 - A portable session object that runs as the server runner, as the client-side predicted session or as custom client code, with client prediction and state synchronization protocols.
+- Optional Social and Feed services: friends with online status and last seen, user-to-user chats and room invites persisted in a git-backed versioned journal store, and per-user feed items built from achievement and leaderboard updates.
 - A traceless mode with a formal definition and conformance tests, an integration bus for optional services, repository contracts for persistence, clustering and deployment runbooks, logging levels, performance budgets, a testing strategy and acceptance gates.
 
 ## Status and versioning
